@@ -212,7 +212,13 @@ void getViewPosition(float *x, float *y, float *z) {
    *z = vpz;
 }
 
+//Modified the View Position to keep the OldPosition updated as the new one is.
 void setViewPosition(float x, float y, float z) {
+   //Added Code//
+   oldvpx= vpx;
+   oldvpy= vpy;
+   oldvpz= vpz;
+   ///////////
    vpx = x;
    vpy = y;
    vpz = z;

@@ -72,7 +72,7 @@ extern void tree(float, float, float, float, float, float, int);
    float PerlinNoise_At(float x, float y);
    float Cosine_Interpolate(float val1, float val2, float percentage);
    float InterpolateNoise(float x, float y);
-
+   void ApplyGravity();
 
    const int SIZE=256;
 
@@ -85,8 +85,8 @@ extern void tree(float, float, float, float, float, float, int);
    Gradient_Table CreateGradientTable();
 
    float ComputePerlin_Value(Gradient_Table gTable, float x, float y);
-      void DestroyGradientTable(Gradient_Table gT);
-         float lerp(float a0, float a1, float w);
+   void DestroyGradientTable(Gradient_Table gT);
+
 
 	/*** collisionResponse() ***/
 	/* -performs collision detection and response */
@@ -94,8 +94,94 @@ extern void tree(float, float, float, float, float, float, int);
 	/* -can also be used to implement gravity by updating y position of vp*/
 	/* note that the world coordinates returned from getViewPosition()
 	   will be the negative value of the array indices */
+
+
+
+//This function only gets called on Keyboard Press, not exactly Ideal for Gravity
+//Setting a Flag here to determine what's calling it can provide an easy fix as to the Hopping Glitch
 void collisionResponse() {
 	/* your collision code goes here */
+   float currLoc_X;
+   float currLoc_Y;
+   float currLoc_Z;
+
+
+   getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+
+
+   currLoc_X*=-1;
+   currLoc_Y*=-1;
+   currLoc_Z*=-1;
+
+   currLoc_Y-=.5;
+   //If it's a green block, don't move?
+
+    //IF we are entering a non Empty && non blue then don't go into it!
+   //Basically our camera just stands still rather than entering an empty block.
+   if(world[(int)currLoc_X][(int)currLoc_Y][(int)currLoc_Z]!=0 && world[(int)currLoc_X][(int)currLoc_Y][(int)currLoc_Z]!=2)
+   {
+      //Silly Statement the computer says. Wouldn't you scream if you walked through walls?
+      printf("IM ENTERING A BLOCK AHAHHHHHHH=\n");
+
+
+      //Reuse xyz variables, as condition has been checked
+      //This is useless if keyboard was not pressed
+      float oldLoc_X;
+      float oldLoc_Y;
+      float oldLoc_Z;     
+     // getOldViewPosition(oldLoc_X, oldLoc_Y, oldLoc_Z);
+
+
+      //There will be a Y difference due to gravity constantly trying to push
+      //us through the ground (just like in life :D)
+
+      //Therefore check X difference
+
+
+      getOldViewPosition(&oldLoc_X, &oldLoc_Y, &oldLoc_Z);
+
+      oldLoc_X*=-1;
+      oldLoc_Y*=-1;
+      oldLoc_Z*=-1;
+
+      oldLoc_Y=  ((int)oldLoc_Y)+.5;
+
+      //Only do this if we are not moving
+      //Check if a block exists here, but not at the elevation above
+
+      //Only Perform this "HOP" mechanic if the following criteria is met:
+      //1. A difference occured in the X and/or Z
+      //2. We are not attempting to move down, otherwise a jostle will occur due to gravity + hop
+      //3. There is a block at the location we are attempting to move onto, AND nothing ontop.
+      //4. This move is not called by Gravity, this is important because gravity will always force down
+      if((oldLoc_X- currLoc_X !=0 || oldLoc_Z- currLoc_Z !=0))
+         if(world[(int)currLoc_X][ (int)(currLoc_Y)][(int)currLoc_Z]!=0) 
+            if(world[(int)currLoc_X][ (int)(currLoc_Y+1)][(int)currLoc_Z]==0)
+            {
+            printf("No Moving down! \n");
+            oldLoc_X=currLoc_X;
+            oldLoc_Z=currLoc_Z;
+
+
+            //If we are not moving 
+            if(world[(int)currLoc_X][(int)(oldLoc_Y)][(int)currLoc_Z])
+               oldLoc_Y= ((int)currLoc_Y)+1.5;
+
+            }
+
+
+
+
+
+      setViewPosition((oldLoc_X*-1), (oldLoc_Y*-1), (oldLoc_Z*-1));
+
+      printf("My Old Location:%f,%f,%f\n",oldLoc_X,oldLoc_Y,oldLoc_Z);  
+
+    //  setViewPosition(currLoc_X, currLoc_Y-1.6, currLoc_Z);
+   }
+   printf("My View Location:%f,%f,%f\n",currLoc_X,currLoc_Y,currLoc_Z);  
+
+
 
 }
 
@@ -161,9 +247,44 @@ float *la;
    } else {
 
 	/* your code goes here */
+   //Gravity Code
+   ApplyGravity();
+  
 
    }
 }
+   
+   //This function will decrement the value by -1.1 if a block is not directly underneath
+   void ApplyGravity()
+   {
+      float gravity = .1;
+
+      float currLoc_X;
+      float currLoc_Y;
+      float currLoc_Z;
+
+      getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+      currLoc_Y+=gravity; //Works because values are inherently Negative
+
+
+      setViewPosition(currLoc_X, currLoc_Y, currLoc_Z);
+
+      currLoc_X*=-1;
+      currLoc_Y*=-1;
+      currLoc_Z*=-1;  
+
+      //Take y Value Check if at minus gravity a block exists
+
+
+      //if(world[(int)currLoc_X][(int)currLoc_Y][(int)currLoc_Z] )
+
+
+      //Call Collision Response Manually, as it does not get Called
+      //unless provided keyboard input
+      //Collision Code:
+      collisionResponse();
+   }
+
 
 
 
@@ -221,46 +342,8 @@ int i, j, k;
    } else {
    	/* your code to build the world goes here */
 
-/*
-      //CHOOSE a seed to replicate Results:
-      
-      //Step 1: Create Array of Perlin Noise.
-      int maxWorldHeight=50;
 
-      //Since Interpolation requires constant referencing of Values, instead of creating
-      //points on Demand utilizing prime numbers, simply fill ahead of time using Random
-      //this allows for new worlds simply by changing the Seed above.
-
-      //This Array must be slightly larger than the world, this is to 
-      //accomodate for the edges when they are being interpolated
-
-
-      //Values are Stored surrounding the border of the array, but only the worldsize array is going to be used.
-      //Due to this a +1 offset will be used, ie 0,0 == 1,1.
-   
-      //Create the HeightMap. 
-      //This new array is used as the Array holding the random value must not be altered for
-      //perlin noise to be accurate
-      float heightMap[WORLDX][WORLDZ];  
-
-      //Debug Print Array Contents
-      for(int x=0;x<WORLDX;x++)
-      {        
-         printf("\n"); 
-         for(int z=0;z<WORLDZ;z++)    
-         {
-            //To do, offset Values with the Seed
-            heightMap[x][z]= (PerlinNoise_At(x,z))*WORLDY;
-
-            printf("HM[%d][%d]=%f\t",x,z, heightMap[x][z]);
-
-            //Set WorldHeight at XZ to Value
-            for(int i=0;i<heightMap[x][z];i++)
-               world[x][i][z]=1;
-         }
-      }
-      //////////////////////
-*/
+       
 
       //Second Implementations
       int seed = 140;
@@ -268,7 +351,8 @@ int i, j, k;
 
       //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
       //If you wish to See Clouds passing through High Mountains set this very low for example 2-9
-      float detailModifier =30;
+      //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
+      float detailModifier =20;
 
       //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
       for(int x=0;x<WORLDX;x++)
@@ -279,8 +363,7 @@ int i, j, k;
                //printf("GT REF[%d][%d]=%d",x,z, gradientTable.permutationReference[x*16+z]);
                //0.5F offset must be used for Gradient Point calculation
                float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25 +25;
-
-               printf("FVal=%f \t",val);
+               //printf("FVal=%f \t",val);
 
                //Set Cubes to Land!
                for(int i=0;i<val;i++)
@@ -288,8 +371,20 @@ int i, j, k;
 
             }
          }
+
+
+/*
+      //White Top, this will get removed when clouds are added
+      for(int x=0;x<WORLDX;x++)
+            for(int z=0;z<WORLDZ;z++)
+               world[x][49][z]=5;
+*/
+
+  
+
+
+      //Gradient Table no longer needed so lets scrap it.
       DestroyGradientTable(gradientTable);
-      
    }
 
 
