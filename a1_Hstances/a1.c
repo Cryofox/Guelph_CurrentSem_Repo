@@ -216,7 +216,7 @@ float *la;
 
 	/* your code goes here */
    //Gravity Code
-   ApplyGravity();
+   //ApplyGravity();
    //Look in clouds.c
    UpdateCloudMovement();
    }
@@ -311,12 +311,14 @@ int i, j, k;
 
       //Second Implementations
       int seed = 140;
+
+      //Method 2
       Gradient_Table gradientTable = CreateGradientTable(seed);
 
       //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
       //If you wish to See Clouds passing through High Mountains set this very low for example 2-9
       //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
-      float detailModifier =10;
+      float detailModifier =30;
 
       //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
       for(int x=0;x<WORLDX;x++)
@@ -324,10 +326,12 @@ int i, j, k;
             printf("\n");
             for(int z=0;z<WORLDZ;z++)
             {
-               //printf("GT REF[%d][%d]=%d",x,z, gradientTable.permutationReference[x*16+z]);
-               //0.5F offset must be used for Gradient Point calculation
+
+               //Method 1
+               //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *25 +25;
+               //Method 2
                float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25 +25;
-               //printf("FVal=%f \t",val);
+
 
                //Set Cubes to Land!
                for(int i=0;i<val;i++)
@@ -335,6 +339,7 @@ int i, j, k;
             }
          }
 
+      //Method 2
       //Gradient Table no longer needed so lets scrap it.
       DestroyGradientTable(gradientTable);
 
