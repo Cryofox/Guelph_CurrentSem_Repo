@@ -319,7 +319,7 @@ float *la;
 
 	/* your code goes here */
    //Gravity Code
-   ApplyGravity();
+   //ApplyGravity();
    UpdateCloudMovement();
    }
 

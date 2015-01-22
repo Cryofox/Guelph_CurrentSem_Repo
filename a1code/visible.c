@@ -33,23 +33,23 @@ extern void setPlayerPosition(int, float, float, float, float);
 extern void hidePlayer(int);
 extern void showPlayer(int);
 
-	/* flag which is set to 1 when flying behaviour is desired */
+  /* flag which is set to 1 when flying behaviour is desired */
 extern int flycontrol;
-	/* flag used to indicate that the test world should be used */
+  /* flag used to indicate that the test world should be used */
 extern int testWorld;
-	/* list and count of polygons to be displayed, set during culling */
+  /* list and count of polygons to be displayed, set during culling */
 extern int displayList[MAX_DISPLAY_LIST][3];
 extern int displayCount;
-	/* flag to print out frames per second */
+  /* flag to print out frames per second */
 extern int fps;
-	/* flag to indicate removal of cube the viewer is facing */
+  /* flag to indicate removal of cube the viewer is facing */
 extern int dig;
-	/* flag indicates the program is a client when set = 1 */
+  /* flag indicates the program is a client when set = 1 */
 extern int netClient;
-	/* flag indicates the program is a server when set = 1 */
+  /* flag indicates the program is a server when set = 1 */
 extern int netServer; 
 
-	/* frustum corner coordinates */
+  /* frustum corner coordinates */
 float corners[4][3];
 
 /***********************/
@@ -68,13 +68,13 @@ float result;
 }
 
 void cross(float x1, float y1, float z1, float x2, float y2, float z2,
-	float *x, float *y, float *z) {
+  float *x, float *y, float *z) {
    *x = (y1*z2) - (z1*y2);
    *y = (x1*z2) - (z1*x2);
    *z = (x1*y2) - (y1*x2);
 }
 
-	/* returns radians */
+  /* returns radians */
 void dot (float x1, float y1, float z1, float x2, float y2, float z2) {
 float result;
    result = (x1 * x2) + (y1 * y2) + (z1 * z2);
@@ -82,13 +82,13 @@ float result;
    result = acosf(result);
 }
 
-	/* the next two function use Cramer's rule to find the intersection */
-	/* of three planes */
-	/* used to find outer points of frustum */
-	/* http://www.dreamincode.net/code/snippet530.htm */
+  /* the next two function use Cramer's rule to find the intersection */
+  /* of three planes */
+  /* used to find outer points of frustum */
+  /* http://www.dreamincode.net/code/snippet530.htm */
 double finddet(double a1,double a2, double a3,double b1, double b2,double b3, double c1, double c2, double c3)
 {
-	/*expansion of a 3x3 determinant*/
+  /*expansion of a 3x3 determinant*/
    return ((a1*b2*c3)-(a1*b3*c2)-(a2*b1*c3)+(a3*b1*c2)+(a2*b3*c1)-(a3*b2*c1)); 
 }
 
@@ -103,7 +103,7 @@ float det, detx, dety, detz;
    dety=finddet(a1,a2,a3,d1,d2,d3,c1,c2,c3);
    detz=finddet(a1,a2,a3,b1,b2,b3,d1,d2,d3);
      
-	/*Print Answers depending on various conditions*/
+  /*Print Answers depending on various conditions*/
    if(d1==0 && d2==0 && d3==0 && det==0) {
       printf("\n Infinite Solutions\n ");
    } else if(d1==0 && d2==0 && d3==0 && det!=0) {
@@ -332,35 +332,47 @@ float length;
 float newCentrex, newCentrey, newCentrez;
 int i, j, k;
 
-	/* find length of cube edge */
+  /* find length of cube edge */
    length = (tx - bx) / 2.0;
    if (length < 0) length *= -1;
 
-	/* if the octree cube is in the frustum then */
-	/* if the bottom octree level is reached then */
-	/* if the visible cube is not empty and is not surrounded then */
-	/* add to the display list */ 
+  /* if the octree cube is in the frustum then */
+  /* if the bottom octree level is reached then */
+  /* if the visible cube is not empty and is not surrounded then */
+  /* add to the display list */ 
    if (CubeInFrustum(bx + ((tx-bx)/2), by + ((ty-by)/2), bz + ((tz-bz)/2), length )) {
       if (level == OCTREE_LEVEL) {
-		/* draw cubes */
+    /* draw cubes */
         for(i=bx; i<tx+1; i++)
            for(j=by; j<ty+1; j++)
               for(k=bz; k<tz+1; k++) {
                  if ((i<WORLDX) && (j<WORLDY) && (k<WORLDZ) && (i>-1) && (j>-1) && (k>-1))
                     if ( (world[i][j][k] != 0) &&
-                        (CubeInFrustum(i+0.5, j+0.5, k+0.5, 0.5))  )
-				/* check for six neighbours */
-                       if ( (world[i+1][j][k] == 0) || (world[i-1][j][k] ==0) 
-                       || (world[i][j+1][k] == 0) || (world[i][j-1][k] ==0) 
-                       || (world[i][j][k+1] == 0) || (world[i][j][k-1] ==0) )
-                       addDisplayList(i, j, k);
+                        (CubeInFrustum(i+0.5, j+0.5, k+0.5, 0.5))  ) {
+        /* check for six neighbours */
+        /* if cube is not on the outer edge and is not*/
+        /*   surrounded by 6 neighbours then draw it */
+        /* else if the cube is an outside cube then */
+        /*    always draw it */
+                       if ( (i > 0) && (i < WORLDX-1) &&
+                            (j > 0) && (j < WORLDY-1) &&
+                            (k > 0) && (k < WORLDZ-1) && 
+                         ((world[i+1][j][k] == 0) || (world[i-1][j][k] == 0) 
+                         || (world[i][j+1][k] == 0) || (world[i][j-1][k] == 0) 
+                         || (world[i][j][k+1] == 0) || (world[i][j][k-1] == 0)))
+                             addDisplayList(i, j, k);
+                       else if ( (i == 0) || (i == WORLDX-1) ||
+                                 (j == 0) || (j == WORLDY-1) ||
+                                 (k == 0) || (k == WORLDZ-1) ) 
+                               addDisplayList(i, j, k);
+                 }
               }
    } else {
-		/* calculate centre of new cube */
+    /* calculate centre of new cube */
          newCentrex = bx + ((tx - bx) / 2.0);
          newCentrey = by + ((ty - by) / 2.0);
          newCentrez = bz + ((tz - bz) / 2.0);
-		/* call recursive tree functions, increment level */
+    /* call recursive tree functions, increment level */
          level++;
          tree(bx, by, bz, newCentrex, newCentrey, newCentrez, level);
          tree(newCentrex, by, bz, tx, newCentrey, newCentrez, level);
