@@ -216,7 +216,7 @@ float *la;
 
 	/* your code goes here */
    //Gravity Code
-   //ApplyGravity();
+   ApplyGravity();
    //Look in clouds.c
    UpdateCloudMovement();
    }
@@ -310,15 +310,16 @@ int i, j, k;
    	/* your code to build the world goes here */
 
       //Second Implementations
-      int seed = 140;
+      int seed = 10;
 
       //Method 2
       Gradient_Table gradientTable = CreateGradientTable(seed);
 
       //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
-      //If you wish to See Clouds passing through High Mountains set this very low for example 2-9
       //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
-      float detailModifier =30;
+      //Use 2 For REALLY Jagged Array
+      //Use 25 for Nice Valley type.
+      float detailModifier =25;
 
       //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
       for(int x=0;x<WORLDX;x++)
@@ -328,9 +329,10 @@ int i, j, k;
             {
 
                //Method 1
-               //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *25 +25;
-               //Method 2
-               float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25 +25;
+               //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *30 +25;
+               //Method 2. The * modifier = Amplitude. DetailModifier= Frequency. Seed = Slight repositioning
+               //Octaves are implied.
+               float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25+25;
 
 
                //Set Cubes to Land!

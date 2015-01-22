@@ -7,6 +7,9 @@
 #include "perlin.h"
 #include "graphics.h"
 //This is my second implementation of Perlin Noise
+//This one is more accurate to Ken Perlins implementation and thus is the one used.
+//The first perlin referenced from courselink website resembles FBM (Fractabl Brownian Motion) 
+//more so than perlin.
 
 
 
