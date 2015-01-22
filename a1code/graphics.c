@@ -17,6 +17,7 @@ extern void update();
 extern void collisionResponse();
 extern void buildDisplayList();
 
+extern void ExitCleanUpCode();
 
 	/* flags used to control the appearance of the image */
 int lineDrawing = 0;	// draw polygons as solid or lines
@@ -513,6 +514,7 @@ static int lighton = 1;
    switch (key) {
       case 27:
       case 'q':
+         ExitCleanUpCode();
          exit(0);
          break;
       case '1':		// draw polygons as outlines

@@ -74,7 +74,20 @@ extern void tree(float, float, float, float, float, float, int);
    float InterpolateNoise(float x, float y);
    void ApplyGravity();
 
-   const int SIZE=256;
+
+
+
+   //This Function Populates the global Sky Pointer
+   void CreateSkyClouds();
+   //This Function Destroys all SkyCloud children and the Skycloud itself
+   void DestroySkyClouds();
+
+   //This Creates a Single Cloud
+   Cloud* CreateCloud();
+   //This Destroys a Single Cloud
+   void DestroyCloud(Cloud* cloud);
+
+
 
    typedef struct{
       int* permutationReference;
@@ -98,22 +111,44 @@ extern void tree(float, float, float, float, float, float, int);
       float* pos_Y;
       float* pos_Z;      
       Cloud_Particle* clouds;
+      int* cloudLength;
    }Cloud;
 
 
-   Gradient_Table CreateGradientTable();
+
 
    float ComputePerlin_Value(Gradient_Table gTable, float x, float y);
    void DestroyGradientTable(Gradient_Table gT);
-
-//Controls for Code, They are Located here for Easier Marking + Simplicity
-int num_Clouds=5;
-
-//Clouds will Spawn Taking on a Variety of Shapes
+   void ExitCleanUpCode();
+   Gradient_Table CreateGradientTable();
 
 
 
-////////////
+//----Global Values-----
+Cloud** skyClouds;
+
+
+   //----CONTROLS-----
+   //Controls for Code, They are Located here for Easier Marking + Simplicity
+   //////////////////
+
+   //The Size of the Lookup/Permutation, do not alter this.
+   //However if you wish to experiment with different sizes note level of detail + seed must use
+   //different values to provide correct results. Also ensure Size is constructed via a value^2.
+   //IE if SquareRoot(SIZE) is not a whole number, do not use it.
+   const int SIZE=256;
+
+   //The number of Clouds you'd like to populate the world
+   int num_Clouds=5;
+
+   //These Values are used to manipulate the direction wind is applied in
+   //used for Cloud Movement
+   float windForce_X=0;
+   float windForce_Z=1;
+   //=================
+
+//=================
+
 
 
 
@@ -132,7 +167,8 @@ int num_Clouds=5;
 
 //This function only gets called on Keyboard Press, not exactly Ideal for Gravity
 //Setting a Flag here to determine what's calling it can provide an easy fix as to the Hopping Glitch
-void collisionResponse() {
+void collisionResponse() 
+{
 	/* your collision code goes here */
    float currLoc_X;
    float currLoc_Y;
@@ -149,13 +185,11 @@ void collisionResponse() {
    currLoc_Y-=.5;
    //If it's a green block, don't move?
 
-    //IF we are entering a non Empty && non blue then don't go into it!
-   //Basically our camera just stands still rather than entering an empty block.
+   //IF we are entering a non Empty && non blue then don't go into it!
    if(world[(int)currLoc_X][(int)currLoc_Y][(int)currLoc_Z]!=0 && world[(int)currLoc_X][(int)currLoc_Y][(int)currLoc_Z]!=2)
    {
       //Silly Statement the computer says. Wouldn't you scream if you walked through walls?
       printf("IM ENTERING A BLOCK AHAHHHHHHH=\n");
-
 
       //Reuse xyz variables, as condition has been checked
       //This is useless if keyboard was not pressed
@@ -210,19 +244,12 @@ void collisionResponse() {
           oldLoc_Z=currLoc_Z;  
          }
 
-
-
-
-
       setViewPosition((oldLoc_X*-1), (oldLoc_Y*-1), (oldLoc_Z*-1));
 
       printf("My Old Location:%f,%f,%f\n",oldLoc_X,oldLoc_Y,oldLoc_Z);  
-
     //  setViewPosition(currLoc_X, currLoc_Y-1.6, currLoc_Z);
    }
    printf("My View Location:%f,%f,%f\n",currLoc_X,currLoc_Y,currLoc_Z);  
-
-
 
 }
 
@@ -289,18 +316,53 @@ float *la;
 	/* your code goes here */
    //Gravity Code
    ApplyGravity();
+   UpdateCloudMovement();
    }
+
 }
+
    
+   void CreateSkyClouds()
+   {
+
+   }
    void UpdateCloudMovement()
    {
 
    }
 
+   void DestroySkyClouds()
+   {
+      for(int i=0;i< num_Clouds;i++)
+      {
+         skyClouds[i]
+      }
 
+   }
+   void DestroyCloud(Cloud* cloud)
+   {
+      
+   }
 
+/*
+   //This is 1 "Voxel"/Cube that Makes up the Cloud
+   typedef struct{
+      float* pos_X;
+      float* pos_Y;
+      float* pos_Z;
+   }Cloud_Particle;
 
-
+   typedef struct{
+   //This is the Centroid position of the Cloud.
+   //All of the Cloud Particles will be Offset based on this
+   //center position
+      float* pos_X;
+      float* pos_Y;
+      float* pos_Z;      
+      Cloud_Particle* clouds;
+      int* cloudLength;
+   }Cloud;
+*/
 
    //This function will decrement the value by -1.1 if a block is not directly underneath
    void ApplyGravity()
@@ -316,7 +378,6 @@ float *la;
 
 
       setViewPosition(currLoc_X, currLoc_Y, currLoc_Z);
-
       currLoc_X*=-1;
       currLoc_Y*=-1;
       currLoc_Z*=-1;  
@@ -390,9 +451,6 @@ int i, j, k;
    } else {
    	/* your code to build the world goes here */
 
-
-       
-
       //Second Implementations
       int seed = 140;
       Gradient_Table gradientTable = CreateGradientTable(seed);
@@ -421,6 +479,10 @@ int i, j, k;
 
       //Gradient Table no longer needed so lets scrap it.
       DestroyGradientTable(gradientTable);
+
+      //Lets Create some Clouds
+      CreateSkyClouds();
+
    }
 
 
@@ -430,6 +492,21 @@ int i, j, k;
    glutMainLoop();
    return 0; 
 }
+
+   //Code where Destroy Code should be placed on proper Exits.
+   //Graphics.c Enters this function via Keyboard Q
+   void ExitCleanUpCode()
+   {
+      //Lets Avoid MemoryLeaks :) 
+      //Cleanup after self
+
+      //
+      DestroySkyClouds();
+   }
+
+
+
+
 //Perlin Noise Utilizes Gradient Vectors to Create Relational Data.
 
 
