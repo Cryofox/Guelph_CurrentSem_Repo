@@ -82,10 +82,43 @@ extern void tree(float, float, float, float, float, float, int);
       float* gradientX;
       float* gradientY;
    } Gradient_Table;
+
+   //This is 1 "Voxel"/Cube that Makes up the Cloud
+   typedef struct{
+      float* pos_X;
+      float* pos_Y;
+      float* pos_Z;
+   }Cloud_Particle;
+
+   typedef struct{
+   //This is the Centroid position of the Cloud.
+   //All of the Cloud Particles will be Offset based on this
+   //center position
+      float* pos_X;
+      float* pos_Y;
+      float* pos_Z;      
+      Cloud_Particle* clouds;
+   }Cloud;
+
+
    Gradient_Table CreateGradientTable();
 
    float ComputePerlin_Value(Gradient_Table gTable, float x, float y);
    void DestroyGradientTable(Gradient_Table gT);
+
+//Controls for Code, They are Located here for Easier Marking + Simplicity
+int num_Clouds=5;
+
+//Clouds will Spawn Taking on a Variety of Shapes
+
+
+
+////////////
+
+
+
+
+
 
 
 	/*** collisionResponse() ***/
@@ -154,20 +187,28 @@ void collisionResponse() {
       //2. We are not attempting to move down, otherwise a jostle will occur due to gravity + hop
       //3. There is a block at the location we are attempting to move onto, AND nothing ontop.
       //4. This move is not called by Gravity, this is important because gravity will always force down
-      if((oldLoc_X- currLoc_X !=0 || oldLoc_Z- currLoc_Z !=0))
-         if(world[(int)currLoc_X][ (int)(currLoc_Y)][(int)currLoc_Z]!=0) 
-            if(world[(int)currLoc_X][ (int)(currLoc_Y+1)][(int)currLoc_Z]==0)
+
+ 
+         if(world[(int)currLoc_X][ (int)(oldLoc_Y)][(int)currLoc_Z]!=0) 
+         {      
+
+            //oldLoc_Y=oldLoc_Y; 
+            if(world[(int)currLoc_X][ (int)(oldLoc_Y+1)][(int)currLoc_Z]==0)
             {
             printf("No Moving down! \n");
-            oldLoc_X=currLoc_X;
-            oldLoc_Z=currLoc_Z;
-
 
             //If we are not moving 
-            if(world[(int)currLoc_X][(int)(oldLoc_Y)][(int)currLoc_Z])
-               oldLoc_Y= ((int)currLoc_Y)+1.5;
-
+            //if(world[(int)currLoc_X][(int)(oldLoc_Y)][(int)currLoc_Z])
+            oldLoc_X=currLoc_X;
+            oldLoc_Z=currLoc_Z; 
+            oldLoc_Y+=1;
             }
+         }
+         else
+         {
+          oldLoc_X=currLoc_X;
+          oldLoc_Z=currLoc_Z;  
+         }
 
 
 
@@ -194,7 +235,6 @@ void collisionResponse() {
 void update() {
 int i, j, k;
 float *la;
-
 	/* sample animation for the test world, don't remove this code */
 	/* -demo of animating mobs */
    if (testWorld) {
@@ -249,11 +289,19 @@ float *la;
 	/* your code goes here */
    //Gravity Code
    ApplyGravity();
-  
-
    }
 }
    
+   void UpdateCloudMovement()
+   {
+
+   }
+
+
+
+
+
+
    //This function will decrement the value by -1.1 if a block is not directly underneath
    void ApplyGravity()
    {
@@ -352,7 +400,7 @@ int i, j, k;
       //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
       //If you wish to See Clouds passing through High Mountains set this very low for example 2-9
       //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
-      float detailModifier =20;
+      float detailModifier =10;
 
       //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
       for(int x=0;x<WORLDX;x++)
@@ -368,20 +416,8 @@ int i, j, k;
                //Set Cubes to Land!
                for(int i=0;i<val;i++)
                   world[x][i][z]=1;
-
             }
          }
-
-
-/*
-      //White Top, this will get removed when clouds are added
-      for(int x=0;x<WORLDX;x++)
-            for(int z=0;z<WORLDZ;z++)
-               world[x][49][z]=5;
-*/
-
-  
-
 
       //Gradient Table no longer needed so lets scrap it.
       DestroyGradientTable(gradientTable);
