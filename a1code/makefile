@@ -2,6 +2,6 @@
 
 INCLUDES = -F/System/Library/Frameworks -framework OpenGL -framework GLUT -lm
 
-a1: a1.c graphics.c visible.c graphics.h
-	gcc -w a1.c graphics.c visible.c -o a1 $(INCLUDES) 
+a1: a1.c graphics.c visible.c clouds.c perlin.c graphics.h clouds.h perlin.h
+	gcc -w a1.c graphics.c visible.c perlin.c clouds.c -o a1 $(INCLUDES) 
 
