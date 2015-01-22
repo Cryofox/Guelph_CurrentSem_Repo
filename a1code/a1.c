@@ -77,18 +77,10 @@ extern void tree(float, float, float, float, float, float, int);
 
 
 
-   //This Function Populates the global Sky Pointer
-   void CreateSkyClouds();
-   //This Function Destroys all SkyCloud children and the Skycloud itself
-   void DestroySkyClouds();
-
-   //This Creates a Single Cloud
-   Cloud* CreateCloud();
-   //This Destroys a Single Cloud
-   void DestroyCloud(Cloud* cloud);
 
 
 
+ 
    typedef struct{
       int* permutationReference;
 
@@ -98,34 +90,46 @@ extern void tree(float, float, float, float, float, float, int);
 
    //This is 1 "Voxel"/Cube that Makes up the Cloud
    typedef struct{
-      float* pos_X;
-      float* pos_Y;
-      float* pos_Z;
+      int pos_X;
+      int pos_Y;
+      int pos_Z;
    }Cloud_Particle;
 
    typedef struct{
    //This is the Centroid position of the Cloud.
    //All of the Cloud Particles will be Offset based on this
    //center position
-      float* pos_X;
-      float* pos_Y;
-      float* pos_Z;      
-      Cloud_Particle* clouds;
+      float pos_X;
+      float pos_Y;
+      float pos_Z; 
+   //List of Cloud_Particles     
+      Cloud_Particle* cloud_voxels;
+   //Particle Length of Array
       int* cloudLength;
    }Cloud;
 
 
+   Cloud_Particle CreateParticle(int x, int y, int z);
+   //This Function Populates the global Sky Pointer
+   void CreateSkyClouds();
+   //This Function Destroys all SkyCloud children and the Skycloud itself
+   void DestroySkyClouds();
+
+   //This Creates a Single Cloud
+   Cloud CreateCloud();
+   //This Destroys a Single Cloud
+   void DestroyCloud(Cloud cloud);
 
 
    float ComputePerlin_Value(Gradient_Table gTable, float x, float y);
    void DestroyGradientTable(Gradient_Table gT);
    void ExitCleanUpCode();
    Gradient_Table CreateGradientTable();
-
+   void UpdateCloudMovement();
 
 
 //----Global Values-----
-Cloud** skyClouds;
+Cloud* skyClouds;
 
 
    //----CONTROLS-----
@@ -324,32 +328,98 @@ float *la;
    
    void CreateSkyClouds()
    {
-
-   }
-   void UpdateCloudMovement()
-   {
-
-   }
-
-   void DestroySkyClouds()
-   {
-      for(int i=0;i< num_Clouds;i++)
+      skyClouds = malloc(num_Clouds * (sizeof(Cloud*)));
+      for(int i=0;i<num_Clouds;i++)
       {
-         skyClouds[i]
+         printf("Creating Cloud:%d\n",i);
+         skyClouds[i]=CreateCloud();
       }
-
    }
-   void DestroyCloud(Cloud* cloud)
+   Cloud CreateCloud()
    {
-      
+      Cloud cloud;// = malloc(sizeof(Cloud*));
+
+      //Initialize Centroid Location
+      //cloud.pos_X= malloc(sizeof(float));    
+      //cloud.pos_Y= malloc(sizeof(float));    
+      //cloud.pos_Z= malloc(sizeof(float));    
+
+      //Randomize the Cloud Start Position
+      cloud.pos_Y=50; //Set Heigh to Max Height
+
+      cloud.pos_X= (int)(rand())% WORLDX;
+      cloud.pos_Z= (int)(rand())% WORLDZ;  
+
+      //Create Cloud Shape
+      cloud.cloudLength=malloc(sizeof(int));
+
+      int cloudSize=5;
+      cloud.cloudLength=cloudSize; //Cloud is made up of 5 Voxels
+
+      //Use CloudSize due to C complaining about int*.
+      cloud.cloud_voxels = malloc( cloudSize * (sizeof(Cloud_Particle)));
+  
+    //First Value must be Center
+      cloud.cloud_voxels[0]= CreateParticle(0, 0, 0);
+
+      //Loop Through List 
+      for(int i=1;i<cloud.cloudLength;i++)
+      {
+         //Increment through already made List to create neighbours in it
+         for(int j=0;j<i;j++)
+         {
+            //For each Point in the list add a Neighbour
+            int xPos= cloud.cloud_voxels[j].pos_X;
+            int zPos= cloud.cloud_voxels[j].pos_Z;
+            
+            int xOffset;
+            int zOffset;
+
+
+            //Right
+            xOffset=1+ xPos;
+            zOffset=0+ zPos;
+            if(isDuplicate(cloud, xOffset, zOffset)==0)
+            {
+               cloud.cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+               break;
+            }
+
+            //Left
+            xOffset=-1+ xPos;
+            zOffset=0+ zPos;
+            if(isDuplicate(cloud, xOffset, zOffset)==0)
+            {
+               cloud.cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+               break;
+            }
+            //Forward
+            xOffset=0+ xPos;
+            zOffset=1+ zPos;
+            if(isDuplicate(cloud, xOffset, zOffset)==0)
+            {
+               cloud.cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+               break;
+            }
+            //Backward
+            xOffset=0+ xPos;
+            zOffset=-1+ zPos;
+            if(isDuplicate(cloud, xOffset, zOffset)==0)
+            {
+               cloud.cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+               break;
+            }
+         }
+      }
+      return cloud;
    }
 
 /*
    //This is 1 "Voxel"/Cube that Makes up the Cloud
    typedef struct{
-      float* pos_X;
-      float* pos_Y;
-      float* pos_Z;
+      int* pos_X;
+      int* pos_Y;
+      int* pos_Z;
    }Cloud_Particle;
 
    typedef struct{
@@ -359,10 +429,81 @@ float *la;
       float* pos_X;
       float* pos_Y;
       float* pos_Z;      
-      Cloud_Particle* clouds;
+      Cloud_Particle* cloud_voxels;
       int* cloudLength;
    }Cloud;
 */
+
+
+   //0=False, 1 = True
+   int isDuplicate(Cloud cloud, int xOffset, int zOffset)
+   {
+      for(int i=0;i<cloud.cloudLength;i++)
+      {
+         if(cloud.cloud_voxels[i].pos_X == xOffset && cloud.cloud_voxels[i].pos_Z == zOffset)   
+         {
+         return 1;
+         }
+      }
+     return 0;
+   }
+
+
+
+   Cloud_Particle CreateParticle(int x, int y, int z)
+   {
+      Cloud_Particle cP;// = malloc(sizeof(Cloud_Particle));
+      //cP.pos_X = malloc(sizeof(int));
+      //cP.pos_Y = malloc(sizeof(int));
+      //cP.pos_Z = malloc(sizeof(int));
+
+      cP.pos_X=x;
+      cP.pos_Y=y;
+      cP.pos_Z=z;
+
+      return cP;     
+   }
+
+
+
+   void UpdateCloudMovement()
+   {
+
+   }
+
+
+   void DestroySkyClouds()
+   {
+      for(int i=0;i<num_Clouds;i++)
+      {
+         printf("Destroying a Cloud! [%d]\n",i);
+         DestroyCloud(skyClouds[i]);
+      }
+      free(skyClouds);
+      printf("Free this:Skycloud\n");
+   }
+
+   void DestroyCloud(Cloud cloud)
+   {
+      printf("Free: Cloud XYZ\n");
+      //free(cloud.pos_X);
+      //free(cloud.pos_Y);
+      //free(cloud.pos_Z);
+      printf("Free:cloud_Voxels\n");
+      for(int i=0;i<cloud.cloudLength;i++)
+      {
+         printf("Free: Cloud Vox[%d] XYZ\n",i);
+          //free(cloud.cloud_voxels[i].pos_X);
+          //free(cloud.cloud_voxels[i].pos_Y);
+          //free(cloud.cloud_voxels[i].pos_Z);        
+      }
+      free(cloud.cloud_voxels);
+      printf("Free this:Cloud\n");
+   }
+
+
+
+
 
    //This function will decrement the value by -1.1 if a block is not directly underneath
    void ApplyGravity()
@@ -501,6 +642,7 @@ int i, j, k;
       //Cleanup after self
 
       //
+      printf("ExitCleanupCode\n");
       DestroySkyClouds();
    }
 
