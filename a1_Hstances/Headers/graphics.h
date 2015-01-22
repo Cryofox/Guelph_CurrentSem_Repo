@@ -1,3 +1,5 @@
+#ifndef GRAPHICS
+#define GRAPHICS
 
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -11,3 +13,4 @@ GLubyte  world[WORLDX][WORLDY][WORLDZ];
 
 #define MAX_DISPLAY_LIST 500000
 
+#endif

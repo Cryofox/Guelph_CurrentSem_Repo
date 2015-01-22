@@ -14,12 +14,14 @@ Cloud** skyClouds;
 //The number of Clouds you'd like to populate the world
 int num_Clouds=30;
 int max_CloudSize=30;
+
 //These Values are used to manipulate the direction wind is applied in, used for Cloud Movement
 //Diagonal movements may cause jittering due to centroid + mod
 float windForce_X=0;
 float windForce_Z=0.1;
 //=================  
 
+//This function fills the Global Variable Skyclouds with the num clouds used
 void CreateSkyClouds()
    {
       skyClouds = malloc(num_Clouds * (sizeof(Cloud)));
@@ -28,6 +30,8 @@ void CreateSkyClouds()
          skyClouds[i]=CreateCloud();
       }
    }
+
+   //The function used to Create a Cloud
    Cloud* CreateCloud()
    {
       Cloud* cloud = malloc(sizeof(Cloud));
@@ -65,8 +69,6 @@ void CreateSkyClouds()
             
             int xOffset;
             int zOffset;
-
-
 
             //Right
             xOffset=1+ xPos;
@@ -140,13 +142,10 @@ void CreateSkyClouds()
    }
 
 
-   //Creates a Cloud Particle
+   //Creates a Cloud Particle at provided location
    Cloud_Particle CreateParticle(int x, int y, int z)
    {
       Cloud_Particle cP;// = malloc(sizeof(Cloud_Particle));
-      //cP.pos_X = malloc(sizeof(int));
-      //cP.pos_Y = malloc(sizeof(int));
-      //cP.pos_Z = malloc(sizeof(int));
 
       cP.pos_X=x;
       cP.pos_Y=y;
@@ -220,35 +219,19 @@ void CreateSkyClouds()
 
    }
 
-
    //Free Malloced Memory
    void DestroySkyClouds()
    {
       for(int i=0;i<num_Clouds;i++)
       {
-      //   printf("Destroying a Cloud! [%d]\n",i);
          DestroyCloud(skyClouds[i]);
       }
       free(skyClouds);
-      //printf("Free this:Skycloud\n");
    }
 
    //Free Malloced Memory
    void DestroyCloud(Cloud* cloud)
    {
-      //printf("Free: Cloud XYZ\n");
-      //free(cloud.pos_X);
-      //free(cloud.pos_Y);
-      //free(cloud.pos_Z);
-      //printf("Free:cloud_Voxels\n");
-      for(int i=0;i<cloud->cloudLength;i++)
-      {
-         //printf("Free: Cloud Vox[%d]/%d XYZ\n",i,cloud->cloudLength);
-          //free(cloud.cloud_voxels[i].pos_X);
-          //free(cloud.cloud_voxels[i].pos_Y);
-          //free(cloud.cloud_voxels[i].pos_Z);        
-      }
       free(cloud->cloud_voxels);
       free(cloud);
-      //printf("Free this:Cloud\n");
    }

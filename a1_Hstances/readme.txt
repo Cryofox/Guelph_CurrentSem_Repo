@@ -1,360 +1,181 @@
+Horia “Ryder” Stancescu
+hstance - 0721385
+
+To Compile: make
+
+To Compile/Launch: make run
+
+TO RUN (after compiled): ./a1
+
+To Remove OBJS + Exe: make clean
+
+Below you will find lengthy explanation to accompany commented code within the .c files.
+This is all done for the benefit of you understanding the code, what it's doing, why it's done that way
+and the higher likelihood that I the student don't get burned by pissing off you the 
+all mighty god of marks! *bow* (゜ヮ゜)
+
+Also alot of effort went into this and it runs so nice, all it's missing is a bow. 
+Below I'm trying to explain myself in a rather boring/formal manner, 
+if you'd like more laid black slacker wording for future readmes, just let me know. 
 
 
-Readme from Assignment 1
-------------------------
-Building and Running the Graphics System
-----------------------------------------
-The program consists of three .c files.  The a1.c file contains the main()
-routine and the update() function. All of the changes necessary for the
-assignments can be made to this file.  The graphics.c file contains all
-of the code to create the 3D graphics for the assignment. The visible.c
-file contains the visible surface determination code. You should not
-need to change graphics.c or visible.c.
+(-'๏_๏'-)
 
-There is a makefile which will compile the code on the Macs.
-The code should build by typing make.
+Explanation for Features:
+——————————————————————————
+Perlin Noise - Implemented x2.
 
-The executable is named a1. The command line arguments for the program
-are:
-	-full         run in fullscreen.
-	-testworld    start with a simple world to demonstrate the system
-	-fps          print the frames per second being displayed
-	-help         print a list of command line arguments
-	-drawall      draw all cubes in the world without using visible surface
-                        detection to remove none visible cubes (very slow).
-			Don't use this normally. 
-To quickly see the engine running you can type ./a1 -testworld.
-You can run it in fullscreen using ./a1 -testworld -full.
-You can exit the program by typing q.
+This one was tricky. I implemented it twice to get two entirely different types of Perlin noise, the first one was from the course Website (not used for demo but implemented if you the TA wish to see it). The second one was true perlin, as in it utilizes dot product AND vector gradient with permutation table to achieve results this one is closest to the article written by Ken Perlin, it is a bit more math heavy tho.
 
+Method 2 [Default]:
+The Code for this method is in perlin2.c (Again this is the DEFAULT perlin chosen)
 
-When the program runs the view is controlled through the mouse and
-keyboard. The mouse moves the viewpoint left-right and up-down.
-The keyboard controls do the following:
-	w  move forward
-	a  strafe left
-	s  move backward
-	d  strafe right
-	q  quit
-
-The 1,2,3 buttons also change the rendering options.
-	1 = wire frame mode
-	2 = flat shading
-	3 = smooth shading
+	This method is the one chosen for marking as it produces very nice gradual slopes depending on the detail modifier chosen.
 	
-Note: If the controls appear to be reversed then the viewpoint is upside down.
-Move the mouse until you turn over.
-
-In the sample world created using the -testworld flag there are a few
-sample boxes and animations drawn in the middle of the world. There is also
-a set of blue boxes which show the outer width and depth of the world.
-
-
-Programming Interface to the Graphics System
---------------------------------------------
-
-1. Drawing the world
---------------------
-
-The game world is made of cubes. The data structure which holds all of
-the objects is the three dimensional array:
-
-	GLubyte world[100][50][100]
-
-The GLubyte is an unsigned byte defined by OpenGL.
-
-The indices of the array correspond to the dimensions of the world.
-In order from left to right they are x,y,z.  This means the world is 100 units
-in the x dimension (left to right), 50 units in the y dimension (up and down),
-and 100 units in z (back to front).
-
-The cube at location world[0][0][0] is in the lower corner of the 3D world.
-The cube at location world[99][49][99] is diagonally across from
-world[0][0][0] in the upper corner of the world.
-
-Each cube drawn in the world is one unit length in each dimension.
-
-Values are stored in the array to indicate if that position in the
-world is occupied or are empty. The following would mean that
-position 25,25,25 is empty:
-	world[25][25][25] = 0
-
-If the following were used:
-	world[25][25][25] = 1
-then position 25,25,25 would contain a green cube. 
-
-Cubes can be drawn in different colours depending on that value stored
-in the world array. The current colours which can be drawn are:
-	0 empty
-	1 green
-	2 blue
-	3 red
-	4 black
-	5 white
-	6 purple
-	7 orange
-	8 yellow
-
-
-2. Viewpoint Manipulation Functions
------------------------------------
-These can be used to find and set the location of the viewpoint.
-They are used for implementing operations such as collision detection
-and gravity.  
-
-void getViewPosition(float *x, float *y, float *z);
--Returns the position where the viewpoint will move to on the next step.
--Returns negative numbers which you may need to make positive for some
- calculations such as using them as an index into the world array.
- You will also need to make them ints if you wish to use them as array
- indices.
-
-void setViewPosition(float x, float y, float z);
--Sets the position where the viewpoint will move to on the next step.
--Numbers taken from the world array need to be made negative before they
- are used with setViewPosition.
-
-void getOldViewPosition(float *x, float *y, float *z);
--Returns the position where the viewpoint is currently.
--Returns negative numbers which you may need to make positive for some
- calculations such as using them as an index into the world array.
-
-void getViewOrientation(float *xaxis, float *yaxis, float *zaxis); 
--Returns the direction the mouse is pointing. 
--The xaxis and yaxis values are the amount of rotation around the
- x and y axis respectively.
--The zaxis value will always be zero.
--The values can be larger then 360 degrees which indicates more than
- one rotation.
-
-3. Collision Response Function
-------------------------------
-void collisionResponse()
--The collision detection and response code is written in this function. 
--It is located in the a1.c file.
--Note that the f key can turn off the effect of gravity. It will
- only work once you have gravity implemented. If you press f it will allow
- you to fly around the world and look at it from above. Pressing f again
- togles gravity back on.
-
-
-Timing Events
--------------
-OpenGL is event driven. The events which this program will respond to 
-include keyboard and mouse input. The glutMainLoop() function receives
-these inputs and processes them. 
-
-The glutMainLoop() function will loop until the program ends. This means
-that all of your code to initialize the world must be run before this
-function is called. It also means that changes to the world must occur
-inside function called by OpenGL. The only functions which you have
-access to to make these updates are update() and collisionResponse() in a1.c.
+	To Change the results given, on line 322: detail modifier, simply alter this value.
 
-When it is not otherwise drawing the scene the system will call the
-update() function. This is where you can make changes to the world
-array and lighting while program is running.
-
-If you make changes to the world or the light in the udpate()
-function then you may need to call glutPostRedisplay() to refresh the screen.
+	For testing collisiion you’ll want some jagged surfaces a value of 10 produces more steep inclines while remaining pleasant,
+	however for entirely  spikey maps a value of 2 will work. 1 will = flat as dividing by 1= an integer value. Do not use 
+	0 as this will cause divide by zero.
 
-The update() function is not called on a predictable schedule. You will
-need to check the time during updates to control the rate at which
-the world changes. 
 
+To Run Method one of Perlin: in a1.c 
+The Code for this method is in perlin1.c 
 
-World Notes
------------
--The cubes measure one unit along each axis.
--Cubes are positioned so their centre is at 0.5 greater than their
- x,y,z coordinates. So the cube at 0,0,0 is centred at 0.5, 0.5, 0.5. 
--You may see the edges of the screen don't update quickly when the viewpoint
- moves quickly. It looks like the edge of the world stops and there is a
- blocky edge visible. This isn't something you need to fix. 
+	Go to Line:332 and uncomment the line
+	//float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *30 +25;
+	^ Remove the //
+	Then, on line 336 Comment it
+	float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25+25;
 
+Then type make and run ./a1, to see the results for Method 1. To change the values affecting the results, in
+perlin.c Modify Octave, Amplitude, and Frequency. As these control Method 1.
 
-Important Notes
----------------
-Do not remove or modify the code which builds the sample world in a1.c
-in the main() when testworld == 1. 
-
-There are three places in a1.c where it indicates that you should
-add your own code.
-
-Don't change the starting location of the viewpoint.
-
-You can make changes to graphics.c if you wish but you are responsible
-for making them work. If you break the graphics system then you have
-to fix it yourself. The graphics system may change in later assignments
-so you will be need to merge your changes into the new code.
-
-
-========================================
-End of Assignment 1 Instructions
-========================================
-
-IMPORTANT NOTE
---------------
-The following are notes describing functions used in the previous offering
-of this course. They are not used in assignment 1 and may not be used
-in this offering of the course. They are here for people who are
-interested in the operations available in the graphics system.
-
-
-
-Setting the Light Position
---------------------------
-There is a single light in the world.  The position of the light
-is controlled through two functions:
-
-	void setLightPosition(GLfloat x, GLfloat y, GLfloat z);
-	GLfloat* getLightPosition();
-
-The setLightPosition() function moves the light source to location x,y,z in the
-world. The getLightPosition() function returns a pointer to an array
-of floats containing current the x,y,z location of the light source.
-
-To see the effect of a change through setLightPosition() you will
-need to call glutPostRedisplay() to update the screen. 
-
-Display Lists
---------------
-This is only used for the visible surface determination part of the system.
-Unless you are changing visible.c then you do not need to use this.
-You should not create objects in the world using addDisplayList().
-
-An array named displayList has been created which you put the cube indices
-that you want to be drawn. The function addDisplayList() is used to
-add cubes to the list.
-        e.g. The following would set the cube at world[1][3][5] to be drawn.
-            addDisplayList(1,3,5);
-This is used so then entire world is not drawn with each frame.
-Only the cubes which you determine are visible should be added
-to the display list.
-
-Add the cubes you derive from visibility testing to the list.
-There is also a counter named displayCount which contains the
-number of elements in displayList[][].  You do not need to increment
-displayCount but you need to set it equal to zero when you build a new
-display list.  You need to build a new displayList each time you
-perform culling (each time buildDisplayList() is called).
-
-
-Empty Functions
----------------
-void buildDisplayList()
--This is where you perform culling and add visible cubes to the display
- list.  There is some sample code here which moves all of the cubes in
- the world to the display list. This duplicates the original behaviour of
- assignment 1.  This should be replaced with your visibility/culling code.
-
-
-Culling Information
--------------------
--The web page at:
-	http://www.crownandcutlass.com/features/technicaldetails/frustum.html
-contains a good explanation of how to determine the viewing frustum for
-a viewpoint in OpenGL. There is also some useful code there. 
-
-
-
-
-========================================
-Additions and Changes for Assignment 3
---------------------------------------
-
-Mob Controls
-------------
-The following functions have been added to control the creation and
-movement of the mobs:
-
-   void createMob(int number, float x, float y, float z, float roty);
-        -creates mob number at position x,y,z with rotation y
-   void setMobPosition(int number, float x, float y, float z, float roty);
-        -move a created mob to a new position and rotation
-   void hideMob(int number);
-        -stops drawing mob number, it become invisible
-	-making mobs invisible is equivalent to removing them from the world
-   void showmob(int number);
-        -start drawing mob number, make it visible again
-
-In all of the above functions:
-number  -is the identifier for each mob. There can be a maximum of 10
-         mobs in the game. They are numbered from 0 to 9 and this number
-         is passed to all functions to indicate which mob you are updating.
-x,y,z   -are the x,y,z coordinates in the world space. They are floats.
-         These are world coordinates.
-roty    -is the rotation of the mob around the y axis. This allows you
-         to position the mob so it is facing in the direction it is
-         moving or looking. It is a float.
-
-A small sample of the mob control is included in a3.c. You can remove
-this and replace it with your own code. To see this demo you need to
-run the sample world using:
-	./a3 -testworld -drawall
-You can move around in the test world after pressing he f key.
-
-
-Mouse Orientation
------------------
-This was added in assignment 2 but may be useful now.
-
-void getViewOrientation(float *xaxis, float *yaxis, float *zaxis);
--Returns the direction the mouse is pointing.
--The xaxis and yaxis values are the amount of rotation around the
- x and y axis respectively.
--The zaxis value will always be zero.
--The values can be larger then 360 degrees which indicates more than
- one rotation. You can return them to the range of 0 to 360 using fmodf().
-
-Dig Flag
---------
-A flag has been created which will be set to 1 when the user presses
-the space bar. This is used to indicate that the user wants to
-remove the block which they are facing. You need to reset the flag to 0
-once you have used it. The flag is:
-	int dig;
-A message is printed when the space bar is pressed. This message is
-in a3.c and can be removed in your assignment.
-
-Lighting
---------
-Lighting has been modified to display cubes more clearly. There is now a
-light which moves with the viewpoint and it should show the local objects
-more clearly.
-
-
-
-Frames Per Second (FPS) Printing
---------------------------------
-The FPS are no longer printed automatically. There is a -fps command
-line flag which turns this functionality one.
-
-
-========================================
-
-Additions and Changes for Assignment 4
---------------------------------------
-
-Client-Server Flags
--------------------
-Flags were added so the user can identify if the program is running as
-a client or a server. The -client flag sets the variable netClient equal
-to 1. The -server flag sets the variable netServer equal to 1. They are
-initially set to 0.
-
-Player Controls
----------------
-Players can now be drawn. This is necessary to see other players in
-a networked game.  Players look like the monsters from assignment 3 except
-they are gray with red eyes.
-
-The functions to control the players are identical to the mob control
-functions with the names changed to indicate they control players. 
-   void createPlayer(int number, float x, float y, float z, float roty);
-   void setPlayerPosition(int number, float x, float y, float z, float roty);
-   void hidePlayer(int number);
-   void showPlayer(int number);
-
-There is a sample player drawn in the sample world.
 
+Website for Method1: 	http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+Method 1 Explained: True perlin does not use Octaves this is used by fractal noise algorithms such as FBM Fractal Brownian Motion,
+this method of “perlin” is the one based from the prescribed website. The results imo are quite lame and as such I have chosen to leave this within the code incase you wish to mark a noise algorithm similar to this.
 
+Website for Method2:   //http://www.angelcode.com/dev/perlin/perlin.html
+Method 2 Explained: TRUE PERLIN! This does NOT use Octaves, instead like Ken Perlins original algorithm it utilizes a permutation table, and gradient vectors (a directional vector) to imply slope direction. This is then Interpolated, in this method Bi-Cubic interpolation is used, it’s commented, and quite math heavy. The Steps of the algorithm are commented to ease confusion, as to the variable names and actual behind the scenes math, try to bear with it as they are almost pure math. Basically it works as such, create directional arrows at integer locations, then given an “input” find its height based upon its surrounding 4 integer vector arrows and interpolate the results. Since the results are permutated/re-arranged, this creates perlin noise.
+
+==========================
+
+
+
+Gravity - Implemented
+——————————————————————————
+
+The Gravity code works as such: always apply -1.1 downward force, then call the CollisionResponse.
+
+==========================
+
+
+
+Collision - Implemented
+——————————————————————————
+
+To get this function to work nicely, a change was needed to graphics.c. 
+The change is in the function:
+void setViewPosition(float x, float y, float z) {
+   //Added Code//
+   oldvpx= vpx;
+   oldvpy= vpy;
+   oldvpz= vpz;
+   ///////////
+   vpx = x;
+   vpy = y;
+   vpz = z;
+}
+
+This code was added so that when a new viewPosition is set, the old one keeps up to date, instead of 
+the way it was handled before (old position only updates on keyboard press).
+
+With this change, you can see that gravity applying a new position, makes it easy to detect the direction our
+view or anything for that matter was heading in, and to create collision code to counteract.
+
+It works as so, if we are entering A block, check if another block exists above A block, 
+if not thats where we are going.
+if so, stop moving.
+
+This works perfectly in that we the player do NOT move inside blocks, HOWEVER the view CAN CULL into it. 
+Because the view is a rectangle if you view a wall dead on, that’s all you get a wall, however if one of the corners
+of the view were to clip its way in, you now get a type of “x-ray” vision inside this block partially, however you will not be
+able to move into it. 
+
+Second the starting position tends to land the character at a perfect corner (weird I know). Fret not
+you are NOT falling through the map, you view just lands in the above mentioned clipping area, simply moving your character
+or rotating your view will show you this.
+
+==========================
+
+Clouds - Implemented
+——————————————————————————
+
+Clouds are created via structs. 
+
+The code is well documented, simply call CreateSkyClouds() to setup the clouds, and then    void UpdateCloudMovement() to animate them.
+
+The creation works in a manner similar to dyjkstras patching algorithm, basically given a centre node, randomly add neighbours to this node, when a neighbour gets added restart at the start of the list until the size is reached. Add a duplication checker to ensure a spot does not get counted twice and boom Abstract clouds.
+
+
+To animate the clouds, simply apply the wind force on the clouds centroid/center location, since the voxels making it up are all offsets from 0,0,0. All that is required is to  add the CentrLocation + VoxelOffset, to get the location of the cube. By Modding this value to the world array, you now have clouds which wrap around the sky take a look its quite cool.
+
+Finally All these structs and pointers can be fatal if not cleaned, therefore in graphics.c on line 516, an ExitCleanUpCode() function is
+added, this initiates the Cloud Destroying code to free all structs/pointers when the program is exited normally (by pressing q). The Function is located in a1.c. The DestroySkyClouds() 
+function is obviously located in clouds.c along with all other cloud related functions.
+
+==========================
+
+Controls:
+For Cloud Controls:
+clouds.c line 15-20
+	//The number of Clouds you'd like to populate the world
+	int num_Clouds=30;
+	int max_CloudSize=30;
+
+	//These Values are used to manipulate the direction wind is applied in, used for Cloud Movement
+	//Diagonal movements may cause jittering due to centroid + mod
+	float windForce_X=0;
+	float windForce_Z=0.1;
+
+For Gravity Controls:
+a1.c line 233
+      float gravity = .1;
+
+
+For Perlin Controls:
+Method 1&2:
+a1.c line 313
+      int seed = 10;
+
+Method 2:
+
+a1.c line 322
+      float detailModifier =15;
+
+
+Method 1:(Should you choose to use it)
+
+a1.c line 22-33
+      float gain = 0.65;		
+      float height = 0;		
+     //This is the persistance value to be used throughout the Perlin program		
+      //This determines the lowest or max detail an object can reach. 1=High Detail, 1/4= Low Detail.		
+      float persistence = 0.5f; // 1/2		
+		
+      //How often to loop through the array		
+      int num_Octaves = 15; 		
+			
+      float frequency = 1.0f/((float)WORLDX/2);		
+      float amplitude = gain;   
+
+
+
+
+
+	
+That is all.
+
+Hopefully my commented code and this Readme are enough of a guide to get you through the code.
+If a function is missing some comment as to its use, check the .h file, as it might be listed there.

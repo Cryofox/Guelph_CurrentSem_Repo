@@ -319,7 +319,7 @@ int i, j, k;
       //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
       //Use 2 For REALLY Jagged Array
       //Use 25 for Nice Valley type.
-      float detailModifier =25;
+      float detailModifier =15;
 
       //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
       for(int x=0;x<WORLDX;x++)
@@ -330,6 +330,7 @@ int i, j, k;
 
                //Method 1
                //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *30 +25;
+               
                //Method 2. The * modifier = Amplitude. DetailModifier= Frequency. Seed = Slight repositioning
                //Octaves are implied.
                float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25+25;

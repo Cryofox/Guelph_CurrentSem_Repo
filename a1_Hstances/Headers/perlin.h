@@ -5,12 +5,14 @@
 
 
 //The Code for Pelin1  //1st Implementation- (Not used, only implemented for bonus/fun)
+
+   //Grabs the calculated perlin value at the provided location
    float PerlinNoise_At(float x, float y);	
 		
-   //In order to match the Algorithm Posted here:http://freespace.virgin.net/hugo.elias/models/m_perlin.htm		
-   //This must return a value between -1, and 1. This isn't hard when the max height is 50;		
+   //The Raw Noise at this location, without any perlin/smoothing value applied
    float RawNoise(int x, int y);	
 		
+   //Returns a smoothed perlin location
    float SmoothedNoise(float x, float y);	
 		
 		
@@ -40,9 +42,12 @@
    //A Function which returns a Gradient Table struct
    //filled with all the data, this allows the ability to comput perlin noise at values chosen
    Gradient_Table CreateGradientTable();
+
 	//Computes Perlin Value at X & Y location, given a gradient Table
 	//Feeding an integer results in 0, this is just how perlin works.
    float ComputePerlin_Value(Gradient_Table gTable, float x, float y);
+
+   //Destory the GradientTable provided
    void DestroyGradientTable(Gradient_Table gT);
 
 

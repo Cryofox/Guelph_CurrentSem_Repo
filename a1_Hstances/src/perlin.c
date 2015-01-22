@@ -13,8 +13,10 @@
 //Once the Perlin Noise is Created use FBM to Make everything more pleasant		
 ///////////Algorithm Below Requires Help, It's broken from pseudocode alone.		
 		
-//Algorithm Linked Just Does not Work. The Problem with Pseudocode is that unless its implemented its not even guaranteed to work.		
+//Algorithm Linked Just Does not Work. The Problem with Pseudocode is that unless its implemented its not even guaranteed to work.	
+	
    //Generates the Perlin Noise at the given Coordinate		
+   //Grabs the calculated perlin value at the provided location
    float PerlinNoise_At(float x, float y)		
    {		
       float gain = 0.65;		
@@ -48,16 +50,10 @@
       return height;		
    }		
 		
-   //In order to match the Algorithm Posted here:http://freespace.virgin.net/hugo.elias/models/m_perlin.htm		
-   //This must return a value between -1, and 1. This isn't hard when the max height is 50;		
+   //The Raw Noise at this location, without any perlin/smoothing value applied
    float RawNoise(int x, int y)		
    {		
- 		
-/*		
-      int n = x + y * 57;		
-      n = (n << 13) ^ n;		
-      float f = (1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);		
--*/		
+ 			
       int useMine=0;		
       if(useMine==0)		
       {		
@@ -78,7 +74,7 @@
       }		
 		
    }		
-		
+	//Returns a smoothed perlin location
    float SmoothedNoise(float x, float y)		
    {		
       int int_x= (int)x;		
