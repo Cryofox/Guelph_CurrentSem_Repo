@@ -345,7 +345,6 @@ void collisionResponse()
 
       getOldViewPosition(&oldLoc_X, &oldLoc_Y, &oldLoc_Z);     
       setViewPosition((oldLoc_X), (oldLoc_Y), (oldLoc_Z));
-
    }
 
 
@@ -463,7 +462,7 @@ float *la;
 
    double timePassed=UpdateTime();
    //Gravity Code
-   if(flycontrol==1)
+   if(flycontrol==0)
       ApplyGravity(timePassed);
    //Look in clouds.c
    UpdateCloudMovement(timePassed);
