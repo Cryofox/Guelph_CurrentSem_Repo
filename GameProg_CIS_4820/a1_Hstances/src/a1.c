@@ -216,7 +216,8 @@ float *la;
 
 	/* your code goes here */
    //Gravity Code
-   ApplyGravity();
+   if(flycontrol==1)
+      ApplyGravity();
    //Look in clouds.c
    UpdateCloudMovement();
    }

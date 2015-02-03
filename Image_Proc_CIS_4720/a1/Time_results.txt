@@ -1,0 +1,66 @@
+IMG=DET_NOISY_Z_____Lena_______025__PSNR_20_1765dB.png
+Analyzing:DET_NOISY_Z_____Lena_______025__PSNR_20_1765dB.png
+Alpha Trimmed analyses Calculation Time: 1.72681093216 seconds
+Truncated Median analyses Calculation Time: 6.22411203384 seconds
+Median analyses Calculation Time: 2.08749699593 seconds
+Hybrid Median analyses Calculation Time: 5.54320597649 seconds
+IMG=gdorleans_noise.jpg
+Analyzing:gdorleans_noise.jpg
+Alpha Trimmed analyses Calculation Time: 8.12375593185 seconds
+Truncated Median analyses Calculation Time: 29.7722048759 seconds
+Median analyses Calculation Time: 10.0643410683 seconds
+Hybrid Median analyses Calculation Time: 26.9869580269 seconds
+IMG=gray_noise98.jpg
+Analyzing:gray_noise98.jpg
+Alpha Trimmed analyses Calculation Time: 2.21980714798 seconds
+Truncated Median analyses Calculation Time: 8.10290980339 seconds
+Median analyses Calculation Time: 2.73698496819 seconds
+Hybrid Median analyses Calculation Time: 7.29656600952 seconds
+IMG=grayscale_4_shades-600x375.png
+Analyzing:grayscale_4_shades-600x375.png
+Alpha Trimmed analyses Calculation Time: 7.44878005981 seconds
+Truncated Median analyses Calculation Time: 20.8588519096 seconds
+Median analyses Calculation Time: 9.29713487625 seconds
+Hybrid Median analyses Calculation Time: 25.0830829144 seconds
+IMG=halftone_noise.png
+Analyzing:halftone_noise.png
+Alpha Trimmed analyses Calculation Time: 6.32705903053 seconds
+Truncated Median analyses Calculation Time: 18.1278669834 seconds
+Median analyses Calculation Time: 8.32704806328 seconds
+Hybrid Median analyses Calculation Time: 21.6739029884 seconds
+IMG=imageedit_2_3552320543.png
+Analyzing:imageedit_2_3552320543.png
+Alpha Trimmed analyses Calculation Time: 8.79208803177 seconds
+Truncated Median analyses Calculation Time: 28.4482159615 seconds
+Median analyses Calculation Time: 10.8895339966 seconds
+Hybrid Median analyses Calculation Time: 29.2268948555 seconds
+IMG=imageedit_2_5632086832.jpg
+Analyzing:imageedit_2_5632086832.jpg
+Alpha Trimmed analyses Calculation Time: 12.0094220638 seconds
+Truncated Median analyses Calculation Time: 42.315985918 seconds
+Median analyses Calculation Time: 14.6633179188 seconds
+Hybrid Median analyses Calculation Time: 39.7719831467 seconds
+IMG=imageedit_2_8071051124.jpg
+Analyzing:imageedit_2_8071051124.jpg
+Alpha Trimmed analyses Calculation Time: 5.4703938961 seconds
+Truncated Median analyses Calculation Time: 19.9987969398 seconds
+Median analyses Calculation Time: 6.68005609512 seconds
+Hybrid Median analyses Calculation Time: 18.0695328712 seconds
+IMG=noise_1.jpg
+Analyzing:noise_1.jpg
+Alpha Trimmed analyses Calculation Time: 10.5196399689 seconds
+Truncated Median analyses Calculation Time: 36.5703961849 seconds
+Median analyses Calculation Time: 12.9305758476 seconds
+Hybrid Median analyses Calculation Time: 35.0888960361 seconds
+IMG=noise_2.jpg
+Analyzing:noise_2.jpg
+Alpha Trimmed analyses Calculation Time: 10.8515400887 seconds
+Truncated Median analyses Calculation Time: 38.0274479389 seconds
+Median analyses Calculation Time: 13.3415601254 seconds
+Hybrid Median analyses Calculation Time: 36.0443179607 seconds
+IMG=plane_noise.png
+Analyzing:plane_noise.png
+Alpha Trimmed analyses Calculation Time: 7.69711899757 seconds
+Truncated Median analyses Calculation Time: 27.9182219505 seconds
+Median analyses Calculation Time: 9.86972784996 seconds
+Hybrid Median analyses Calculation Time: 25.8123509884 seconds

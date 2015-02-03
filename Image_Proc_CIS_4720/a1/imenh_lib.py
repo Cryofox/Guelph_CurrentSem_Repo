@@ -46,18 +46,19 @@ import pylab
 #
 def enh_alphaTMean(im,alpha,n=5):
     img = numpy.zeros(im.shape,dtype=numpy.int16)
-    
+ 
     v = (n-1)/2
     
     # Calculate the trim coefficient
     b = int((n*n)*(alpha))
-    
+  
 	# Process the image
     for i in range(0,im.shape[0]):
         for j in range(0,im.shape[1]):
+
             # Extract the window area
             block = im[max(i-v,0):min(i+v+1,im.shape[0]), max(j-v,0):min(j+v+1,im.shape[1])]
-
+            
             # Reshape the neighborhood into a vector by flattening the 2D block
             wB = block.flatten()
             
@@ -67,14 +68,18 @@ def enh_alphaTMean(im,alpha,n=5):
             
             # Trim b elements from each end of the vector
             if (b != 0):
-                nwB = wB[b:len-b]
-    
+                wB = wB[b:len-b]
+            
+            tMean=0;
+            if(wB.size>0):
             # Calculate the mean of the trimmed vector
-            tMean = nwB.mean()
-
+                #print("wB.Size>0:" +str(wB))
+                tMean = wB.mean()
+          
             # Assign the values
             if (tMean > 0):
                 img[i][j] = int(tMean)
+
     return img
     
 # Function to perform noise reduction using truncated median "mode"
@@ -85,7 +90,6 @@ def enh_alphaTMean(im,alpha,n=5):
 #   Pattern Recognition Letters, Vol.7, pp.87-97 (1988)
 #
 def enh_truncMedian(im,n=5):
-
     img = numpy.zeros(im.shape,dtype=numpy.int16)
     
     v = (n-1) / 2
@@ -95,34 +99,68 @@ def enh_truncMedian(im,n=5):
         for j in range(0,im.shape[1]):
             # Extract the window area
             block = im[max(i-v,0):min(i+v+1,im.shape[0]), max(j-v,0):min(j+v+1,im.shape[1])]
-            print block.shape
+            #print block.shape
             # Reshape the neighborhood into a vector by flattening the 2D block
             wB = block.flatten()
 
-            # Calculate vector statistics
-            wMean = wB.mean()
-            wMin = wB.min()
-            wMax = wB.max()
-            wMed = numpy.median(wB)
+            if(len(wB)>0):
+                #print("S>0"+ str(wB))
+                # Calculate vector statistics
+                wMean = wB.mean()
+                wMin  = wB.min()
+                wMax  = wB.max()
+                wMed  = numpy.median(wB)
+                
+                # Calculate the bounds, and select the appropriate elements
+                if (wMed < wMean):
+                    upper = 2 * wMed - wMin
+                    NwB = wB.compress((wB<upper).flat)
+                else:
+                    lower = 2 * wMed - wMax
+                    NwB = wB.compress((wB>lower).flat)
+               
+                # Calculate the median of the selected elements
+                xmed=0
+                if( len(NwB)>0):
+                    xmed = numpy.median(NwB)
             
-            # Calculate the bounds, and select the appropriate elements
-            if (wMed < wMean):
-                upper = 2 * wMed - wMin
-                NwB = wB.compress((wB<upper).flat)
-            else:
-                lower = 2 * wMed - wMax
-                NwB = wB.compress((wB>lower).flat)
-           
-            # Calculate the median of the selected elements
-            xmed = numpy.median(NwB)
-            
-            # Assign the values               
-            if (xmed > 0):
-                img[i][j] = int(xmed)
-            else:
-                img[i][j] = im[i][j]
+                # Assign the values               
+                if (xmed > 0):
+                    img[i][j] = int(xmed)
+                else:
+                    img[i][j] = im[i][j]
     return img
+ 
+
+ # Function to perform Median Noise Filter
+def enh_Median(im,n=5):
+    img = numpy.zeros(im.shape,dtype=numpy.int16)
     
+    v = (n-1) / 2
+
+    # Process the image
+    for i in range(0,im.shape[0]):
+        for j in range(0,im.shape[1]):
+            # Extract the window area
+            block = im[max(i-v,0):min(i+v+1,im.shape[0]), max(j-v,0):min(j+v+1,im.shape[1])]
+            #print block.shape
+            # Reshape the neighborhood into a vector by flattening the 2D block
+            wB = block.flatten()
+
+            if(len(wB)>0):         
+                # Calculate the median of the selected elements
+                xmed=0
+                xmed = numpy.median(wB)
+            
+                # Assign the values               
+                if (xmed > 0):
+                    img[i][j] = int(xmed)
+                else:
+                    img[i][j] = im[i][j]
+    return img
+
+
+
 # Function to perform noise reduction using hybrid median
 # 
 # Extracts medians from a 5x5 neighbourhood using two masks: 
@@ -156,22 +194,28 @@ def enh_hybridMedian(im,n=5):
             
             # Reshape the neighborhood into a vector by flattening the 2D block
             wB = block.flatten()
-            
-            # Extract pixel values using indices
-            wBc = numpy.take(wB,indicesC)
-            wBp = numpy.take(wB,indicesP)
-                  
-            # Calculate the median values      
-            wBcMed = numpy.median(wBc)
-            wBpMed = numpy.median(wBp)
-            
-            # Calculate the hybrid median of the original pixel, and the two 
-            # medians extracted above
-            xmed = numpy.median([wBcMed,wBpMed,im[i][j]])
 
-            # Assign the values               
-            if (xmed > 0):
-                img[i][j] = int(xmed)
-            else:
-                img[i][j] = im[i][j]
+            if(len(wB)>0):
+                # Extract pixel values using indices
+                wBc = numpy.take(wB,indicesC)
+                wBp = numpy.take(wB,indicesP)
+                      
+                # Calculate the median values      
+                wBcMed = numpy.median(wBc)
+                wBpMed = numpy.median(wBp)
+                
+
+                # Calculate the hybrid median of the original pixel, and the two 
+                # medians extracted above
+                xmed = numpy.median([wBcMed,wBpMed,im[i][j]])
+
+                # Assign the values               
+                if (xmed > 0):
+                    img[i][j] = int(xmed)
+                else:
+                    img[i][j] = im[i][j]
+
     return img
+
+
+

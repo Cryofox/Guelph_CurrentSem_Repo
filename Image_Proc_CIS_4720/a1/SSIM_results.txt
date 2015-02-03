@@ -1,0 +1,55 @@
+IMG=DET_NOISY_Z_____Lena_______025__PSNR_20_1765dB.png
+AlphaTrim Index:0.268282955173
+TruncateMedian Index:0.26777778667
+Median Index:0.275029006467
+HybridMedian Index:0.562960939315
+IMG=gdorleans_noise.jpg
+AlphaTrim Index:0.484947145141
+TruncateMedian Index:0.4971560073
+Median Index:0.500391416345
+HybridMedian Index:0.726693951491
+IMG=gray_noise98.jpg
+AlphaTrim Index:0.64953596415
+TruncateMedian Index:0.632978238331
+Median Index:0.651893535394
+HybridMedian Index:0.67151253237
+IMG=grayscale_4_shades-600x375.png
+AlphaTrim Index:0.139010355189
+TruncateMedian Index:0.09288553576
+Median Index:0.0955362433544
+HybridMedian Index:0.0947448667072
+IMG=halftone_noise.png
+AlphaTrim Index:0.50847426809
+TruncateMedian Index:0.0145777357846
+Median Index:0.0151513917651
+HybridMedian Index:0.0146345453085
+IMG=imageedit_2_3552320543.png
+AlphaTrim Index:0.564144951299
+TruncateMedian Index:0.590234751233
+Median Index:0.575025623748
+HybridMedian Index:0.611494567062
+IMG=imageedit_2_5632086832.jpg
+AlphaTrim Index:0.447010895215
+TruncateMedian Index:0.446970323884
+Median Index:0.452791885421
+HybridMedian Index:0.603048057838
+IMG=imageedit_2_8071051124.jpg
+AlphaTrim Index:0.844529968452
+TruncateMedian Index:0.840423129503
+Median Index:0.841716755507
+HybridMedian Index:0.831302730072
+IMG=noise_1.jpg
+AlphaTrim Index:0.749038560983
+TruncateMedian Index:0.753364411776
+Median Index:0.755359245713
+HybridMedian Index:0.887271423405
+IMG=noise_2.jpg
+AlphaTrim Index:0.654832377981
+TruncateMedian Index:0.648731723423
+Median Index:0.657977250556
+HybridMedian Index:0.826597836364
+IMG=plane_noise.png
+AlphaTrim Index:0.291849542038
+TruncateMedian Index:0.308005646469
+Median Index:0.304420281166
+HybridMedian Index:0.637833772397
