@@ -12,5 +12,7 @@
 GLubyte  world[WORLDX][WORLDY][WORLDZ];
 
 #define MAX_DISPLAY_LIST 500000
+#define MOB_COUNT 20
+#define PLAYER_COUNT 10
 
 #endif

@@ -10,8 +10,7 @@
 
 #include "graphics.h"
 
-#define MOB_COUNT 10
-#define PLAYER_COUNT 10
+
 
 extern void update();
 extern void collisionResponse();
@@ -377,6 +376,7 @@ int i, j, k;
    glLoadIdentity();
    glRotatef(mvx, 1.0, 0.0, 0.0);
    glRotatef(mvy, 0.0, 1.0, 0.0);
+
    /* Subtract 0.5 to raise viewpoint slightly above objects. */
    /* Gives the impression of a head on top of a body. */
    glTranslatef(vpx, vpy - 0.5, vpz);
