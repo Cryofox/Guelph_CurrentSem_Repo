@@ -25,7 +25,7 @@
 
    void DestroyProjectileManager();
    void CreateProjectileManager();
-   void SpawnProjectile( float xForce, float yForce, float zForce);
+   void SpawnProjectile( float xForce, float yForce, float zForce, float xPos,float yPos,float zPos);
    void UpdateProjectiles(double timePassed);
    void DestroyProjectile(int index);
 

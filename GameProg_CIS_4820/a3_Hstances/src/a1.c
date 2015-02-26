@@ -70,10 +70,11 @@ extern int netServer;      // network server flag, is server when = 1
 
 
 
-
-//SEED
-
-
+//Moved here so Can be called from Update
+float xForce;
+float yForce;
+float zForce;
+int shootFlag= FALSE ;
 
 
 //The Projectiles Angle to be Used from the Forward view
@@ -275,7 +276,7 @@ void Initialize_Client()
 
 
 
-   //GenerateWorld
+   //GenerateWorld Copy
     for(int i=0;i<49;i++)
     {
       printf("Count=%d\n",i);
@@ -289,9 +290,13 @@ void Initialize_Client()
       DeString_Plane(str_Plane, i);
       free(str_Plane);
     }
+    //Genereate Cloud Motion
+    float timePassedGlobal;
+    recv(client_SockFD, &timePassedGlobal, sizeof(timePassedGlobal), 0);
 
-
-
+     //Lets Create some Clouds
+     CreateSkyClouds();
+     UpdateCloudMovement(timePassedGlobal);
 
     //printf("Server Message:%s", msg);
     printf("MessageLength Post: %d\n", (int)(strlen(msg)));
@@ -420,7 +425,7 @@ void draw2D() {
    }
 
 }
-
+float time_Passed_ServerStart=0;
 
 	/*** update() ***/
 	/* background process, it is called when there are no other events */
@@ -486,6 +491,8 @@ float *la;
       {
             /* your code goes here */
          double timePassed=UpdateTime();
+         time_Passed_ServerStart+=timePassed;
+         
          //Gravity Code
          if(flycontrol==0)
             ApplyGravity(timePassed);
@@ -521,7 +528,7 @@ float *la;
             if(sd > max_sd)
                max_sd = sd;
          }
-        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        //wait for an activity on one of the sockets 
         activity = select( max_sd + 1 , &readfds , NULL , NULL , &time_SelectTimeout);
     
         if ((activity < 0) && (errno!=EINTR)) 
@@ -545,14 +552,17 @@ float *la;
             //Send Plane Information to the Player Untill a World is Created
 
 
-  
+            //Send the Current State of the World
             for(int y=0;y<49;y++)
             {
               printf("Y=%d\n",y);
               char* stringPlane=Stringify_Plane(y);
               send(new_socket, stringPlane, strlen(stringPlane), 0);
               free(stringPlane);
-              }
+            }
+
+            //Send the Current Time passed for Current Cloud Position
+             send(new_socket, &time_Passed_ServerStart, sizeof(time_Passed_ServerStart), 0);
 
 
 
@@ -573,7 +583,7 @@ float *la;
               // printf("StrPlane=%s\n",stringPlane);
               // free(stringPlane);
 
-            puts("Welcome message sent successfully");
+            puts("Welcome Configurations sent successfully");
               
             //add new socket to array of sockets
             for (i = 0; i < max_clients; i++) 
@@ -584,7 +594,7 @@ float *la;
                     client_socket[i] = new_socket;
                     printf("Adding to list of sockets as %d\n" , i);
                      
-                    return;
+                    //return;
                 }
             }
         }
@@ -610,12 +620,21 @@ float *la;
                 //Echo back the message that came in
                 else
                 {
-                     //Print the Message Sent from Socket
+                  //Clients Send Their Position orientation, angle,velocity, and whether or not they wish to spawn a projectile
+
+                  // PosX,PosY,posZ,OrientX,OrientY,OrientZ,Angle,Vel,T/F
+
+                  //Update the Players Position
+                  
+
+
+
+                //Print the Message Sent from Socket
                   printf("Message From Client: %s\n",buffer);
 
                     //set the string terminating NULL byte on the end of the data read
                     buffer[valread] = '\0';
-                    send(sd , buffer , strlen(buffer) , 0 );
+                //    send(sd , buffer , strlen(buffer) , 0 );
                 }
             }
         }
@@ -624,16 +643,124 @@ float *la;
 
       else if(netClient==1)
       {
-      //printf("NetClinet :D\n");
-        // char* msg;
-        // read(sockfd, &msg, 1);
+        //Update CloudMovement, They're already synced so its fine to do it here now.
+            /* your code goes here */
+         double timePassed=UpdateTime();
+         time_Passed_ServerStart+=timePassed;
+         
+         //Gravity Code
+         if(flycontrol==0)
+            ApplyGravity(timePassed);
+         //Look in clouds.c
+         UpdateCloudMovement(timePassed);
 
-        // printf("read char from server = %s\n", msg);
+
+         //First We Update out Messages with the Server, Then we Send our Message
+
+
+         //If Our New Position is Different than our old one, tell the Server that.
+
+         //Send the Server our info
+         // PosX,PosY,posZ,OrientX,OrientY,OrientZ,Angle,Vel,T/F
+
+         //Now we can Pass the Info
+
+          /* your collision code goes here */
+           float currLoc_X;
+           float currLoc_Y;
+           float currLoc_Z;
+
+           getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+
+           currLoc_X*=-1;
+           currLoc_Y*=-1;
+           currLoc_Z*=-1;
+           currLoc_Y-=.5; //This value is used for Head-Repositioning
+
+           //Now for our Orientation
+
+           float orientationX;
+           float orientationY;
+           float orientationZ;
+
+           getViewOrientation(&orientationX,&orientationY,&orientationZ);
+           //Now to Create our string
+
+
+           char message[500];
+
+           char portion[100];
+
+
+           memset(message,0,500);
+           //X Loc
+           snprintf(portion,100,"%f",currLoc_X);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Loc
+           snprintf(portion,100,"%f",currLoc_Y);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Z Loc
+           snprintf(portion,100,"%f",currLoc_Y);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //X Orient
+           snprintf(portion,100,"%f",orientationX);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Orient
+           snprintf(portion,100,"%f",orientationY);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Z Orient
+           snprintf(portion,100,"%f",orientationZ);
+           strcat(message,portion);
+           strcat(message,",");
+
+
+           //Angle
+           snprintf(portion,100,"%f",projectile_Angle);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Velocity
+           snprintf(portion,100,"%f",projectile_Velocity);
+           strcat(message,portion);
+           strcat(message,",");
+
+           if(shootFlag==TRUE)
+            strcat(message,"T");
+           else
+            strcat(message,"F");
+
+
+          strcat(message,"\0");
+
+          //Now we can send our Message
+          send(client_SockFD, message, sizeof(message), 0);
+
+
+
+
+          //Once message is set, reset our flag
+          shootFlag=FALSE;
+
+         //Server is ALWAYS Sending Messages, Check if we RECV them.
+
+         //Message 1= Player Positions and Orientations
+         //Message 2= Projectile Positions
+
+
+
+
       }
    }
-
-
-
 
 }
    int firstTime=0;
@@ -813,6 +940,8 @@ int i, j, k;
       //We are the Client
       else if (netClient==1)
       {
+        //Players do Not use Physics so they do not have a Projectile Manager
+        //They can do clouds though to save on update messages (still synced)
          Initialize_Client();
 
       }
@@ -843,12 +972,17 @@ int i, j, k;
 
 int oldX;
 int oldY;
+
+
+        //SpawnProjectile(xForce,yForce,zForce);
+
 void mouse(int button, int state, int x, int y) {
 
    //This Only Occurs Client Side
    if(netClient==1)
-   {   
-   /* capture mouse button events - not currently used */
+   {
+
+    
       if ((state == GLUT_DOWN) && (button == GLUT_LEFT_BUTTON))
       { 
          //All that is needed is to take our current XZ orientation
@@ -882,14 +1016,14 @@ void mouse(int button, int state, int x, int y) {
 
          //Since Triangls have a MAX of 90 Degrees Each, the Quadrant this Orientation is in will be needed
 
-         /*
-         Q1 = 0-90
-         Q2 = 90-180
-         Q3 = 180-270
-         Q4 = 270-360 (Which is not possible due to Mod, so its technically 270-359)
+         //
+         //Q1 = 0-90
+         //Q2 = 90-180
+         //Q3 = 180-270
+         //Q4 = 270-360 (Which is not possible due to Mod, so its technically 270-359)
 
-         Overlaps do not matter.
-         */
+         //Overlaps do not matter.
+         //
 
          //Mod 90 to get the Quadrant Angle
          radianAngle = ((int)orientationY)%90;
@@ -930,14 +1064,15 @@ void mouse(int button, int state, int x, int y) {
          zForce= -zForce;     
         }
 
-
+        shootFlag= TRUE;
         //Now we have all the variables to Spawn our projectile
         //But We Don't. Instead we Send the Message to the Server
+
         //SpawnProjectile(xForce,yForce,zForce);
 
-        char* message;
-        message= strdup("I want to Shoot a Projectile! :D\n");
-        send(client_SockFD, message, strlen(message), 0); 
+        //char* message;
+        //message= strdup("I want to Shoot a Projectile! :D\n");
+        //send(client_SockFD, message, strlen(message), 0); 
       }
 
       if ((state == GLUT_UP) && (button == GLUT_RIGHT_BUTTON))

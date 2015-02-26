@@ -37,7 +37,7 @@ extern float gravity_Force;
    // Protien Spawn Projectile
    // Checks if a projectile can be created with xyz force at players condition
    // if capable (less than < max_Projectiles),  
-   void SpawnProjectile( float xForce, float yForce, float zForce)
+   void SpawnProjectile( float xForce, float yForce, float zForce, float xPos,float yPos,float zPos)
    {
       //Check if Max Projectiles otherwise create one.
       if(projectile_Count> max_Projectiles)
@@ -79,9 +79,9 @@ extern float gravity_Force;
       newProjectile->yForce= yForce;
       newProjectile->zForce= zForce;
 
-      newProjectile->xPos= currLoc_X*-1;
-      newProjectile->yPos= currLoc_Y*-1;
-      newProjectile->zPos= currLoc_Z*-1;
+      newProjectile->xPos=xPos;
+      newProjectile->yPos=yPos;
+      newProjectile->zPos=zPos;
 
       //Need to set it directly infront of the view
       newProjectile->mass =mass;
