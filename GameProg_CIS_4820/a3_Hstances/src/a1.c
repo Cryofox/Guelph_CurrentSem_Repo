@@ -81,7 +81,7 @@ static double projectile_Angle=0.0;
 static double projectile_Velocity=0.0;
 
 
-void Stringify_Plane(int yVal);
+
    //Functions used, these need to be appended to H
 
    //Applies Gravity
@@ -121,75 +121,53 @@ void Stringify_Plane(int yVal);
              }
 */
 
-void Stringify_Plane(int yVal)
+int digit_to_int(char d)
+{
+  char temp[2];
+  temp[0]=d;
+  temp[1]='\0';
+  return (int) strtol(temp,NULL,10);
+
+}
+
+
+char* Stringify_Plane(int yVal)
 {
    char* str_World;
 
-
-   char strBuffer[ (WORLDX)*(WORLDZ)];
+   //printf("YVALU=====================================================\n");
+   char strBuffer[ (WORLDX)*(WORLDZ) +1];
    memset(strBuffer,0, ((WORLDX)*(WORLDZ)));
    int i=0;
    for(int x=0; x< WORLDX;x++)
          for(int z=0; z< WORLDZ ;z++)
             {
                //Grab Character Equiv of I ie  int 5 = char '5'
-               int val = (world[x][yVal][z]);
-               char c;
 
-               switch(val)
-               {
-                case 0:
-                c='0';
-                break;
-                case 1:
-                c='1';
-                break;
-                case 2:
-                c='2';
-                break;
-                case 3:
-                c='3';
-                break;
-                case 4:
-                c='4';
-                break;
-                case 5:
-                c='5';
-                break;
-                case 6:
-                c='6';
-                break;
-                case 7:
-                c='7';
-                break;
-                case 8:
-                c='8';
-                break;
-                case 9:
-                c='9';
-                break;
-                default:
-                c='0';
-                break;
-               }
+
+               int val = (world[x][yVal][z]) + (int)'0';
 
                //This code is added because casting Char is not
                //working, for some weird reason, I spent 2 hours on a trivial
                //cast and yet it wont work. char c= (char) val; Should = the single numeric digit, yet it does not.
-               strBuffer[i]= c;
+               strBuffer[i]= (char)val;
+               //strBuffer[i]='5';
               // printf("C=%d_\n",c);
               // printf("I=%d_\n",(world[x][yVal][z]));
 
-               printf("The Integer=%d\n",val);
-               printf("The Charact=%c\n",c);
-               printf("I=%d\n",i);
+      //         printf("The Integer=%d\n",val);
+     //          printf("The Charact=%c\n",strBuffer[i]);
+      //         printf("I=%d\n",i);
                i++;
             }  
-   //str_World[i]='\0';
+    strBuffer[i]='\0';
+
    str_World= strdup(strBuffer);
    printf("Buffer=%s\n",strBuffer);
+       printf("I=%d\n",i);
    //printf("STR_WORLD=%s\n",str_World);    
-   free(str_World); 
+   //free(str_World); 
+   return str_World;
 }
 
 void DeString_Plane(char* msg, int height)
@@ -199,7 +177,9 @@ void DeString_Plane(char* msg, int height)
    for(int x=0; x< WORLDX;x++)
       for(int z=0; z< (WORLDZ);z++)
          {
-            world[x][height][z]= (int)msg[i];
+            int val= digit_to_int(msg[i]);
+            world[x][height][z]= val;
+            printf("I=%d\n",world[x][height][z]);
             i++;
          }  
 
@@ -296,7 +276,7 @@ void Initialize_Client()
 
 
    //GenerateWorld
-    for(int i=0;i<50;i++)
+    for(int i=0;i<49;i++)
     {
       printf("Count=%d\n",i);
       printf("MessageLength Pre: %d\n", (int)(strlen(msg)));
@@ -316,16 +296,7 @@ void Initialize_Client()
     //printf("Server Message:%s", msg);
     printf("MessageLength Post: %d\n", (int)(strlen(msg)));
 
-    //Create LandMass
-/*   int i=0;
-   for(int x=0; x< WORLDX;x++)
-      for(int y=0; y< (WORLDY-1);y++)  
-         for(int z=0; z< (WORLDZ);z++)
-         {
-            printf("[%d][%d][%d]=%c\n",x,y,z, msg[i]);
-            world[x][y][z]= (int)(msg[i]);
-            i++;
-         }  */
+
 
 
     //The Client will Recieve a Message
@@ -575,8 +546,13 @@ float *la;
 
 
   
-
-
+            for(int y=0;y<49;y++)
+            {
+              printf("Y=%d\n",y);
+              char* stringPlane=Stringify_Plane(y);
+              send(new_socket, stringPlane, strlen(stringPlane), 0);
+              free(stringPlane);
+              }
 
 
 
@@ -596,9 +572,6 @@ float *la;
 
               // printf("StrPlane=%s\n",stringPlane);
               // free(stringPlane);
-     
-
-
 
             puts("Welcome message sent successfully");
               
