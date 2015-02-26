@@ -86,6 +86,13 @@ void AddPlayer(int sd)
 {
   PlayerInfo* player = malloc( sizeof(PlayerInfo));
   player->id = sd;
+  player->px     =0; 
+  player->py     =0;
+  player->pz     =0; 
+  player->ox     =0; 
+  player->oy     =0; 
+  player->oz     =0; 
+  player->angle  =0;
   plSize++;
 }
 //When a Player Disconnects or Dies, remove the Player from List
@@ -121,19 +128,65 @@ void UpdatePlayers(PlayerInfo* player)
     if(PlayerList[i]->id == player->id)
     {
       //Only store needed Data, velocity shootflag not needed for play pos/orientation
-      PlayerList[i]->px =player->px; 
-      PlayerList[i]->py =player->py;
-      PlayerList[i]->pz =player->pz; 
-      PlayerList[i]->ox =player->ox; 
-      PlayerList[i]->oy =player->oy; 
-      PlayerList[i]->oz =player->oz; 
-      PlayerList[i]->angle =player->angle;
+      PlayerList[i]->px     =player->px; 
+      PlayerList[i]->py     =player->py;
+      PlayerList[i]->pz     =player->pz; 
+      PlayerList[i]->ox     =player->ox; 
+      PlayerList[i]->oy     =player->oy; 
+      PlayerList[i]->oz     =player->oz; 
+      PlayerList[i]->angle  =player->angle;
     }
-
   }
-
-
 }
+
+//Code Called by Server to Send Player List to Players
+char* Stringify_Players()
+{
+  printf("SO YAH WANT TO STRINGIFY\n");
+  char* string;
+  char message[1000];
+
+  char portion[100] ;
+  //All that is needed
+    for(int i=0;i<plSize;i++)
+    {
+      /*     //X Loc
+           snprintf(portion,100,"%f",PlayerList[i]->px);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Loc
+           snprintf(portion,100,"%f",PlayerList[i]->py);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Z Loc
+           snprintf(portion,100,"%f",PlayerList[i]->pz);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //X Orient
+           snprintf(portion,100,"%f",PlayerList[i]->ox);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Orient
+           snprintf(portion,100,"%f",PlayerList[i]->oy);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Angle
+           snprintf(portion,100,"%f",PlayerList[i]->angle);
+           strcat(message,portion);
+           strcat(message,"|");//Char used to seperate players*/
+    }
+    strcat(message,"\0");
+    string=strdup(message);
+    printf("Works tillher :D\n");
+    return string;
+}
+
+
 
 
 
@@ -142,47 +195,81 @@ PlayerInfo* ParsePlayer_Info(char* string, int id)
 {
   PlayerInfo* player = malloc( sizeof(PlayerInfo));
 
-  char* token = strtok(string, ",");
-
+    char* token = strtok(string, ",");
+    if(token==NULL)
+      goto BadMessage;
     //printf("token: %s\n", token);
     player->px = atof(token);
+    printf("Token=%s\n",token);
+
+
 
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->py = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->pz = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->ox = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->oy = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->oz = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->angle = atof(token);
     printf("Token=%s\n",token);
 
+
     token = strtok(NULL,",");
+    if(token==NULL)
+      goto BadMessage;
     player->velocity = atof(token);
     printf("Token=%s\n",token);
 
+
+
     token = strtok(NULL,",");
+    if(token==NULL)
+     goto BadMessage;
+
     player->shootFlag = atoi(token);
     printf("Token=%s\n",token);
-
 
     player->id=id;
    // free(token);
   return player;
+
+BadMessage:
+    free(player);
+    return NULL;
+
+
 }
 
 //Moved here so Can be called from Update
@@ -295,7 +382,7 @@ void DeString_Plane(char* msg, int height)
          {
             int val= digit_to_int(msg[i]);
             world[x][height][z]= val;
-            printf("I=%d\n",world[x][height][z]);
+          //  printf("I=%d\n",world[x][height][z]);
             i++;
          }  
 
@@ -680,22 +767,7 @@ float *la;
 
 
 
-               //inform user of socket number - used in send and receive commands
-               
-               //printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
-               
 
-               //send new connection greeting message'
-              // send(new_socket, stringPlane, strlen(stringPlane), 0);
-              /* if( send(new_socket, stringPlane, strlen(stringPlane), 0) != strlen(stringPlane) ) 
-               {
-                   perror("send");
-               }*/
-               //Recv some confirmation msg
-               //    recv(client_SockFD, msg, msgSize, 0);
-
-              // printf("StrPlane=%s\n",stringPlane);
-              // free(stringPlane);
 
             puts("Welcome Configurations sent successfully");
               
@@ -707,7 +779,7 @@ float *la;
                 {
                     client_socket[i] = new_socket;
                     printf("Adding to list of sockets as %d\n" , i);
-                     
+                    AddPlayer(client_socket[i]);
                     //return;
                 }
             }
@@ -734,7 +806,11 @@ float *la;
                 //Echo back the message that came in
                 else
                 {
-
+                //Print the Message Sent from Socket
+                  printf("W!\n");
+                  printf("Message From Client: %s\n",buffer);
+                  printf("M!\n");
+                  
                   // Player Sends 1 Message
 
                   //Clients Send Their Position orientation, angle,velocity, and whether or not they wish to spawn a projectile
@@ -746,30 +822,42 @@ float *la;
 
                   printf("ID=%d\n",sd );
                   PlayerInfo* player = ParsePlayer_Info(strCopy, sd);
+
+                  //If The Message was bad we don't need to free
+
                   //Now we have a Player with all the Information required to position, orient, and Shoot projectiles.
 
                   
+                  //Whenever a Player Sends info, we update the PlayerList
 
 
                   // Server Sends 2 List of Players
                   //                List of Projectiles
 
-                  //Whenever a Player Sends info, we update the PlayerList
+  
 
 
+                  //char* playerListMessage;
+                  //playerListMessage=Stringify_Players();
+
+                  //Sending the First Message of Players to Draw
+                  //send(sd, playerListMessage, sizeof(playerListMessage), 0);
+    
 
 
+                  //free(playerListMessage);
                   free(strCopy);
-                  free(player);
+
+                  if(player!=NULL)
+                    //UpdatePlayers(player);
+                    free(player);
                   //Update the Players Position
                   
 
 
-                //Print the Message Sent from Socket
-                  printf("Message From Client: %s\n",buffer);
 
                     //set the string terminating NULL byte on the end of the data read
-                    buffer[valread] = '\0';
+                  //  buffer[valread] = '\0';
                 //    send(sd , buffer , strlen(buffer) , 0 );
                 }
             }
@@ -823,7 +911,7 @@ float *la;
            //Now to Create our string
 
 
-           char message[500];
+           char message[1000];
 
            char portion[100];
 
@@ -840,8 +928,8 @@ float *la;
            strcat(message,",");
 
            //Z Loc
-           snprintf(portion,100,"%f",currLoc_Y);
-           strcat(message,portion);
+           snprintf(portion,100,"%f",currLoc_Z);
+           strcat(message,portion); 
            strcat(message,",");
 
            //X Orient
@@ -881,18 +969,16 @@ float *la;
           //Now we can send our Message
           send(client_SockFD, message, sizeof(message), 0);
 
-
-
-
           //Once message is set, reset our flag
           shootFlag=FALSE;
+
 
          //Server is ALWAYS Sending Messages, Check if we RECV them.
 
          //Message 1= Player Positions and Orientations
          //Message 2= Projectile Positions
-
-
+         // recv(client_SockFD, message, sizeof(message), 0);
+          //printf("Message from Server:%s\n",message);
 
 
       }
