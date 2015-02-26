@@ -85,6 +85,7 @@ void CreatePlayerManager()
 void AddPlayer(int sd)
 {
   PlayerInfo* player = malloc( sizeof(PlayerInfo));
+
   player->id = sd;
   player->px     =0; 
   player->py     =0;
@@ -93,6 +94,8 @@ void AddPlayer(int sd)
   player->oy     =0; 
   player->oz     =0; 
   player->angle  =0;
+
+  PlayerList[plSize]=player;
   plSize++;
 }
 //When a Player Disconnects or Dies, remove the Player from List
@@ -124,7 +127,7 @@ void UpdatePlayers(PlayerInfo* player)
 {
   //We have a Struct containing player info, assign values to match on SD
   for(int i=0;i<plSize;i++)
-  {
+  {  
     if(PlayerList[i]->id == player->id)
     {
       //Only store needed Data, velocity shootflag not needed for play pos/orientation
@@ -142,7 +145,6 @@ void UpdatePlayers(PlayerInfo* player)
 //Code Called by Server to Send Player List to Players
 char* Stringify_Players()
 {
-  printf("SO YAH WANT TO STRINGIFY\n");
   char* string;
   char message[1000];
 
@@ -150,7 +152,7 @@ char* Stringify_Players()
   //All that is needed
     for(int i=0;i<plSize;i++)
     {
-      /*     //X Loc
+           //X Loc
            snprintf(portion,100,"%f",PlayerList[i]->px);
            strcat(message,portion);
            strcat(message,",");
@@ -178,7 +180,7 @@ char* Stringify_Players()
            //Angle
            snprintf(portion,100,"%f",PlayerList[i]->angle);
            strcat(message,portion);
-           strcat(message,"|");//Char used to seperate players*/
+           strcat(message,"|");//Char used to seperate players
     }
     strcat(message,"\0");
     string=strdup(message);
@@ -849,7 +851,7 @@ float *la;
                   free(strCopy);
 
                   if(player!=NULL)
-                    //UpdatePlayers(player);
+                    UpdatePlayers(player);
                     free(player);
                   //Update the Players Position
                   
