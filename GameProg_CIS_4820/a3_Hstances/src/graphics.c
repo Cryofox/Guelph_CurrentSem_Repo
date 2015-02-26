@@ -251,6 +251,13 @@ void getOldViewPosition(float *x, float *y, float *z) {
    *z = oldvpz;
 }
 
+   /* sets the current orientation of the viewpoint */
+void setViewOrientation(float xaxis, float yaxis, float zaxis) {
+   mvx = xaxis;
+   mvy = yaxis;
+   mvz = zaxis;
+}
+
    /* returns the current orientation of the viewpoint */
 void getViewOrientation(float *xaxis, float *yaxis, float *zaxis) {
    *xaxis = mvx;

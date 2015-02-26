@@ -143,7 +143,7 @@ void UpdatePlayers(PlayerInfo* player)
 }
 
 //Code Called by Server to Send Player List to Players
-char* Stringify_Players()
+char* Stringify_Players(int sd)
 {
   char* string;
   char message[5000]; //This is equal to 500* the max num of players
@@ -154,7 +154,8 @@ char* Stringify_Players()
   //All that is needed
     for(int i=0;i<plSize;i++)
     {
-
+      if(PlayerList[i]->id != sd)
+      {
         printf("PX=%f\n",PlayerList[i]->px);
          //X Loc
            snprintf(portion,100,"%f",PlayerList[i]->px);
@@ -185,6 +186,9 @@ char* Stringify_Players()
            strcat(message,portion);
            strcat(message,"|");//Char used to seperate players*/
     }
+  }
+  //This is in case no players are sent, (when only 1 is connected)
+    strcat(message,"}:");
     strcat(message,"\0");
     string=strdup(message);
     printf("THE STRING IS:%s\n",string);
@@ -195,13 +199,72 @@ char* Stringify_Players()
 //This Destrings the Players and Handles the Player Show Code
 void DeStringifyPlayers(char* stringMsg)
 {
-  //Clear the List of Players
-  for(int i=0;i<10;i++)
-    hidePlayer(i);
-
+  printf("DESTRING\n");
+  printf("Message=%s\n",stringMsg);
+  int I=0;
   //Show the List of CurrentPlayers
     //The Players are Seperated via '|' characters
+  char* endToken_1;
+  //Seperate the First Player Token Slice
+  char* playerToken = strtok_r(stringMsg,"|",&endToken_1);
+  int i=0;
 
+  //Continually Slice Players
+  while (playerToken !=NULL)
+  {
+   if(playerToken==NULL)
+      goto BadMessage;   
+    printf("NEWPLAYERSTRING\n");
+    
+    printf("PT:%s\n",playerToken);
+      //Take the First 3 Vals for position
+    char* copy = strdup(playerToken);
+
+    char* endToken_2;
+    char* infoToken = strtok_r(copy,",",&endToken_2);
+    
+    if(infoToken==NULL)
+      goto BadMessage;
+    float pX= atof(infoToken);
+
+    infoToken = strtok_r(NULL,",",&endToken_2);
+    if(infoToken==NULL)
+      goto BadMessage;
+    float pY= atof(infoToken);
+
+    infoToken = strtok_r(NULL,",",&endToken_2);
+     if(infoToken==NULL)
+      goto BadMessage;
+    float pZ= atof(infoToken);
+
+    infoToken = strtok_r(NULL,",",&endToken_2);
+     if(infoToken==NULL)
+      goto BadMessage;
+    float oX= atof(infoToken);
+
+    infoToken = strtok_r(NULL,",",&endToken_2);
+     if(infoToken==NULL)
+      goto BadMessage;
+    float oY= atof(infoToken);
+
+    //Same Code as Set Player, just saves the Show Flag
+    //Modification to Orient the way they are viewing...
+    createPlayer(i, pX, pY,pZ,( (float)(((int)oY%360+180) *-1) )  );
+    free(copy);
+
+    i++; 
+    playerToken = strtok_r(NULL,"|",&endToken_1);
+  }
+
+
+  printf("STRING\n");
+  //Clear the List of Players fron Wherever I left off
+  //for(;i<10;i++)
+    hidePlayer(i);
+
+  BadMessage:
+  //Since the message is corrupt Leave the remaining players where they were last Correct
+    return;
 }
 
 //Creates a Struct Representation of the String Passed by the Client to the Server
@@ -841,11 +904,15 @@ float *la;
                   //Whenever a Player Sends info, we update the PlayerList
 
 
-                  // Server Sends 2 List of Players
-                  //                List of Projectiles
+                  // Server Sends 2 List of Players                            [Check]
+                  //                List of LIVE Projectiles                   []
+                  //                Cubes To Destroy From Projectile           []
+
+
 
                   char* playerListMessage;
-                  playerListMessage=Stringify_Players();
+                  //All Players EXCEPT the player we are sending this to.
+                  playerListMessage=Stringify_Players(sd);
 
                   //Sending the First Message of Players to Draw
                   send(sd, playerListMessage, strlen(playerListMessage), 0);
@@ -989,6 +1056,8 @@ float *la;
           memset(message,0,1000);
           recv(client_SockFD, &message, sizeof(message), 0);
           //read(client_SockFD, message, sizeof(message));
+          
+
 
           printf("Message from Server:%s\n",message);
           char* strmsg = strdup(message);
