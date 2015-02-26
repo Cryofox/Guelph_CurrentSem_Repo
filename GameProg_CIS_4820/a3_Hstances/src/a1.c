@@ -146,7 +146,7 @@ void UpdatePlayers(PlayerInfo* player)
 char* Stringify_Players()
 {
   char* string;
-  char message[500];
+  char message[5000]; //This is equal to 500* the max num of players
 
   char portion[100] ;
          memset(message,0,500);
@@ -187,12 +187,22 @@ char* Stringify_Players()
     }
     strcat(message,"\0");
     string=strdup(message);
+    printf("THE STRING IS:%s\n",string);
     return string;
 }
 
 
+//This Destrings the Players and Handles the Player Show Code
+void DeStringifyPlayers(char* stringMsg)
+{
+  //Clear the List of Players
+  for(int i=0;i<10;i++)
+    hidePlayer(i);
 
+  //Show the List of CurrentPlayers
+    //The Players are Seperated via '|' characters
 
+}
 
 //Creates a Struct Representation of the String Passed by the Client to the Server
 PlayerInfo* ParsePlayer_Info(char* string, int id)
@@ -834,14 +844,11 @@ float *la;
                   // Server Sends 2 List of Players
                   //                List of Projectiles
 
-  
-
-
                   char* playerListMessage;
                   playerListMessage=Stringify_Players();
 
                   //Sending the First Message of Players to Draw
-                  //send(sd, playerListMessage, sizeof(playerListMessage), 0);
+                  send(sd, playerListMessage, strlen(playerListMessage), 0);
     
 
 
@@ -977,10 +984,20 @@ float *la;
 
          //Message 1= Player Positions and Orientations
          //Message 2= Projectile Positions
-         // recv(client_SockFD, message, sizeof(message), 0);
-          //printf("Message from Server:%s\n",message);
+          
 
+          memset(message,0,1000);
+          recv(client_SockFD, &message, sizeof(message), 0);
+          //read(client_SockFD, message, sizeof(message));
 
+          printf("Message from Server:%s\n",message);
+          char* strmsg = strdup(message);
+
+          //Extracts the Players from the String and Toggles all players
+          //to show their current position. This may cause flickering >.>
+          DeStringifyPlayers(strmsg);
+
+          free(strmsg);
       }
    }
 
