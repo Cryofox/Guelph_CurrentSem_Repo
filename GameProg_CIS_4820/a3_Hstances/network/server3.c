@@ -40,8 +40,7 @@ int main()
 /*  Accept a connection.  */
 
         client_len = sizeof(client_address);
-        client_sockfd = accept(server_sockfd, 
-            (struct sockaddr *)&client_address, &client_len);
+        client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, &client_len);
 
 /*  We can now read/write to client on client_sockfd.  */
 

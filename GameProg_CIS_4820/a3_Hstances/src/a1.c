@@ -18,6 +18,16 @@
 #include <sys/time.h>  //Used for Timing Functions
 
 
+#include <stdio.h>
+#include <string.h>   //strlen
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>   //close
+#include <arpa/inet.h>    //close
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 
 	/* flag which is set to 1 when flying behaviour is desired */
@@ -32,14 +42,46 @@ extern int testWorld;
 extern int netClient;      // network client flag, is client when = 1
 extern int netServer;      // network server flag, is server when = 1
 
+#define PORT 8888
+#define TRUE   1
+#define FALSE  0
 
 
-      //The Projectiles Angle to be Used from the Forward view
-   static double projectile_Angle=0.0;
-   static double projectile_Velocity=0.0;
+    int opt = TRUE;
+    int master_socket , addrlen , new_socket , client_socket[30] , max_clients = 30 , activity, i , valread , sd;
+    int max_sd;
+    struct sockaddr_in address;
+      
+    int client_SockFD;
+    char buffer[1025];  //data buffer of 1K
+      
+    //set of socket descriptors
+    fd_set readfds;
+      
+    //a message
+    char *message = "ECHO Daemon v1.0 \r\n";
+
+    struct timeval time_SelectTimeout;
 
 
 
+//Destruction LIST
+//
+
+
+
+
+//SEED
+
+
+
+
+//The Projectiles Angle to be Used from the Forward view
+static double projectile_Angle=0.0;
+static double projectile_Velocity=0.0;
+
+
+void Stringify_Plane(int yVal);
    //Functions used, these need to be appended to H
 
    //Applies Gravity
@@ -57,27 +99,237 @@ extern int netServer;      // network server flag, is server when = 1
    struct timeval time_LastUpdate, time_thisUpdate;
 
 
+
+
    float gravity_Force = 2;
 
+/*
+                     //You want to Send 49 Sets of Planes to generate the World
+             
+             char myBuffer[ (WORLDX*WORLDZ)];
+             // myBuffer[0]='H';
+             //printf("BufferLen=%d\n", (int)(sizeof(myBuffer)));
+
+             char c='N';
+             printf("CharC=%c\n",c);
+             for(int x=0;x< WORLDX;x++)
+             {
+              int i = 1 + (int)'0';
+              c= (char)i;
+              printf("INT=%d\n",c);
+              printf("Buffer[I]=%c<\n",c);
+             }
+*/
+
+void Stringify_Plane(int yVal)
+{
+   char* str_World;
 
 
+   char strBuffer[ (WORLDX)*(WORLDZ)];
+   memset(strBuffer,0, ((WORLDX)*(WORLDZ)));
+   int i=0;
+   for(int x=0; x< WORLDX;x++)
+         for(int z=0; z< WORLDZ ;z++)
+            {
+               //Grab Character Equiv of I ie  int 5 = char '5'
+               int val = (world[x][yVal][z]);
+               char c;
 
+               switch(val)
+               {
+                case 0:
+                c='0';
+                break;
+                case 1:
+                c='1';
+                break;
+                case 2:
+                c='2';
+                break;
+                case 3:
+                c='3';
+                break;
+                case 4:
+                c='4';
+                break;
+                case 5:
+                c='5';
+                break;
+                case 6:
+                c='6';
+                break;
+                case 7:
+                c='7';
+                break;
+                case 8:
+                c='8';
+                break;
+                case 9:
+                c='9';
+                break;
+                default:
+                c='0';
+                break;
+               }
 
+               //This code is added because casting Char is not
+               //working, for some weird reason, I spent 2 hours on a trivial
+               //cast and yet it wont work. char c= (char) val; Should = the single numeric digit, yet it does not.
+               strBuffer[i]= c;
+              // printf("C=%d_\n",c);
+              // printf("I=%d_\n",(world[x][yVal][z]));
 
+               printf("The Integer=%d\n",val);
+               printf("The Charact=%c\n",c);
+               printf("I=%d\n",i);
+               i++;
+            }  
+   //str_World[i]='\0';
+   str_World= strdup(strBuffer);
+   printf("Buffer=%s\n",strBuffer);
+   //printf("STR_WORLD=%s\n",str_World);    
+   free(str_World); 
+}
+
+void DeString_Plane(char* msg, int height)
+{
+   printf("Msg=%s\n",msg);
+   int i=0;
+   for(int x=0; x< WORLDX;x++)
+      for(int z=0; z< (WORLDZ);z++)
+         {
+            world[x][height][z]= (int)msg[i];
+            i++;
+         }  
+
+}
 
 
 
 //Server is handled in backwards Logic Fashion
 //Clients Say what they do, and server just sends to everyone
-
 void Initialize_Server()
 {
+   //The Network Logic
 
+   //Wait 0.1second For Socket Reading to interupt physics steps
+   time_SelectTimeout.tv_sec =  1;
+   time_SelectTimeout.tv_usec = 0;
 
+   //Upon First Connection, Client need to Create the World and
+   //Players and Projectiles
+//initialise all client_socket[] to 0 so not checked
+    for (i = 0; i < max_clients; i++) 
+    {
+        client_socket[i] = 0;
+    }
+      
+    //create a master socket
+    if( (master_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0) 
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+  
+    //set master socket to allow multiple connections , this is just a good habit, it will work without this
+    if( setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+  
+    //type of socket created
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons( PORT );
+      
+    //bind the socket to localhost port 8888
+    if (bind(master_socket, (struct sockaddr *)&address, sizeof(address))<0) 
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+    printf("Listener on port %d \n", PORT);
+     
+    //try to specify maximum of 3 pending connections for the master socket
+    if (listen(master_socket, 3) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+      
+    //accept the incoming connection
+    addrlen = sizeof(address);
+    puts("Waiting for connections ...");
 
 }
 
 
+
+void Initialize_Client()
+{
+   int result;
+   int len;
+   /*  Create a socket for the client.  */
+    client_SockFD = socket(AF_INET, SOCK_STREAM, 0);
+
+   /*  Name the socket, as agreed with the server.  */
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    address.sin_port = htons(PORT);
+    len = sizeof(address);
+
+   /*  Now connect our socket to the server's socket.  */
+    result = connect(client_SockFD, (struct sockaddr *)&address, len);
+
+    if(result == -1) {
+        perror("oops: client3");
+        exit(1);
+    }
+    char msg[ (WORLDX*WORLDZ)];
+    int buffer= 512;
+
+ //   char * msg = malloc( sizeof(char) * (WORLDX*WORLDY*WORLDZ));
+    int msgSize= sizeof(char) * (WORLDX*WORLDZ);
+
+
+
+   //GenerateWorld
+    for(int i=0;i<50;i++)
+    {
+      printf("Count=%d\n",i);
+      printf("MessageLength Pre: %d\n", (int)(strlen(msg)));
+      memset(msg,0, msgSize);
+      recv(client_SockFD, msg, msgSize, 0);
+      printf("recv\n");
+      char* str_Plane = strdup(msg);
+      printf("strdup\n");
+
+      DeString_Plane(str_Plane, i);
+      free(str_Plane);
+    }
+
+
+
+
+    //printf("Server Message:%s", msg);
+    printf("MessageLength Post: %d\n", (int)(strlen(msg)));
+
+    //Create LandMass
+/*   int i=0;
+   for(int x=0; x< WORLDX;x++)
+      for(int y=0; y< (WORLDY-1);y++)  
+         for(int z=0; z< (WORLDZ);z++)
+         {
+            printf("[%d][%d][%d]=%c\n",x,y,z, msg[i]);
+            world[x][y][z]= (int)(msg[i]);
+            i++;
+         }  */
+
+
+    //The Client will Recieve a Message
+}
 
 
 
@@ -258,16 +510,153 @@ float *la;
     /* end testworld animation */
    } else {
 
-	/* your code goes here */
 
-   double timePassed=UpdateTime();
-   //Gravity Code
-   if(flycontrol==0)
-      ApplyGravity(timePassed);
-   //Look in clouds.c
-   UpdateCloudMovement(timePassed);
+      if(netServer==1)
+      {
+            /* your code goes here */
+         double timePassed=UpdateTime();
+         //Gravity Code
+         if(flycontrol==0)
+            ApplyGravity(timePassed);
+         //Look in clouds.c
+         UpdateCloudMovement(timePassed);
 
-   UpdateProjectiles(timePassed);
+         UpdateProjectiles(timePassed);
+
+         //printf("Calculated Physics Step:\n");
+        
+
+
+
+
+        // printf("Server Logics...\n");
+
+         FD_ZERO(&readfds);
+         //add master socket to set
+         FD_SET(master_socket, &readfds);
+         max_sd = master_socket;
+
+        //add child sockets to set
+         for ( i = 0 ; i < max_clients ; i++) 
+         {
+            //socket descriptor
+            sd = client_socket[i];
+             
+            //if valid socket descriptor then add to read list
+            if(sd > 0)
+               FD_SET( sd , &readfds);
+             
+            //highest file descriptor number, need it for the select function
+            if(sd > max_sd)
+               max_sd = sd;
+         }
+        //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , &time_SelectTimeout);
+    
+        if ((activity < 0) && (errno!=EINTR)) 
+        {
+            printf("select error\n");
+        }
+
+         //If something happened on the master socket , then its an incoming connection
+        if (FD_ISSET(master_socket, &readfds)) 
+        {
+            if ((new_socket = accept(master_socket, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+            {
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
+          
+
+            //Send Current World Data
+
+
+            //Send Plane Information to the Player Untill a World is Created
+
+
+  
+
+
+
+
+
+               //inform user of socket number - used in send and receive commands
+               
+               //printf("New connection , socket fd is %d , ip is : %s , port : %d \n" , new_socket , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+               
+
+               //send new connection greeting message'
+              // send(new_socket, stringPlane, strlen(stringPlane), 0);
+              /* if( send(new_socket, stringPlane, strlen(stringPlane), 0) != strlen(stringPlane) ) 
+               {
+                   perror("send");
+               }*/
+               //Recv some confirmation msg
+               //    recv(client_SockFD, msg, msgSize, 0);
+
+              // printf("StrPlane=%s\n",stringPlane);
+              // free(stringPlane);
+     
+
+
+
+            puts("Welcome message sent successfully");
+              
+            //add new socket to array of sockets
+            for (i = 0; i < max_clients; i++) 
+            {
+                //if position is empty
+                if( client_socket[i] == 0 )
+                {
+                    client_socket[i] = new_socket;
+                    printf("Adding to list of sockets as %d\n" , i);
+                     
+                    return;
+                }
+            }
+        }
+        //else its some IO operation on some other socket :)
+        for (i = 0; i < max_clients; i++) 
+        {
+            sd = client_socket[i];
+              
+            if (FD_ISSET( sd , &readfds)) 
+            {
+                //Check if it was for closing , and also read the incoming message
+                if ((valread = read( sd , buffer, 1024)) == 0)
+                {
+                    //Somebody disconnected , get his details and print
+                    getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
+                    printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+                      
+                    //Close the socket and mark as 0 in list for reuse
+                    close( sd );
+                    client_socket[i] = 0;
+                }
+                  
+                //Echo back the message that came in
+                else
+                {
+                     //Print the Message Sent from Socket
+                  printf("Message From Client: %s\n",buffer);
+
+                    //set the string terminating NULL byte on the end of the data read
+                    buffer[valread] = '\0';
+                    send(sd , buffer , strlen(buffer) , 0 );
+                }
+            }
+        }
+
+      }
+
+      else if(netClient==1)
+      {
+      //printf("NetClinet :D\n");
+        // char* msg;
+        // read(sockfd, &msg, 1);
+
+        // printf("read char from server = %s\n", msg);
+      }
    }
 
 
@@ -396,51 +785,66 @@ int i, j, k;
    /* create sample player */
       createPlayer(0, 52.0, 27.0, 52.0, 0.0);
 
-   } else {
-   	/* your code to build the world goes here */
+   } 
+   else 
+   {
+      //We are the Server
+      if(netServer==1)
+      {
+         //The World Building Logic
+         //Second Implementations
+         int seed = 10;
 
-      //Second Implementations
-      int seed = 10;
+         //Method 2
+         Gradient_Table gradientTable = CreateGradientTable(seed);
 
-      //Method 2
-      Gradient_Table gradientTable = CreateGradientTable(seed);
+         //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
+         //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
+         //Use 2 For REALLY Jagged Array
+         //Use 25 for Nice Valley type.
+         float detailModifier =15;
 
-      //Nice Seed Values Range between ~20-60. 70 Becomes very Flat
-      //Use 10 if you wish to check the collision for the No hopping on Tiles with Height difference of 2.
-      //Use 2 For REALLY Jagged Array
-      //Use 25 for Nice Valley type.
-      float detailModifier =15;
-
-      //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
-      for(int x=0;x<WORLDX;x++)
-         {
-            printf("\n");
-            for(int z=0;z<WORLDZ;z++)
+         //For now Ensure that WORLDX == WORLDZ and that SIZE == WORLDX * WORLDZ
+         for(int x=0;x<WORLDX;x++)
             {
+               printf("\n");
+               for(int z=0;z<WORLDZ;z++)
+               {
 
-               //Method 1
-               //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *30 +25;
-               
-               //Method 2. The * modifier = Amplitude. DetailModifier= Frequency. Seed = Slight repositioning
-               //Octaves are implied.
-               float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25+25;
+                  //Method 1
+                  //float val=PerlinNoise_At((float)(x+seed),(float)z+seed) *30 +25;
+                  
+                  //Method 2. The * modifier = Amplitude. DetailModifier= Frequency. Seed = Slight repositioning
+                  //Octaves are implied.
+                  float val=ComputePerlin_Value(gradientTable, (float)(x)/detailModifier +seed, (float)(z)/detailModifier +seed)  *25+25;
 
 
-               //Set Cubes to Land!
-               for(int i=0;i<val;i++)
-                  world[x][i][z]=1;
+                  //Set Cubes to Land!
+                  for(int i=0;i<val;i++)
+                     world[x][i][z]=1;
+               }
             }
-         }
 
-      //Method 2
-      //Gradient Table no longer needed so lets scrap it.
-      DestroyGradientTable(gradientTable);
+         //Method 2
+         //Gradient Table no longer needed so lets scrap it.
+         DestroyGradientTable(gradientTable);
 
-      //Lets Create some Clouds
-      CreateSkyClouds();
+         //Lets Create some Clouds
+         CreateSkyClouds();
 
-      //Setup ProjectileManager
-      CreateProjectileManager();
+         //Setup ProjectileManager
+         CreateProjectileManager();
+
+         Initialize_Server();
+      }
+      //We are the Client
+      else if (netClient==1)
+      {
+         Initialize_Client();
+
+      }
+
+
    }
 
 
@@ -459,145 +863,157 @@ int i, j, k;
       //Cleanup after self. 
       DestroySkyClouds();
       DestroyProjectileManager(); 
+
+
    }
 
 
 int oldX;
 int oldY;
 void mouse(int button, int state, int x, int y) {
-/* capture mouse button events - not currently used */
-   if ((state == GLUT_DOWN) && (button == GLUT_LEFT_BUTTON))
-   { 
-      //All that is needed is to take our current XZ orientation
-      //and determine the upward Y force which we will decay over time in ApplyGravity
 
-      //Note Gravity plays no effect on X or Z force, instead wind would naturally have a
-      //friction coefficient to reduce these values, but we will assume those are negligible
+   //This Only Occurs Client Side
+   if(netClient==1)
+   {   
+   /* capture mouse button events - not currently used */
+      if ((state == GLUT_DOWN) && (button == GLUT_LEFT_BUTTON))
+      { 
+         //All that is needed is to take our current XZ orientation
+         //and determine the upward Y force which we will decay over time in ApplyGravity
 
-      //M_PI is pi defined in math.h
-      //printf("Pi = %f\n", M_PI);
-      long double radianAngle = (long double)projectile_Angle * M_PI/180.0; 
+         //Note Gravity plays no effect on X or Z force, instead wind would naturally have a
+         //friction coefficient to reduce these values, but we will assume those are negligible
 
-   //Soh Cah Toa
-      //Calculate Y and Horizontal Force
-      double xzForce= (double)(cos(radianAngle)) * projectile_Velocity;
-      double yForce= (double)(sin(radianAngle)) * projectile_Velocity;
+         //M_PI is pi defined in math.h
+         //printf("Pi = %f\n", M_PI);
+         long double radianAngle = (long double)projectile_Angle * M_PI/180.0; 
 
-
-     //Now to apply our xz force in the direction we are facing
-      float orientationX;
-      float orientationY;
-      float orientationZ;
-
-      getViewOrientation(&orientationX,&orientationY,&orientationZ);
-
-      //X Controls Up/Down Pitch
-      //Y Controls Yaw , which is whats needed for XZ force
-
-      //Orientation produces weird results therefore constrain to 360%
-      orientationY = (int) orientationY%360;
-
-      //Since Triangls have a MAX of 90 Degrees Each, the Quadrant this Orientation is in will be needed
-
-      /*
-      Q1 = 0-90
-      Q2 = 90-180
-      Q3 = 180-270
-      Q4 = 270-360 (Which is not possible due to Mod, so its technically 270-359)
-
-      Overlaps do not matter.
-      */
-
-      //Mod 90 to get the Quadrant Angle
-      radianAngle = ((int)orientationY)%90;
+      //Soh Cah Toa
+         //Calculate Y and Horizontal Force
+         double xzForce= (double)(cos(radianAngle)) * projectile_Velocity;
+         double yForce= (double)(sin(radianAngle)) * projectile_Velocity;
 
 
-     //This Value also determines the amount of XZ force needed to apply the XZ Force
-     //Calculate XForce and ZForce
-     radianAngle = (long double)radianAngle * M_PI/180.0; 
+        //Now to apply our xz force in the direction we are facing
+         float orientationX;
+         float orientationY;
+         float orientationZ;
 
-     double xForce= (double)(cos(radianAngle)) * xzForce;
-     double zForce= (double)(sin(radianAngle)) * xzForce;
+         getViewOrientation(&orientationX,&orientationY,&orientationZ);
 
-     //Now that the angle is set, apply a quick Swap based on what quadrant we are in.
+         //X Controls Up/Down Pitch
+         //Y Controls Yaw , which is whats needed for XZ force
 
-     //Q1 Inverse XZ
-     if( (orientationY) <=90)
-     {
-      float temp = zForce;
-      zForce= -xForce;
-      xForce= temp;
-     }
-     //Q2 this is the default orientation quadrant, do nothing.
-     else if( (orientationY) <=180)
-     {}
-     //Q3 X becomes Negative and Z becomes Negative
-     else if( (orientationY) <=270)
-     {
-      ///printf("Quadrant:3\n");
-      float temp = xForce;
-      xForce= -zForce;
-      zForce= temp;
-     }   
-     //Q4 Z becomes Negative 
-     else
-     {
-      float temp = xForce;
-      xForce= -temp;
-      zForce= -zForce;     
-     }
+         //Orientation produces weird results therefore constrain to 360%
+         orientationY = (int) orientationY%360;
+
+         //Since Triangls have a MAX of 90 Degrees Each, the Quadrant this Orientation is in will be needed
+
+         /*
+         Q1 = 0-90
+         Q2 = 90-180
+         Q3 = 180-270
+         Q4 = 270-360 (Which is not possible due to Mod, so its technically 270-359)
+
+         Overlaps do not matter.
+         */
+
+         //Mod 90 to get the Quadrant Angle
+         radianAngle = ((int)orientationY)%90;
 
 
-     //Now we have all the variables to Spawn our projectile
-     SpawnProjectile(xForce,yForce,zForce);
-   }
+        //This Value also determines the amount of XZ force needed to apply the XZ Force
+        //Calculate XForce and ZForce
+        radianAngle = (long double)radianAngle * M_PI/180.0; 
 
-   if ((state == GLUT_UP) && (button == GLUT_RIGHT_BUTTON))
-   {  
-         //Calculate The Difference in X
-         // ->  = Increase Velocity
-      int   xDifference = x-oldX;
-      float yDifference = y-oldY;
+        double xForce= (double)(cos(radianAngle)) * xzForce;
+        double zForce= (double)(sin(radianAngle)) * xzForce;
 
-      //Compact the y Difference so smaller angles are achievable
-      yDifference /= 10.0;
-      xDifference /= 10.0;
-      //Display Currently Set Velocity and Angle
+        //Now that the angle is set, apply a quick Swap based on what quadrant we are in.
 
-      //Height is Inverted
-      projectile_Angle    -= (double)(yDifference);
+        //Q1 Inverse XZ
+        if( (orientationY) <=90)
+        {
+         float temp = zForce;
+         zForce= -xForce;
+         xForce= temp;
+        }
+        //Q2 this is the default orientation quadrant, do nothing.
+        else if( (orientationY) <=180)
+        {}
+        //Q3 X becomes Negative and Z becomes Negative
+        else if( (orientationY) <=270)
+        {
+         ///printf("Quadrant:3\n");
+         float temp = xForce;
+         xForce= -zForce;
+         zForce= temp;
+        }   
+        //Q4 Z becomes Negative 
+        else
+        {
+         float temp = xForce;
+         xForce= -temp;
+         zForce= -zForce;     
+        }
 
-      projectile_Velocity += (double)(xDifference);
 
-      //Max Angle = 180;
-      if(projectile_Angle>90)
-         projectile_Angle=90;
-      if(projectile_Angle<0)
-         projectile_Angle=0;
+        //Now we have all the variables to Spawn our projectile
+        //But We Don't. Instead we Send the Message to the Server
+        //SpawnProjectile(xForce,yForce,zForce);
 
-      if(projectile_Velocity<0)
-         projectile_Velocity=0;
-      if(projectile_Velocity>100)
-         projectile_Velocity=100;
+        char* message;
+        message= strdup("I want to Shoot a Projectile! :D\n");
+        send(client_SockFD, message, strlen(message), 0); 
+      }
 
-      //Max Velocity = 100
-      //Warp the Mouse position to old position to make it easier to modify values 
-      //and navigate
-      glutWarpPointer( oldX, oldY);
-           //Scale down the Projectile Force Between a Range
+      if ((state == GLUT_UP) && (button == GLUT_RIGHT_BUTTON))
+      {  
+            //Calculate The Difference in X
+            // ->  = Increase Velocity
+         int   xDifference = x-oldX;
+         float yDifference = y-oldY;
 
-     //Find the Sweet Spot for Arcs ie if Mass = 5 *2 = Gravity will push down with a Force of 10
-     //XZ should equate to a force of 20 in this instance min
-     printf("----------\n");
-     printf("Angle=%f\n", projectile_Angle);
-     printf("Velocity=%f\n", projectile_Velocity);
-     printf("===========\n");
-   }
-   else if ((state == GLUT_DOWN) && (button == GLUT_RIGHT_BUTTON))
-   {
-      oldX=x;
-      oldY=y;
-      //printf("down - %d,%d \n",x,y);
+         //Compact the y Difference so smaller angles are achievable
+         yDifference /= 10.0;
+         xDifference /= 10.0;
+         //Display Currently Set Velocity and Angle
+
+         //Height is Inverted
+         projectile_Angle    -= (double)(yDifference);
+
+         projectile_Velocity += (double)(xDifference);
+
+         //Max Angle = 180;
+         if(projectile_Angle>90)
+            projectile_Angle=90;
+         if(projectile_Angle<0)
+            projectile_Angle=0;
+
+         if(projectile_Velocity<0)
+            projectile_Velocity=0;
+         if(projectile_Velocity>100)
+            projectile_Velocity=100;
+
+         //Max Velocity = 100
+         //Warp the Mouse position to old position to make it easier to modify values 
+         //and navigate
+         glutWarpPointer( oldX, oldY);
+              //Scale down the Projectile Force Between a Range
+
+        //Find the Sweet Spot for Arcs ie if Mass = 5 *2 = Gravity will push down with a Force of 10
+        //XZ should equate to a force of 20 in this instance min
+        printf("----------\n");
+        printf("Angle=%f\n", projectile_Angle);
+        printf("Velocity=%f\n", projectile_Velocity);
+        printf("===========\n");
+      }
+      else if ((state == GLUT_DOWN) && (button == GLUT_RIGHT_BUTTON))
+      {
+         oldX=x;
+         oldY=y;
+         //printf("down - %d,%d \n",x,y);
+      }
    }
 }
 
