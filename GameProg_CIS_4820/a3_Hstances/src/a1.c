@@ -146,28 +146,31 @@ void UpdatePlayers(PlayerInfo* player)
 char* Stringify_Players()
 {
   char* string;
-  char message[1000];
+  char message[500];
 
   char portion[100] ;
+         memset(message,0,500);
+
   //All that is needed
     for(int i=0;i<plSize;i++)
     {
-           //X Loc
+
+        printf("PX=%f\n",PlayerList[i]->px);
+         //X Loc
            snprintf(portion,100,"%f",PlayerList[i]->px);
            strcat(message,portion);
            strcat(message,",");
-
+        printf("PY=%f\n",PlayerList[i]->py);
            //Y Loc
            snprintf(portion,100,"%f",PlayerList[i]->py);
            strcat(message,portion);
            strcat(message,",");
-
+        printf("PZ=%f\n",PlayerList[i]->pz);
            //Z Loc
            snprintf(portion,100,"%f",PlayerList[i]->pz);
            strcat(message,portion);
            strcat(message,",");
-
-           //X Orient
+          //X Orient
            snprintf(portion,100,"%f",PlayerList[i]->ox);
            strcat(message,portion);
            strcat(message,",");
@@ -180,11 +183,10 @@ char* Stringify_Players()
            //Angle
            snprintf(portion,100,"%f",PlayerList[i]->angle);
            strcat(message,portion);
-           strcat(message,"|");//Char used to seperate players
+           strcat(message,"|");//Char used to seperate players*/
     }
     strcat(message,"\0");
     string=strdup(message);
-    printf("Works tillher :D\n");
     return string;
 }
 
@@ -478,19 +480,17 @@ void Initialize_Client()
  //   char * msg = malloc( sizeof(char) * (WORLDX*WORLDY*WORLDZ));
     int msgSize= sizeof(char) * (WORLDX*WORLDZ);
 
+    //Send 1 Letter Accept Code
+    
 
-
-   //GenerateWorld Copy
+   //GenerateWorld Copy Plane by Plane
     for(int i=0;i<49;i++)
     {
       printf("Count=%d\n",i);
       printf("MessageLength Pre: %d\n", (int)(strlen(msg)));
       memset(msg,0, msgSize);
       recv(client_SockFD, msg, msgSize, 0);
-      printf("recv\n");
       char* str_Plane = strdup(msg);
-      printf("strdup\n");
-
       DeString_Plane(str_Plane, i);
       free(str_Plane);
     }
@@ -750,6 +750,7 @@ float *la;
             }
           
 
+            
             //Send Current World Data
 
 
@@ -768,9 +769,6 @@ float *la;
              send(new_socket, &time_Passed_ServerStart, sizeof(time_Passed_ServerStart), 0);
 
 
-
-
-
             puts("Welcome Configurations sent successfully");
               
             //add new socket to array of sockets
@@ -782,7 +780,7 @@ float *la;
                     client_socket[i] = new_socket;
                     printf("Adding to list of sockets as %d\n" , i);
                     AddPlayer(client_socket[i]);
-                    //return;
+                    return;
                 }
             }
         }
@@ -839,15 +837,15 @@ float *la;
   
 
 
-                  //char* playerListMessage;
-                  //playerListMessage=Stringify_Players();
+                  char* playerListMessage;
+                  playerListMessage=Stringify_Players();
 
                   //Sending the First Message of Players to Draw
                   //send(sd, playerListMessage, sizeof(playerListMessage), 0);
     
 
 
-                  //free(playerListMessage);
+                  free(playerListMessage);
                   free(strCopy);
 
                   if(player!=NULL)
@@ -918,7 +916,7 @@ float *la;
            char portion[100];
 
 
-           memset(message,0,500);
+           memset(message,0,1000);
            //X Loc
            snprintf(portion,100,"%f",currLoc_X);
            strcat(message,portion);
