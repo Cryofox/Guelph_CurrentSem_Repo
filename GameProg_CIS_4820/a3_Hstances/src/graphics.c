@@ -104,7 +104,6 @@ void createPlayer(int number, float x, float y, float z, float playerroty) {
    playerPosition[number][3] = playerroty;
    playerVisible[number] = 1;
 
-
 }
 
    /* move player to a new position xyz with rotation rotx,roty,rotz */
@@ -118,6 +117,20 @@ void setPlayerPosition(int number, float x, float y, float z, float playerroty){
    playerPosition[number][2] = z;
    playerPosition[number][3] = playerroty;
 }
+
+   /* functions store and return the current location of the viewpoint */
+void getPlayerPosition(int number, float *x, float *y, float *z, float *playerroty){
+   if (number >= PLAYER_COUNT) {
+      printf("ERROR: player number greater than %d\n", PLAYER_COUNT);
+      exit(1);
+   }
+   
+   *x= playerPosition[number][0];
+   *y= playerPosition[number][1] ;
+   *z= playerPosition[number][2];
+   *playerroty= playerPosition[number][3]; 
+}
+
 
    /* turn off drawing for player number */
 void hidePlayer(int number) {

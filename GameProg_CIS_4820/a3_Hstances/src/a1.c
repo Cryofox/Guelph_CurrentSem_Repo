@@ -58,17 +58,132 @@ extern int netServer;      // network server flag, is server when = 1
     //set of socket descriptors
     fd_set readfds;
       
-    //a message
-    char *message = "ECHO Daemon v1.0 \r\n";
+
+
 
     struct timeval time_SelectTimeout;
 
 
+typedef struct{
+  float px,py,pz,ox,oy,oz;
+  double angle,velocity;
+  int shootFlag, id;
+}PlayerInfo;
 
+PlayerInfo** PlayerList;
+int plSize=0;
 //Destruction LIST
 //
 
+void CreatePlayerManager()
+{
+  if(PlayerList==NULL)
+     PlayerList =malloc( 10 * sizeof(PlayerInfo));  
+}
 
+//When a Player Connects we Store the SocketD into a player struct as ID
+void AddPlayer(int sd)
+{
+  PlayerInfo* player = malloc( sizeof(PlayerInfo));
+  player->id = sd;
+  plSize++;
+}
+//When a Player Disconnects or Dies, remove the Player from List
+void DeletePlayer(int id)
+{
+  int index=-1;
+  for(int i=0;i<plSize;i++)
+    if(PlayerList[i]->id ==id)
+    {  index=i;
+      break;}
+
+  if(index==-1)
+    return;
+//Remove at Index and shift towards the left
+      for(int i=index;i< plSize;i++)
+      {
+         free(PlayerList[i]);
+         PlayerList[i]=malloc(sizeof(PlayerInfo));
+
+         //Duplicate Struct Contents
+         if(i+1 < plSize)
+            *PlayerList[i] = *PlayerList[(i+1)];
+      }
+      plSize--;
+}
+
+
+void UpdatePlayers(PlayerInfo* player)
+{
+  //We have a Struct containing player info, assign values to match on SD
+  for(int i=0;i<plSize;i++)
+  {
+    if(PlayerList[i]->id == player->id)
+    {
+      //Only store needed Data, velocity shootflag not needed for play pos/orientation
+      PlayerList[i]->px =player->px; 
+      PlayerList[i]->py =player->py;
+      PlayerList[i]->pz =player->pz; 
+      PlayerList[i]->ox =player->ox; 
+      PlayerList[i]->oy =player->oy; 
+      PlayerList[i]->oz =player->oz; 
+      PlayerList[i]->angle =player->angle;
+    }
+
+  }
+
+
+}
+
+
+
+//Creates a Struct Representation of the String Passed by the Client to the Server
+PlayerInfo* ParsePlayer_Info(char* string, int id)
+{
+  PlayerInfo* player = malloc( sizeof(PlayerInfo));
+
+  char* token = strtok(string, ",");
+
+    //printf("token: %s\n", token);
+    player->px = atof(token);
+
+    token = strtok(NULL,",");
+    player->py = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->pz = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->ox = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->oy = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->oz = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->angle = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->velocity = atof(token);
+    printf("Token=%s\n",token);
+
+    token = strtok(NULL,",");
+    player->shootFlag = atoi(token);
+    printf("Token=%s\n",token);
+
+
+    player->id=id;
+   // free(token);
+  return player;
+}
 
 //Moved here so Can be called from Update
 float xForce;
@@ -79,7 +194,7 @@ int shootFlag= FALSE ;
 
 //The Projectiles Angle to be Used from the Forward view
 static double projectile_Angle=0.0;
-static double projectile_Velocity=0.0;
+static double projectile_Velocity=100;
 
 
 
@@ -551,7 +666,6 @@ float *la;
 
             //Send Plane Information to the Player Untill a World is Created
 
-
             //Send the Current State of the World
             for(int y=0;y<49;y++)
             {
@@ -620,13 +734,35 @@ float *la;
                 //Echo back the message that came in
                 else
                 {
+
+                  // Player Sends 1 Message
+
                   //Clients Send Their Position orientation, angle,velocity, and whether or not they wish to spawn a projectile
 
                   // PosX,PosY,posZ,OrientX,OrientY,OrientZ,Angle,Vel,T/F
 
-                  //Update the Players Position
+                  //We have to Parse the Information now
+                  char* strCopy = strdup(buffer);
+
+                  printf("ID=%d\n",sd );
+                  PlayerInfo* player = ParsePlayer_Info(strCopy, sd);
+                  //Now we have a Player with all the Information required to position, orient, and Shoot projectiles.
+
                   
 
+
+                  // Server Sends 2 List of Players
+                  //                List of Projectiles
+
+                  //Whenever a Player Sends info, we update the PlayerList
+
+
+
+
+                  free(strCopy);
+                  free(player);
+                  //Update the Players Position
+                  
 
 
                 //Print the Message Sent from Socket
@@ -934,7 +1070,7 @@ int i, j, k;
 
          //Setup ProjectileManager
          CreateProjectileManager();
-
+         CreatePlayerManager();
          Initialize_Server();
       }
       //We are the Client

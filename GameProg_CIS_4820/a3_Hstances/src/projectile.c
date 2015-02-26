@@ -115,7 +115,7 @@ extern float gravity_Force;
    //This code repositions all current projectile via their current trajectory (force) based upon time.
    //This code also handles any and all collision related to each projectile bounds and cube hitting.
   void UpdateProjectiles(double timePassed)
-   {
+  {
       float gravity = gravity_Force;
 
       //For Each Particle Check if it has intersected with a bloc
@@ -190,5 +190,5 @@ extern float gravity_Force;
 
       }
 
-   }
+  }
 
