@@ -130,8 +130,9 @@ extern float gravity_Force;
       {
          //Collision Detect: Bounds, XZ and Ground. The roof is not Counted as a Bound so projectiles can leave and enter the zone
          //if angled correctly.
-         if(((projectile_Manager[i]->xPos) > 100 || (projectile_Manager[i]->xPos) <0) || ((projectile_Manager[i]->zPos) > 100 || (projectile_Manager[i]->zPos) <0) || (projectile_Manager[i]->yPos<0)) 
-            DestroyProjectile(i);
+         if(((projectile_Manager[i]->xPos) > 100 || (projectile_Manager[i]->xPos) <0) || ((projectile_Manager[i]->zPos) > 100 || (projectile_Manager[i]->zPos) <0)) 
+            {//printf("D PROJ\n");
+              DestroyProjectile(i);}
          else
          {
             //For Legibility
@@ -139,31 +140,69 @@ extern float gravity_Force;
             int ypos =(int)(projectile_Manager[i]->yPos);
             int zpos =(int)(projectile_Manager[i]->zPos);
 
-            //Check if the projectile Collides with Anyblock (ANY block)
-            if( world[xpos][ypos][zpos]!=0)
-            {
-               //Destroy the Projectile
-               DestroyProjectile(i);
-               //Toggle Off Blocks in 
+            if(ypos<40)
+             { 
 
-            //                x
-            //               x x
-            // 1*2       // xxxxx   
-            // 1*1       //  x x    
-            // 1*0       //   x    
+              int collision=0;
 
-         //Apply This in the Direction Up and Down     
-            for(int depth=2; depth>-1;depth--)
-               for(int squareX= xpos-(depth); squareX<= xpos+(depth); squareX++)
-               for(int squareZ= zpos-(depth); squareZ<= zpos+(depth); squareZ++)
-                  //Defensive Coding: Within Array Bounds
-                  if( squareZ >=0 && squareZ<100 && squareX>=0 && squareX<100 && (ypos-depth)>=0 && (ypos-depth)<50)
-                  {  
-                     world[squareX][ (ypos- (2-depth))][squareZ]=0; 
-                     world[squareX][ (ypos+ (2-depth))][squareZ]=0;                      
-                  }   
+              //Apply a Box
+              float fxPos= projectile_Manager[i]->xPos+0.2;
 
-            }
+              if( world[(int)(fxPos)][ypos][zpos]!=0 && world[(int)(fxPos)][ypos][zpos]!=5)
+                collision=1;
+              fxPos= projectile_Manager[i]->xPos-0.2;
+
+              if( world[(int)(fxPos)][ypos][zpos]!=0 && world[(int)(fxPos)][ypos][zpos]!=5)
+                collision=1;
+
+              float fzPos= projectile_Manager[i]->zPos+0.2;
+
+              if( world[xpos][ypos][(int)(fzPos)]!=0 && world[xpos][ypos][(int)(fzPos)]!=5)
+                collision=1;
+              fzPos= projectile_Manager[i]->zPos-0.2;
+
+              if( world[xpos][ypos][(int)(fzPos)]!=0 && world[xpos][ypos][(int)(fzPos)]!=5)
+                collision=1;
+
+
+              //Now for Y
+              float fyPos= projectile_Manager[i]->yPos+0.2;
+
+              if( world[xpos][(int)(fyPos)][zpos]!=0 && world[xpos][(int)(fyPos)][zpos]!=5)
+                collision=1;
+              fzPos= projectile_Manager[i]->yPos-0.2;
+
+              if( world[xpos][(int)(fyPos)][zpos]!=0 && world[xpos][(int)(fyPos)][zpos]!=5)
+                collision=1;
+
+
+
+                         //Check if the projectile Collides with Anyblock (ANY block)
+                         if( collision==1)
+                         {
+                           //printf("D PROJ\n");
+                            //Destroy the Projectile
+                            DestroyProjectile(i);
+                            //Toggle Off Blocks in 
+             
+                         //                x
+                         //               x x
+                         // 1*2       // xxxxx   
+                         // 1*1       //  x x    
+                         // 1*0       //   x    
+             
+                      //Apply This in the Direction Up and Down     
+                         for(int depth=2; depth>-1;depth--)
+                            for(int squareX= xpos-(depth); squareX<= xpos+(depth); squareX++)
+                            for(int squareZ= zpos-(depth); squareZ<= zpos+(depth); squareZ++)
+                               //Defensive Coding: Within Array Bounds
+                               if( squareZ >=0 && squareZ<100 && squareX>=0 && squareX<100 && (ypos-depth)>=0 && (ypos-depth)<50)
+                               {  
+                                  world[squareX][ (ypos- (2-depth))][squareZ]=0; 
+                                  world[squareX][ (ypos+ (2-depth))][squareZ]=0;                      
+                               }   
+             
+                         }}
          } 
       }
 

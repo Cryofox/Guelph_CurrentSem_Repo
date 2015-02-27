@@ -192,6 +192,15 @@ void setMobPosition(int number, float x, float y, float z, float mobroty){
    mobPosition[number][3] = mobroty;
 }
 
+   /* move mob to a new position xyz with rotation rotx,roty,rotz */
+void getMobPosition(int number, float* x, float* y, float* z){
+
+   *x=mobPosition[number][0];
+   *y=mobPosition[number][1];
+   *z=mobPosition[number][2];
+
+}
+
    /* turn off drawing for mob number */
 void hideMob(int number) {
    if (number >= MOB_COUNT) {
@@ -211,6 +220,10 @@ void showMob(int number) {
 }
 
 
+void GetMob_Visibility(int number, int *isLive)
+{
+   *isLive = mobVisible[number];
+}
 
 
    /* allows user to set position of the light */
@@ -664,6 +677,11 @@ static int lighton = 1;
          break;
       case ' ':      // toggle dig flag, used to indicate user wants to dig
          dig = 1;
+         break;
+      case 'm':      // toggle map display, 0=none, 1=small, 2=large
+         displayMap++;
+         if (displayMap > 2)
+            displayMap = 0;
          break;
    }
 }

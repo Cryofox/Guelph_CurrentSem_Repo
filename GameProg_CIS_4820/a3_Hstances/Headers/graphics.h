@@ -101,4 +101,7 @@ void  draw2Dbox(int, int, int, int);
 void  draw2Dtriangle(int, int, int, int, int, int);
 void  set2Dcolour(float []);
 
+
+void GetMob_Visibility(int number, int *isLive);
+void getMobPosition(int number, float* x, float* y, float* z);
 #endif

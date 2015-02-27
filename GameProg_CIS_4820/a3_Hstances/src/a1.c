@@ -825,6 +825,102 @@ void collisionResponse()
    }
 }
 
+
+
+void DrawInversedBox_M1(int bx,int by, int tx,int ty)
+{
+  //Now with this we can flip the coord to place corectly
+
+  int minX = 0;
+  int maxX = 0;
+
+  int minY = 0;
+  int maxY = 0;
+  if(bx< tx)
+  {
+    minX=bx;
+    maxX=tx;
+  }
+  else
+  {
+    minX=tx;
+    maxX=bx;   
+  }
+  if(by< ty)
+  {
+    minY=by;
+    maxY=ty;
+  }
+  else
+  {
+    minY=ty;
+    maxY=by;   
+  }
+
+  //Calculate From Right
+  float mapW=  screenWidth  /4;
+  float mapH=  screenHeight/4; 
+
+  float remScreen_X = (screenWidth- mapW) *2;
+  float remScreen_Y = (screenHeight- mapH) *2;
+  //Now we Can draw correctly.
+  draw2Dbox(minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),maxX+ (remScreen_X/2),maxY+ (remScreen_Y/2));
+
+}
+
+void DrawInversedBox_M2(int bx,int by, int tx,int ty)
+{
+  //Now with this we can flip the coord to place corectly
+
+  int minX = 0;
+  int maxX = 0;
+
+  int minY = 0;
+  int maxY = 0;
+  if(bx< tx)
+  {
+    minX=bx;
+    maxX=tx;
+  }
+  else
+  {
+    minX=tx;
+    maxX=bx;   
+  }
+  if(by< ty)
+  {
+    minY=by;
+    maxY=ty;
+  }
+  else
+  {
+    minY=ty;
+    maxY=by;   
+  }
+
+  //Calculate From Right
+
+  //Since it Takes up 1.5 of the Screen
+  float mapW=  screenWidth/1.5;
+  float mapH=  screenHeight/1.5;   
+
+  float remScreen_X = screenWidth- mapW;
+  float remScreen_Y = screenHeight- mapH;
+
+
+
+
+  //Now we Can draw correctly.
+  draw2Dbox(minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),maxX+ (remScreen_X/2),maxY+ (remScreen_Y/2));
+
+}
+//converts 255 Color to 0-1 range
+float CalculateColor(float val)
+{
+  return (val/255);
+}
+
+
    /******* draw2D() *******/
    /* draws 2D shapes on screen */
    /* use the following functions:        */
@@ -833,7 +929,8 @@ void collisionResponse()
    /* draw2Dtriangle(int, int, int, int, int, int);   */
    /* set2Dcolour(float []);           */
    /* colour must be set before other functions are called  */
-void draw2D() {
+void draw2D() 
+{
 
    if (testWorld) {
       /* draw some sample 2d shapes */
@@ -847,8 +944,183 @@ void draw2D() {
       draw2Dbox(500, 380, 524, 388);
    } else {
    /* your code goes here */
-    
 
+
+    //Small Map
+    if(displayMap==1)
+    {
+      float color[4];
+
+
+      float mapW=  screenWidth/4;
+      float mapH=  screenHeight/4;    
+
+
+      //Player is 1/5 the size of the Map
+      float playerW=  mapW/10;
+      float playerH=  mapH/10;          
+
+      float projectW=  playerW/10;
+      float projectH=  playerH/10;        
+
+
+      //Draw Projectiles
+      //20 = Projectile Count
+
+      //Set Color to PINK (Player)
+      color[0] = CalculateColor(255);
+      color[1] = CalculateColor(20);
+      color[2] = CalculateColor(147);
+      color[3] = CalculateColor(255);  
+      set2Dcolour(color);
+      for(int i=0;i< MOB_COUNT; i++)
+      {
+      //Projectiles are 1/10 the size of the playera  
+        int visible=0;
+        GetMob_Visibility(i, &visible);
+        if(visible==TRUE)
+        {
+          float px;
+          float py;
+          float pz;
+          getMobPosition(i, &px, &py, &pz);
+
+          px= px/100 * mapW;
+          pz= pz/100 * mapH;          
+         // printf("PX=%f\n",px);
+          DrawInversedBox_M1(  px-projectW, pz-projectH, px+projectW, pz+projectH);        
+        }
+
+      }
+
+      //Set Color to Dark Blue (Player)
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(0);
+      color[2] = CalculateColor(255);
+      color[3] = CalculateColor(255);  
+      set2Dcolour(color);
+
+        
+
+
+      //Calc our Cur X and Z loc
+
+     float currLoc_X;
+     float currLoc_Y;
+     float currLoc_Z;
+
+     getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+     currLoc_X*=-1;
+     currLoc_Y*=-1;
+     currLoc_Z*=-1;
+     currLoc_Y-=.5; 
+
+     //Position
+     float mapPosX=  (currLoc_X/ 100) * mapW;
+     float mapPosZ=  (currLoc_Z/ 100) * mapH;
+
+     DrawInversedBox_M1(  mapPosX-(playerW/2), mapPosZ- playerH/2, mapPosX+(playerW/2), mapPosZ+(playerH/2));
+
+
+      //Set Color to Dark Green
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(100);
+      color[2] = CalculateColor(0);
+      color[3] = CalculateColor(255);
+
+
+      set2Dcolour(color);
+
+      DrawInversedBox_M1(  0,0,mapW,mapH);
+    }    
+    else if (displayMap==2)
+    {
+      float color[4];
+
+
+      float mapW=  screenWidth/1.5;
+      float mapH=  screenHeight/1.5;    
+
+
+      //Player is 1/5 the size of the Map
+      float playerW=  mapW/10;
+      float playerH=  mapH/10;          
+
+      float projectW=  playerW/10;
+      float projectH=  playerH/10;        
+
+
+      //Draw Projectiles
+      //20 = Projectile Count
+
+      //Set Color to PINK (Player)
+      color[0] = CalculateColor(255);
+      color[1] = CalculateColor(20);
+      color[2] = CalculateColor(147);
+      color[3] = CalculateColor(255);  
+      set2Dcolour(color);
+      for(int i=0;i< MOB_COUNT; i++)
+      {
+      //Projectiles are 1/10 the size of the playera  
+        int visible=0;
+        GetMob_Visibility(i, &visible);
+        if(visible==TRUE)
+        {
+          float px;
+          float py;
+          float pz;
+          getMobPosition(i, &px, &py, &pz);
+
+          px= px/100 * mapW;
+          pz= pz/100 * mapH;          
+         // printf("PX=%f\n",px);
+          DrawInversedBox_M2(  px-projectW, pz-projectH, px+projectW, pz+projectH);        
+        }
+
+      }
+
+      //Set Color to Dark Blue (Player)
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(0);
+      color[2] = CalculateColor(255);
+      color[3] = CalculateColor(255);  
+      set2Dcolour(color);
+
+        
+
+
+      //Calc our Cur X and Z loc
+
+     float currLoc_X;
+     float currLoc_Y;
+     float currLoc_Z;
+
+     getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+     currLoc_X*=-1;
+     currLoc_Y*=-1;
+     currLoc_Z*=-1;
+     currLoc_Y-=.5; 
+
+     //Position
+     float mapPosX=  (currLoc_X/ 100) * mapW;
+     float mapPosZ=  (currLoc_Z/ 100) * mapH;
+
+     DrawInversedBox_M2(  mapPosX-(playerW/2), mapPosZ- playerH/2, mapPosX+(playerW/2), mapPosZ+(playerH/2));
+
+
+      //Set Color to Dark Green
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(100);
+      color[2] = CalculateColor(0);
+      color[3] = CalculateColor(255);
+
+
+      set2Dcolour(color);
+
+      DrawInversedBox_M2(  0,0,mapW,mapH);
+
+
+    }
 
 
    }
