@@ -912,7 +912,107 @@ void DrawInversedBox_M2(int bx,int by, int tx,int ty)
 
   //Now we Can draw correctly.
   draw2Dbox(minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),maxX+ (remScreen_X/2),maxY+ (remScreen_Y/2));
+}
 
+void DrawBorder_M1(int bx,int by, int tx,int ty, int val)
+{
+  //Now with this we can flip the coord to place corectly
+
+  int minX = 0;
+  int maxX = 0;
+
+  int minY = 0;
+  int maxY = 0;
+  if(bx< tx)
+  {
+    minX=bx;
+    maxX=tx;
+  }
+  else
+  {
+    minX=tx;
+    maxX=bx;   
+  }
+  if(by< ty)
+  {
+    minY=by;
+    maxY=ty;
+  }
+  else
+  {
+    minY=ty;
+    maxY=by;   
+  }
+  //Calculate From Right
+  float mapW=  screenWidth  /4;
+  float mapH=  screenHeight/4; 
+
+  float remScreen_X = (screenWidth- mapW) *2;
+  float remScreen_Y = (screenHeight- mapH) *2;
+  //Now we Can draw correctly.
+  //draw2Dbox(minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),maxX+ (remScreen_X/2),maxY+ (remScreen_Y/2));
+
+  //Bottom - H
+  draw2Dline( minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     minY+ (remScreen_Y/2)   , (screenHeight/val)  );
+  //Top - H
+  draw2Dline( minX+ (remScreen_X/2) ,maxY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenHeight/val)  );
+
+  //Left - V
+  draw2Dline( minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    minX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenWidth/val)  );
+
+  //Right - V
+  draw2Dline( maxX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenWidth/val)  );
+}
+
+void DrawBorder_M2(int bx,int by, int tx,int ty, int val)
+{
+  //Now with this we can flip the coord to place corectly
+
+  int minX = 0;
+  int maxX = 0;
+
+  int minY = 0;
+  int maxY = 0;
+  if(bx< tx)
+  {
+    minX=bx;
+    maxX=tx;
+  }
+  else
+  {
+    minX=tx;
+    maxX=bx;   
+  }
+  if(by< ty)
+  {
+    minY=by;
+    maxY=ty;
+  }
+  else
+  {
+    minY=ty;
+    maxY=by;   
+  }
+
+  //Calculate From Right
+
+  //Since it Takes up 1.5 of the Screen
+  float mapW=  screenWidth/1.5;
+  float mapH=  screenHeight/1.5;   
+
+  float remScreen_X = screenWidth- mapW;
+  float remScreen_Y = screenHeight- mapH;
+
+  //Bottom - H
+  draw2Dline( minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     minY+ (remScreen_Y/2)   , (screenHeight/val)  );
+  //Top - H
+  draw2Dline( minX+ (remScreen_X/2) ,maxY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenHeight/val)  );
+
+  //Left - V
+  draw2Dline( minX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    minX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenWidth/val)  );
+
+  //Right - V
+  draw2Dline( maxX+ (remScreen_X/2) ,minY+ (remScreen_Y/2),    maxX+ (remScreen_X/2),     maxY+ (remScreen_Y/2)   , (screenWidth/val)  );
 }
 //converts 255 Color to 0-1 range
 float CalculateColor(float val)
@@ -949,6 +1049,8 @@ void draw2D()
     //Small Map
     if(displayMap==1)
     {
+
+
       float color[4];
 
 
@@ -962,6 +1064,21 @@ void draw2D()
 
       float projectW=  playerW/10;
       float projectH=  playerH/10;        
+
+
+
+
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(0);
+      color[2] = CalculateColor(0);
+      color[3] = CalculateColor(255); 
+
+
+      set2Dcolour(color);
+      //Same Params as Map Backdrop
+      DrawBorder_M1(0,0,mapW, mapH,20);
+
+
 
 
       //Draw Projectiles
@@ -1049,6 +1166,19 @@ void draw2D()
       float projectW=  playerW/10;
       float projectH=  playerH/10;        
 
+
+
+
+
+      color[0] = CalculateColor(0);
+      color[1] = CalculateColor(0);
+      color[2] = CalculateColor(0);
+      color[3] = CalculateColor(255); 
+
+
+      set2Dcolour(color);
+      //Same Params as Map Backdrop
+      DrawBorder_M2(0,0,mapW, mapH,2);
 
       //Draw Projectiles
       //20 = Projectile Count
