@@ -34,5 +34,5 @@ char* Stringify_Projectiles();
 
 void Calculate_SpawnProjectile(float pX, float pY, float pZ, float oX,float oY,float oZ, double projVelocity, double projAngle);
 
-   void Client_CheckCollision(int xpos, int ypos, int zpos);
+   
 #endif

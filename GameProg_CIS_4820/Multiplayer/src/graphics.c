@@ -822,4 +822,3 @@ void  set2Dcolour(float colourv[]) {
    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, colourv);
 }
 
-

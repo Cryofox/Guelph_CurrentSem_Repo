@@ -13,22 +13,20 @@ Cloud** skyClouds;
 
 //The number of Clouds you'd like to populate the world
 int num_Clouds=30;
-int max_CloudSize=10;
+int max_CloudSize=30;
 
 //These Values are used to manipulate the direction wind is applied in, used for Cloud Movement
 //Diagonal movements may cause jittering due to centroid + mod
 float windForce_X=0;
-float windForce_Z=2;
+float windForce_Z=1.5;
 //=================  
 
 //This function fills the Global Variable Skyclouds with the num clouds used
 void CreateSkyClouds()
    {
-      
       skyClouds = malloc(num_Clouds * (sizeof(Cloud)));
       for(int i=0;i<num_Clouds;i++)
       {
-         srand( (10+i) ) ;
          //printf("%d\n", i);
          skyClouds[i]=CreateCloud();
       }
@@ -37,8 +35,6 @@ void CreateSkyClouds()
    //The function used to Create a Cloud
    Cloud* CreateCloud()
    {
-      //srand(204124);//Keep it constant
-
       Cloud* cloud = malloc(sizeof(Cloud));
 
 
@@ -80,7 +76,7 @@ void CreateSkyClouds()
             xOffset=1+ xPos;
             zOffset=0+ zPos;
             //Random will be used to decide whether a vox is added or not
-            if( ((int)(rand())%100) >50)
+            if( (rand()%100) >50)
                if(isDuplicate(cloud, xOffset, zOffset)==0)
                {
                   cloudCount++;
@@ -93,7 +89,7 @@ void CreateSkyClouds()
             //Left
             xOffset=-1+ xPos;
             zOffset=0+ zPos;
-            if( ((int)(rand())%100) >50)
+            if( (rand()%100) >50)
                if(isDuplicate(cloud, xOffset, zOffset)==0)
                {
                   cloudCount++;
@@ -105,7 +101,7 @@ void CreateSkyClouds()
             //Forward
             xOffset=0+ xPos;
             zOffset=1+ zPos;
-            if( ((int)(rand())%100) >50)
+            if( (rand()%100) >50)
                if(isDuplicate(cloud, xOffset, zOffset)==0)
                {
                   cloudCount++;
@@ -117,7 +113,7 @@ void CreateSkyClouds()
             //Backward
             xOffset=0+ xPos;
             zOffset=-1+ zPos;
-            if( ((int)(rand())%100) >50)            
+            if( (rand()%100) >50)            
                if(isDuplicate(cloud, xOffset, zOffset)==0)
                {
                   cloudCount++;
@@ -172,7 +168,7 @@ void CreateSkyClouds()
    {
       //Distance = Speed * Time, some gr 10 physics 
       float cloudTravelled_X = windForce_X*timePassed;
-      float cloudTravelled_Z = windForce_Z*timePassed;
+      float cloudTravelled_Z= windForce_Z*timePassed;
 
       //Clear the Sky of clouds
       for(int x=0;x<WORLDX;x++)
@@ -192,13 +188,10 @@ void CreateSkyClouds()
       //this is a very cool effect which is why I'm doing it this way.
 
          //if skyClouds[i] >200 (twice the size of the box, then reset to 0)
-  /*       if(skyClouds[i]->pos_X> WORLDX*2)
-            skyClouds[i]->pos_X=  skyClouds[i]->pos_X%200;
+         if(skyClouds[i]->pos_X> WORLDX*2)
+            skyClouds[i]->pos_X=0;
           if(skyClouds[i]->pos_Z> WORLDZ*2)
-            skyClouds[i]->pos_Z=  skyClouds[i]->pos_Z%200;        
-*/
-
-
+            skyClouds[i]->pos_Z=0;        
 
          //For Each Cloud Create White Cubes at correct Location
          //printf("Cloud[%d]: Length:%d", i, skyClouds[i]->cloudLength);

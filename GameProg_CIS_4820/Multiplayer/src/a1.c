@@ -29,84 +29,13 @@
 #include <netinet/in.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
-/* Derived from scene.c in the The OpenGL Programming Guide */
-/* Keyboard and mouse rotation taken from Swiftless Tutorials #23 Part 2 */
-/* http://www.swiftless.com/tutorials/opengl/camera2.html */
 
-/* Frames per second code taken from : */
-/* http://www.lighthouse3d.com/opengl/glut/index.php?fps */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
-#include "graphics.h"
-
-  /* mouse function called by GLUT when a button is pressed or released */
-void mouse(int, int, int, int);
-
-  /* initialize graphics library */
-extern void graphicsInit(int *, char **);
-
-  /* lighting control */
-extern void setLightPosition(GLfloat, GLfloat, GLfloat);
-extern GLfloat* getLightPosition();
-
-  /* viewpoint control */
-extern void setViewPosition(float, float, float);
-extern void getViewPosition(float *, float *, float *);
-extern void getOldViewPosition(float *, float *, float *);
-extern void setViewOrientation(float, float, float);
-extern void getViewOrientation(float *, float *, float *);
-
-  /* add cube to display list so it will be drawn */
-extern int addDisplayList(int, int, int);
-
-  /* mob controls */
-extern void createMob(int, float, float, float, float);
-extern void setMobPosition(int, float, float, float, float);
-extern void hideMob(int);
-extern void showMob(int);
-
-  /* player controls */
-extern void createPlayer(int, float, float, float, float);
-extern void setPlayerPosition(int, float, float, float, float);
-extern void hidePlayer(int);
-extern void showPlayer(int);
-
-  /* 2D drawing functions */
-extern void  draw2Dline(int, int, int, int, int);
-extern void  draw2Dbox(int, int, int, int);
-extern void  draw2Dtriangle(int, int, int, int, int, int);
-extern void  set2Dcolour(float []);
-
-
-  /* flag which is set to 1 when flying behaviour is desired */
+	/* flag which is set to 1 when flying behaviour is desired */
 extern int flycontrol;
-  /* flag used to indicate that the test world should be used */
+	/* flag used to indicate that the test world should be used */
 extern int testWorld;
-  /* flag to print out frames per second */
-extern int fps;
-  /* flag to indicate removal of cube the viewer is facing */
-extern int dig;
-  /* flag indicates the program is a client when set = 1 */
-extern int netClient;
-  /* flag indicates the program is a server when set = 1 */
-extern int netServer; 
-  /* size of the window in pixels */
-extern int screenWidth, screenHeight;
-  /* flag indicates if map is to be printed */
-extern int displayMap;
 
-  /* frustum corner coordinates, used for visibility determination  */
-extern float corners[4][3];
 
-  /* determine which cubes are visible e.g. in view frustum */
-extern void ExtractFrustum();
-extern void tree(float, float, float, float, float, float, int);
-
-/********* end of extern variable declarations **************/
 
 
 //External Reference to Client/Server flags
@@ -262,7 +191,7 @@ char* Stringify_Players(int sd)
     strcat(message,"}:");
     strcat(message,"\0");
     string=strdup(message);
-  //  printf("THE STRING IS:%s\n",string);
+    printf("THE STRING IS:%s\n",string);
     return string;
 }
 
@@ -290,8 +219,8 @@ void Srvr_ShowPlayers()
 //Called by Client Code from  a Server Sent MEssage
 void DeStringifyPlayers(char* stringMsg)
 {
-  //printf("DESTRING\n");
-  //printf("Message=%s\n",stringMsg);
+  printf("DESTRING\n");
+  printf("Message=%s\n",stringMsg);
   int I=0;
   //Show the List of CurrentPlayers
     //The Players are Seperated via '|' characters
@@ -305,9 +234,9 @@ void DeStringifyPlayers(char* stringMsg)
   {
    if(playerToken==NULL)
       goto BadMessage;   
- //   printf("NEWPLAYERSTRING\n");
+    printf("NEWPLAYERSTRING\n");
     
- //   printf("PT:%s\n",playerToken);
+    printf("PT:%s\n",playerToken);
       //Take the First 3 Vals for position
     char* copy = strdup(playerToken);
 
@@ -348,6 +277,7 @@ void DeStringifyPlayers(char* stringMsg)
   }
 
 
+  printf("STRING\n");
   //Clear the List of Players fron Wherever I left off
   //for(;i<10;i++)
     hidePlayer(i);
@@ -367,7 +297,7 @@ PlayerInfo* ParsePlayer_Info(char* string, int id)
       goto BadMessage;
     //printf("token: %s\n", token);
     player->px = atof(token);
-    //printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
 
@@ -375,49 +305,49 @@ PlayerInfo* ParsePlayer_Info(char* string, int id)
     if(token==NULL)
       goto BadMessage;
     player->py = atof(token);
-    //printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->pz = atof(token);
-    //printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->ox = atof(token);
-    //printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->oy = atof(token);
-   // printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->oz = atof(token);
-   // printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->angle = atof(token);
-   // printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
     token = strtok(NULL,",");
     if(token==NULL)
       goto BadMessage;
     player->velocity = atof(token);
-   // printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
 
 
@@ -426,7 +356,7 @@ PlayerInfo* ParsePlayer_Info(char* string, int id)
      goto BadMessage;
 
     player->shootFlag = atoi(token);
- //   printf("Token=%s\n",token);
+    printf("Token=%s\n",token);
 
     player->id=id;
    // free(token);
@@ -438,82 +368,6 @@ BadMessage:
 
 
 }
-//Creates a Struct Representation of the String Passed by the Client to the Server
-PlayerInfo* Client_ParsePlayer_Info(char* string)
-{
-  PlayerInfo* player = malloc( sizeof(PlayerInfo));
-
-    char* token = strtok(string, ",");
-    if(token==NULL)
-      goto BadMessage;
-    //printf("token: %s\n", token);
-    player->px = atof(token);
-    //printf("Token=%s\n",token);
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->py = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->pz = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->ox = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->oy = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->oz = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->angle = atof(token);
-    //printf("Token=%s\n",token);
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-      goto BadMessage;
-    player->velocity = atof(token);
-    //printf("Token=%s\n",token);
-
-
-
-    token = strtok(NULL,",");
-    if(token==NULL)
-     goto BadMessage;
-
-    player->shootFlag = atoi(token);
-    //printf("Token=%s\n",token);
-
-   // free(token);
-  return player;
-
-BadMessage:
-    free(player);
-    return NULL;
-}
 
 //Moved here so Can be called from Update
 float xForce;
@@ -523,8 +377,8 @@ int shootFlag= FALSE ;
 
 
 //The Projectiles Angle to be Used from the Forward view
-static double projectile_Angle=45;
-static double projectile_Velocity=50;
+static double projectile_Angle=0.0;
+static double projectile_Velocity=100;
 
 
 
@@ -549,6 +403,23 @@ static double projectile_Velocity=50;
 
    float gravity_Force = 2;
 
+/*
+                     //You want to Send 49 Sets of Planes to generate the World
+             
+             char myBuffer[ (WORLDX*WORLDZ)];
+             // myBuffer[0]='H';
+             //printf("BufferLen=%d\n", (int)(sizeof(myBuffer)));
+
+             char c='N';
+             printf("CharC=%c\n",c);
+             for(int x=0;x< WORLDX;x++)
+             {
+              int i = 1 + (int)'0';
+              c= (char)i;
+              printf("INT=%d\n",c);
+              printf("Buffer[I]=%c<\n",c);
+             }
+*/
 
 int digit_to_int(char d)
 {
@@ -592,8 +463,8 @@ char* Stringify_Plane(int yVal)
     strBuffer[i]='\0';
 
    str_World= strdup(strBuffer);
-   //printf("Buffer=%s\n",strBuffer);
-    //   printf("I=%d\n",i);
+   printf("Buffer=%s\n",strBuffer);
+       printf("I=%d\n",i);
    //printf("STR_WORLD=%s\n",str_World);    
    //free(str_World); 
    return str_World;
@@ -601,7 +472,7 @@ char* Stringify_Plane(int yVal)
 
 void DeString_Plane(char* msg, int height)
 {
-   //printf("Msg=%s\n",msg);
+   printf("Msg=%s\n",msg);
    int i=0;
    for(int x=0; x< WORLDX;x++)
       for(int z=0; z< (WORLDZ);z++)
@@ -708,8 +579,8 @@ void Initialize_Client()
    //GenerateWorld Copy Plane by Plane
     for(int i=0;i<49;i++)
     {
-     // printf("Count=%d\n",i);
-     // printf("MessageLength Pre: %d\n", (int)(strlen(msg)));
+      printf("Count=%d\n",i);
+      printf("MessageLength Pre: %d\n", (int)(strlen(msg)));
       memset(msg,0, msgSize);
       recv(client_SockFD, msg, msgSize, 0);
       char* str_Plane = strdup(msg);
@@ -720,13 +591,12 @@ void Initialize_Client()
     float timePassedGlobal;
     recv(client_SockFD, &timePassedGlobal, sizeof(timePassedGlobal), 0);
 
-
      //Lets Create some Clouds
      CreateSkyClouds();
      UpdateCloudMovement(timePassedGlobal);
 
-  //  printf("Server Message TimePassed:%f", timePassedGlobal);
-    //printf("MessageLength Post: %d\n", (int)(strlen(msg)));
+    //printf("Server Message:%s", msg);
+    printf("MessageLength Post: %d\n", (int)(strlen(msg)));
 
 
 
@@ -846,10 +716,8 @@ void draw2D() {
       set2Dcolour(black);
       draw2Dbox(500, 380, 524, 388);
    } else {
+
    /* your code goes here */
-    
-
-
 
    }
 
@@ -985,7 +853,7 @@ float *la;
             //Send the Current State of the World
             for(int y=0;y<49;y++)
             {
-              //printf("Y=%d\n",y);
+              printf("Y=%d\n",y);
               char* stringPlane=Stringify_Plane(y);
               send(new_socket, stringPlane, strlen(stringPlane), 0);
               free(stringPlane);
@@ -1005,8 +873,6 @@ float *la;
                 {
                     client_socket[i] = new_socket;
                     printf("Adding to list of sockets as %d\n" , i);
-                
-                    //This was used in my multiplayer vrs not for A3 submission.
                     AddPlayer(client_socket[i]);
                     return;
                 }
@@ -1035,108 +901,61 @@ float *la;
                 else
                 {
                 //Print the Message Sent from Socket
-                  //printf("Message From Client: %s\n",buffer);
+                  printf("W!\n");
+                  printf("Message From Client: %s\n",buffer);
+                  printf("M!\n");
                   
                   // Player Sends 1 Message
 
                   //Clients Send Their Position orientation, angle,velocity, and whether or not they wish to spawn a projectile
+
+                  // PosX,PosY,posZ,OrientX,OrientY,OrientZ,Angle,Vel,T/F
+
+                  //We have to Parse the Information now
+                  char* strCopy = strdup(buffer);
+
+                  printf("ID=%d\n",sd );
+                  PlayerInfo* player = ParsePlayer_Info(strCopy, sd);
+
+                  //If Player Requested to Shoot, then lets call the Projectile Code :D
+                  if(player!=NULL)
+                    if(player->shootFlag==TRUE)
+                    {
+                      Calculate_SpawnProjectile(player->px, player->py, player->pz,player->ox, player->oy,player->oz, player->velocity, player->angle);
+                    }
+
+
+                  //If The Message was bad we don't need to free
+
+                  //Now we have a Player with all the Information required to position, orient, and Shoot projectiles.
+
                   
-                   float currLoc_X;
-                   float currLoc_Y;
-                   float currLoc_Z;
-
-                   getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
-
-                   currLoc_X*=-1;
-                   currLoc_Y*=-1;
-                   currLoc_Z*=-1;
-                   currLoc_Y-=.5; //This value is used for Head-Repositioning
-
-                   //Now for our Orientation
-
-                   float orientationX;
-                   float orientationY;
-                   float orientationZ;
-
-                   getViewOrientation(&orientationX,&orientationY,&orientationZ);
-                   //Now to Create our string
+                  //Whenever a Player Sends info, we update the PlayerList
 
 
-                   char message[1000];
-
-                   char portion[100];
-
-
-                   memset(message,0,1000);
-                   //X Loc
-                   snprintf(portion,100,"%f",currLoc_X);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-                   //Y Loc
-                   snprintf(portion,100,"%f",currLoc_Y);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-                   //Z Loc
-                   snprintf(portion,100,"%f",currLoc_Z);
-                   strcat(message,portion); 
-                   strcat(message,",");
-
-                   //X Orient
-                   snprintf(portion,100,"%f",orientationX);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-                   //Y Orient
-                   snprintf(portion,100,"%f",orientationY);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-                   //Z Orient
-                   snprintf(portion,100,"%f",orientationZ);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-
-                   //Angle
-                   snprintf(portion,100,"%f",projectile_Angle);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-                   //Velocity
-                   snprintf(portion,100,"%f",projectile_Velocity);
-                   strcat(message,portion);
-                   strcat(message,",");
-
-
-                   //ixFn brx fdoyhuw
-                   if(shootFlag==TRUE)
-                    strcat(message,"T");
-                   else
-                    strcat(message,"F");
-
-                  strcat(message,"\0");
-
-                  //Now we can send our Message  
-                  //Send our Position to All Clients 
-                  send(sd , message, sizeof(message), 0);
-
-                  //Send the projectiles to all clients
-
-                  char* projectiles =Stringify_Projectiles();
-
-                //  printf("Projectiles:%s\n",projectiles);
+                  // Server Sends 3 List of Players                            [Check]
+                  //                List of LIVE Projectiles                   []
+                  //                Cubes To Destroy From Projectile           []
 
 
 
+                  char* playerListMessage;
+                  //All Players EXCEPT the player we are sending this to.
+                  playerListMessage=Stringify_Players(sd);
 
-                  send(sd , projectiles, strlen(projectiles), 0); 
+                  //Sending the First Message of Players to Draw
+                  send(sd, playerListMessage, strlen(playerListMessage), 0);
+    
 
 
+                  free(playerListMessage);
+                  free(strCopy);
 
-
-                  free(projectiles);
+                  if(player!=NULL){
+                    UpdatePlayers(player);
+                    free(player);}
+                  //Update the Players Position
+                  
 
 
 
@@ -1172,66 +991,111 @@ float *la;
          // PosX,PosY,posZ,OrientX,OrientY,OrientZ,Angle,Vel,T/F
 
          //Now we can Pass the Info
+
+          /* your collision code goes here */
+           float currLoc_X;
+           float currLoc_Y;
+           float currLoc_Z;
+
+           getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
+
+           currLoc_X*=-1;
+           currLoc_Y*=-1;
+           currLoc_Z*=-1;
+           currLoc_Y-=.5; //This value is used for Head-Repositioning
+
+           //Now for our Orientation
+
+           float orientationX;
+           float orientationY;
+           float orientationZ;
+
+           getViewOrientation(&orientationX,&orientationY,&orientationZ);
+           //Now to Create our string
+
+
+           char message[1000];
+
+           char portion[100];
+
+
+           memset(message,0,1000);
+           //X Loc
+           snprintf(portion,100,"%f",currLoc_X);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Loc
+           snprintf(portion,100,"%f",currLoc_Y);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Z Loc
+           snprintf(portion,100,"%f",currLoc_Z);
+           strcat(message,portion); 
+           strcat(message,",");
+
+           //X Orient
+           snprintf(portion,100,"%f",orientationX);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Y Orient
+           snprintf(portion,100,"%f",orientationY);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Z Orient
+           snprintf(portion,100,"%f",orientationZ);
+           strcat(message,portion);
+           strcat(message,",");
+
+
+           //Angle
+           snprintf(portion,100,"%f",projectile_Angle);
+           strcat(message,portion);
+           strcat(message,",");
+
+           //Velocity
+           snprintf(portion,100,"%f",projectile_Velocity);
+           strcat(message,portion);
+           strcat(message,",");
+
+           if(shootFlag==TRUE)
+            strcat(message,"T");
+           else
+            strcat(message,"F");
+
+
+          strcat(message,"\0");
+
+          //Now we can send our Message
+          send(client_SockFD, message, sizeof(message), 0);
+
+          //Once message is set, reset our flag
+          shootFlag=FALSE;
+
+
          //Server is ALWAYS Sending Messages, Check if we RECV them.
 
          //Message 1= Player Positions and Orientations
-         char message[1000];
-         char portion[100];
-
-         memset(message,0,1000);
-
-         //Send Random Data to server to let it know we want to Update     
-         send(client_SockFD, "I want update!", sizeof("I want update!"),0);
-
-      //   printf("Waiting on Server:\n");
-         recv(client_SockFD, &message, sizeof(message), 0);
-
          //Message 2= Projectile Positions
+          
 
-         char* strmsg = strdup(message);
-
-
-         PlayerInfo* player = Client_ParsePlayer_Info(strmsg);
-
-         if(player==NULL)
-         {}
-         else
-         {
-             // printf("Message from Server:%s\n",message);
-              setViewPosition   ( player->px*-1, player->py*-1,player->pz*-1);
-             // printf("OX=%f\t OY=%f\n",player->ox,    player->oy);
-              float x= player->ox;
-            //setViewOrientation( player->ox,    player->oy, player->oz);
-              setViewOrientation( (player->angle*-1),    player->oy, player->oz);
-
-              //Lets Get the Values and see whats wrong
-              float ox;
-              float oy;
-              float oz;
-
-              getViewOrientation(&ox,&oy,&oz);
-
-           //   printf("x=%f,y=%f,z=%f\n",ox,oy,oz);
-         }
-         free(strmsg);
-
-         //Projectile Locations
-        // printf("Waiting on Server:\n");
-         memset(message,0,1000);  
-         recv(client_SockFD, &message, sizeof(message), 0);
-         strmsg = strdup(message);
-         //printf("Projectile Message1:%s\n",strmsg);
-         DeStringify_Projectiles(strmsg);
-         free(strmsg);
-         //So now we have enough info to Draw Projectiles, and Orient/Position our Players
+          memset(message,0,1000);
+          recv(client_SockFD, &message, sizeof(message), 0);
+          //read(client_SockFD, message, sizeof(message));
+          
 
 
+          printf("Message from Server:%s\n",message);
+          char* strmsg = strdup(message);
 
+          //Extracts the Players from the String and Toggles all players
+          //to show their current position. This may cause flickering >.>
+          DeStringifyPlayers(strmsg);
 
-
-
-
-
+          free(strmsg);
       }
    }
 
@@ -1416,6 +1280,7 @@ int i, j, k;
         //Players do Not use Physics so they do not have a Projectile Manager
         //They can do clouds though to save on update messages (still synced)
          Initialize_Client();
+
       }
 
 
@@ -1437,6 +1302,8 @@ int i, j, k;
       //Cleanup after self. 
       DestroySkyClouds();
       DestroyProjectileManager(); 
+
+
    }
 
 
@@ -1446,112 +1313,17 @@ int oldY;
 
         //SpawnProjectile(xForce,yForce,zForce);
 
-void mouse(int button, int state, int x, int y) 
-{
-  if(netServer==1)
-  {
+void mouse(int button, int state, int x, int y) {
+
+   //This Only Occurs Client Side
+   if(netClient==1)
+   {
+
+    
       if ((state == GLUT_DOWN) && (button == GLUT_LEFT_BUTTON))
       { 
-         //All that is needed is to take our current XZ orientation
-         //and determine the upward Y force which we will decay over time in ApplyGravity
-
-         //Note Gravity plays no effect on X or Z force, instead wind would naturally have a
-         //friction coefficient to reduce these values, but we will assume those are negligible
-
-         //M_PI is pi defined in math.h
-         //printf("Pi = %f\n", M_PI);
-         long double radianAngle = (long double)projectile_Angle * M_PI/180.0; 
-
-      //Soh Cah Toa
-         //Calculate Y and Horizontal Force
-         double xzForce= (double)(cos(radianAngle)) * projectile_Velocity;
-         double yForce= (double)(sin(radianAngle)) * projectile_Velocity;
-
-
-        //Now to apply our xz force in the direction we are facing
-         float orientationX;
-         float orientationY;
-         float orientationZ;
-
-         getViewOrientation(&orientationX,&orientationY,&orientationZ);
-
-         //X Controls Up/Down Pitch
-         //Y Controls Yaw , which is whats needed for XZ force
-
-         //Orientation produces weird results therefore constrain to 360%
-         orientationY = (int) orientationY%360;
-
-         //Since Triangls have a MAX of 90 Degrees Each, the Quadrant this Orientation is in will be needed
-
-         //
-         //Q1 = 0-90
-         //Q2 = 90-180
-         //Q3 = 180-270
-         //Q4 = 270-360 (Which is not possible due to Mod, so its technically 270-359)
-
-         //Overlaps do not matter.
-         //
-
-         //Mod 90 to get the Quadrant Angle
-         radianAngle = ((int)orientationY)%90;
-
-
-        //This Value also determines the amount of XZ force needed to apply the XZ Force
-        //Calculate XForce and ZForce
-        radianAngle = (long double)radianAngle * M_PI/180.0; 
-
-        double xForce= (double)(cos(radianAngle)) * xzForce;
-        double zForce= (double)(sin(radianAngle)) * xzForce;
-
-        //Now that the angle is set, apply a quick Swap based on what quadrant we are in.
-
-        //Q1 Inverse XZ
-        if( (orientationY) <=90)
-        {
-         float temp = zForce;
-         zForce= -xForce;
-         xForce= temp;
-        }
-        //Q2 this is the default orientation quadrant, do nothing.
-        else if( (orientationY) <=180)
-        {}
-        //Q3 X becomes Negative and Z becomes Negative
-        else if( (orientationY) <=270)
-        {
-         ///printf("Quadrant:3\n");
-         float temp = xForce;
-         xForce= -zForce;
-         zForce= temp;
-        }   
-        //Q4 Z becomes Negative 
-        else
-        {
-         float temp = xForce;
-         xForce= -temp;
-         zForce= -zForce;     
-        }
-
-        shootFlag= TRUE;
-        //Now we have all the variables to Spawn our projectile
-        //But We Don't. Instead we Send the Message to the Server
-
-                   float currLoc_X;
-                   float currLoc_Y;
-                   float currLoc_Z;
-
-                   getViewPosition(&currLoc_X, &currLoc_Y, &currLoc_Z);
-
-                   currLoc_X*=-1;
-                   currLoc_Y*=-1;
-                   currLoc_Z*=-1;
-                   currLoc_Y-=.5; //This value is used for Head-Repositioning
-
-
-        SpawnProjectile(xForce,yForce,zForce, currLoc_X, currLoc_Y, currLoc_Z);
-
-        //char* message;
-        //message= strdup("I want to Shoot a Projectile! :D\n");
-        //send(client_SockFD, message, strlen(message), 0); 
+      //Tell the Server we want to launch a projectile now.
+      shootFlag= TRUE;
       }
 
       if ((state == GLUT_UP) && (button == GLUT_RIGHT_BUTTON))

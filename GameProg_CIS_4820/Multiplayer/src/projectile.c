@@ -21,13 +21,6 @@ extern float gravity_Force;
    int projectile_Count=0;
    int max_Projectiles= MOB_COUNT; // Since projectiles are dependent upon Mobs, that is the projectile Max
 
-
-
-
-   //A Buffer is needed for sending New-Destroyed blocks to players ?
-
-
-
    //
    void CreateProjectileManager()
    {
@@ -229,148 +222,13 @@ char* Stringify_Projectiles()
            strcat(message,"|");
 
    }
-  //This is in case no projectiles are sent
+  //This is in case no players are sent, (when only 1 is connected)
     strcat(message,"}:");
     strcat(message,"\0");
     string=strdup(message);
-   // printf("THE STRING IS:%s\n",string);
+    printf("THE STRING IS:%s\n",string);
     return string;
 }
-
-
-void DeStringify_Projectiles(char* stringMsg)
-{
-  //printf("DESTRING\n");
-  //printf("Message=%s\n",stringMsg);
-  int I=0;
-  //Show the List of CurrentPlayers
-    //The Players are Seperated via '|' characters
-  char* endToken_1;
-  //Seperate the First Player Token Slice
-  char* playerToken = strtok_r(stringMsg,"|",&endToken_1);
-  int i=0;
-
-  //Continually Slice Players
-  while (playerToken !=NULL)
-  {
-   if(playerToken==NULL)
-      goto BadMessage;   
-    //printf("NEWPLAYERSTRING\n");
-    
-   // printf("Projectile:%s\n",playerToken);
-      //Take the First 3 Vals for position
-    char* copy = strdup(playerToken);
-
-    char* endToken_2;
-    char* infoToken = strtok_r(copy,",",&endToken_2);
-    
-    if(infoToken==NULL)
-      goto BadMessage;
-    float pX= atof(infoToken);
-
-
-    infoToken = strtok_r(NULL,",",&endToken_2);
-    if(infoToken==NULL)
-      goto BadMessage;
-    float pY= atof(infoToken);
-
-    infoToken = strtok_r(NULL,",",&endToken_2);
-    if(infoToken==NULL)
-      goto BadMessage;
-    float pZ= atof(infoToken);
-
-
-    //Same Code as Set Player, just saves the Show Flag
-    //Modification to Orient the way they are viewing...
-    //createPlayer(i, pX, pY,pZ,( (float)(((int)oY%360+180) *-1) )  );
-    createMob(i, pX,pY,pZ,0);
-    free(copy);
-
-    Client_CheckCollision(pX,pY,pZ);
-    i++; 
-    playerToken = strtok_r(NULL,"|",&endToken_1);
-  }
-
-
-  //Clear the List of Players fron Wherever I left off
-
-
-  BadMessage:
-  for(;i<10;i++)
-    hideMob(i);
-  //Since the message is corrupt Leave the remaining players where they were last Correct
-    return;
-}
-
-//Since collision is detected the same way, it's easy to kludge the results by letting the client handle calculations aswell
-void Client_CheckCollision(int xpos, int ypos, int zpos)
-{
-            //Check if the projectile Collides with Anyblock (ANY block)
-            if( world[xpos][ypos][zpos]!=0)
-            {
-               //Destroy the Projectile
-               //DestroyProjectile(i);
-               //Toggle Off Blocks in 
-
-            //                x
-            //               x x
-            // 1*2       // xxxxx   
-            // 1*1       //  x x    
-            // 1*0       //   x    
-
-         //Apply This in the Direction Up and Down     
-            for(int depth=2; depth>-1;depth--)
-               for(int squareX= xpos-(depth); squareX<= xpos+(depth); squareX++)
-               for(int squareZ= zpos-(depth); squareZ<= zpos+(depth); squareZ++)
-                  //Defensive Coding: Within Array Bounds
-                  if( squareZ >=0 && squareZ<100 && squareX>=0 && squareX<100 && (ypos-depth)>=0 && (ypos-depth)<50)
-                  {  
-                     world[squareX][ (ypos- (2-depth))][squareZ]=0; 
-                     world[squareX][ (ypos+ (2-depth))][squareZ]=0;                      
-                  }   
-
-            }
-}
-
-
-/*
- //For Legibility
-            int xpos =(int)(projectile_Manager[i]->xPos);
-            int ypos =(int)(projectile_Manager[i]->yPos);
-            int zpos =(int)(projectile_Manager[i]->zPos);
-
-            //Check if the projectile Collides with Anyblock (ANY block)
-            if( world[xpos][ypos][zpos]!=0)
-            {
-               //Destroy the Projectile
-               DestroyProjectile(i);
-               //Toggle Off Blocks in 
-
-            //                x
-            //               x x
-            // 1*2       // xxxxx   
-            // 1*1       //  x x    
-            // 1*0       //   x    
-
-         //Apply This in the Direction Up and Down     
-            for(int depth=2; depth>-1;depth--)
-               for(int squareX= xpos-(depth); squareX<= xpos+(depth); squareX++)
-               for(int squareZ= zpos-(depth); squareZ<= zpos+(depth); squareZ++)
-                  //Defensive Coding: Within Array Bounds
-                  if( squareZ >=0 && squareZ<100 && squareX>=0 && squareX<100 && (ypos-depth)>=0 && (ypos-depth)<50)
-                  {  
-                     world[squareX][ (ypos- (2-depth))][squareZ]=0; 
-                     world[squareX][ (ypos+ (2-depth))][squareZ]=0;                      
-                  }   
-
-            }
-*/
-
-
-
-
-
-
 
 
 void Calculate_SpawnProjectile(float pX, float pY, float pZ, float oX,float oY,float oZ, double projVelocity, double projAngle)
