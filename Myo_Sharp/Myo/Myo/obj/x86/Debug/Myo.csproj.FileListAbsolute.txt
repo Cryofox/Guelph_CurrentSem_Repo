@@ -1,0 +1,5 @@
+C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.csprojResolveAssemblyReference.cache
+C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\bin\Debug\Myo.exe
+C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\bin\Debug\Myo.pdb
+C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.exe
+C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.pdb

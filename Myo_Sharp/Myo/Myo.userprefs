@@ -1,0 +1,13 @@
+﻿<Properties StartupItem="Myo\Myo.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Myo\Program.cs">
+    <Files>
+      <File FileName="Myo\Program.cs" Line="3" Column="3" />
+      <File FileName="Myo\Paint.cs" Line="26" Column="26" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
