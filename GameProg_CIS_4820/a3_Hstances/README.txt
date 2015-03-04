@@ -12,19 +12,13 @@ To Remove OBJS + Exe: make clean
 
 A3. Oh Boy Networks!
 
- With the Addition of Network Server/Client code everything got 10x messier.
-Functionality is split with methods inside netServer==1, and netClient==1 for
-server and client information respectively.
-
-
-Code Allows multiple clients! Yes more than 1!
+Server client work as described in the spec. 1 Server relays all information needed to clients. Clients display their view via the angle of the server player’s gun.
 
 
 
 
 Map:
- The Player (You) on any client is Colored BLUE. Other clients which are also
-present are coloured a Light Green, shots are coloured Pink. And the Terrain
+ The Player (You) on any client is Colored BLUE. Shots are coloured Pink. And the Terrain
 is a mossy dark green.
 
 Depending on Client:

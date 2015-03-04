@@ -1,0 +1,256 @@
+#include "clouds.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include "clouds.h"
+#include "graphics.h"
+
+//---Global Values----
+Cloud** skyClouds;
+
+
+//The number of Clouds you'd like to populate the world
+int num_Clouds=30;
+int max_CloudSize=10;
+
+//These Values are used to manipulate the direction wind is applied in, used for Cloud Movement
+//Diagonal movements may cause jittering due to centroid + mod
+float windForce_X=0;
+float windForce_Z=2;
+//=================  
+
+//This function fills the Global Variable Skyclouds with the num clouds used
+void CreateSkyClouds()
+   {
+      
+      skyClouds = malloc(num_Clouds * (sizeof(Cloud)));
+      for(int i=0;i<num_Clouds;i++)
+      {
+         srand( (10+i) ) ;
+         //printf("%d\n", i);
+         skyClouds[i]=CreateCloud();
+      }
+   }
+
+   //The function used to Create a Cloud
+   Cloud* CreateCloud()
+   {
+      //srand(204124);//Keep it constant
+
+      Cloud* cloud = malloc(sizeof(Cloud));
+
+
+      //Initialize Centroid Location
+
+      //Randomize the Cloud Start Position
+      cloud->pos_Y=50; //Set Heigh to Max Height
+
+      cloud->pos_X= (int)(rand())% WORLDX;
+      cloud->pos_Z= (int)(rand())% WORLDZ;  
+
+      //Create Cloud Shape
+
+
+      //How many voxels a cloud can be made up of at most
+      cloud->cloudLength=max_CloudSize; 
+
+      //Use CloudSize due to C complaining about int*.
+      cloud->cloud_voxels = malloc( cloud->cloudLength * (sizeof(Cloud_Particle))); 
+    //First Value must be Center
+      cloud->cloud_voxels[0]= CreateParticle(0, 0, 0);
+
+      int cloudCount=1;
+      //Loop Through List 
+      for(int i=1;i<cloud->cloudLength;i++)
+      {
+         int wasCloudAdded=0; //1= True
+         //Increment through already made List to create neighbours in it
+         for(int j=0;j<i;j++)
+         {
+            //For each Point in the list add a Neighbour
+            int xPos= cloud->cloud_voxels[j].pos_X;
+            int zPos= cloud->cloud_voxels[j].pos_Z;
+            
+            int xOffset;
+            int zOffset;
+
+            //Right
+            xOffset=1+ xPos;
+            zOffset=0+ zPos;
+            //Random will be used to decide whether a vox is added or not
+            if( ((int)(rand())%100) >50)
+               if(isDuplicate(cloud, xOffset, zOffset)==0)
+               {
+                  cloudCount++;
+                  cloud->cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+                  //printf(" Strat = %d,%d\n", xOffset,zOffset);
+                  wasCloudAdded=1;
+                  break;
+               }
+
+            //Left
+            xOffset=-1+ xPos;
+            zOffset=0+ zPos;
+            if( ((int)(rand())%100) >50)
+               if(isDuplicate(cloud, xOffset, zOffset)==0)
+               {
+                  cloudCount++;
+                  cloud->cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+                  //printf(" Strat = %d,%d\n", xOffset,zOffset);
+                  wasCloudAdded=1;
+                  break;
+               }
+            //Forward
+            xOffset=0+ xPos;
+            zOffset=1+ zPos;
+            if( ((int)(rand())%100) >50)
+               if(isDuplicate(cloud, xOffset, zOffset)==0)
+               {
+                  cloudCount++;
+                  cloud->cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+                  //printf(" Strat = %d,%d\n", xOffset,zOffset);
+                  wasCloudAdded=1;
+                  break;
+               }
+            //Backward
+            xOffset=0+ xPos;
+            zOffset=-1+ zPos;
+            if( ((int)(rand())%100) >50)            
+               if(isDuplicate(cloud, xOffset, zOffset)==0)
+               {
+                  cloudCount++;
+                  cloud->cloud_voxels[i]= CreateParticle(xOffset,0,zOffset);
+                  //printf(" Strat = %d,%d\n", xOffset,zOffset);
+                  wasCloudAdded=1;
+                  break;
+               }
+
+
+         }
+         //Cloud was not added, realign I
+         if(wasCloudAdded==0)
+            i--;
+      }
+      //printf("Cloud++= %d\n",cloudCount);
+      return cloud;
+   }
+
+
+   //0=False, 1 = True
+   //Checks if a cloudVoxel exists at the offset location provided
+   int isDuplicate(Cloud* cloud, int xOffset, int zOffset)
+   {
+      //printf("CloudLength=%d\n", cloud->cloudLength);
+      for(int i=0;i<cloud->cloudLength;i++)
+      {
+         //printf("Checking Voxel:%d,%d\n",cloud.cloud_voxels[i].pos_X,cloud.cloud_voxels[i].pos_Z );
+         if(cloud->cloud_voxels[i].pos_X == xOffset && cloud->cloud_voxels[i].pos_Z == zOffset)   
+         {
+         return 1;
+         }
+      }
+     return 0;
+   }
+
+
+   //Creates a Cloud Particle at provided location
+   Cloud_Particle CreateParticle(int x, int y, int z)
+   {
+      Cloud_Particle cP;// = malloc(sizeof(Cloud_Particle));
+
+      cP.pos_X=x;
+      cP.pos_Y=y;
+      cP.pos_Z=z;
+
+      return cP;     
+   }
+
+   //Animates the Clouds
+   void UpdateCloudMovement(double timePassed)
+   {
+      //Distance = Speed * Time, some gr 10 physics 
+      float cloudTravelled_X = windForce_X*timePassed;
+      float cloudTravelled_Z = windForce_Z*timePassed;
+
+      //Clear the Sky of clouds
+      for(int x=0;x<WORLDX;x++)
+         for(int z=0;z<WORLDZ;z++)
+            if(world[x][WORLDY-1][z]==5)
+               world[x][WORLDY-1][z]=0;
+
+      //Draw Clouds   
+      //Increment Cloud Position
+      for(int i=0;i<num_Clouds;i++)
+      {
+         skyClouds[i]->pos_X += cloudTravelled_X;
+         skyClouds[i]->pos_Z += cloudTravelled_Z;
+
+      //The Actual cloud position does not matter due to all values being modded.
+      //Modding the offsets off the centroid equates to clouds which wrap around the sky
+      //this is a very cool effect which is why I'm doing it this way.
+
+         //if skyClouds[i] >200 (twice the size of the box, then reset to 0)
+  /*       if(skyClouds[i]->pos_X> WORLDX*2)
+            skyClouds[i]->pos_X=  skyClouds[i]->pos_X%200;
+          if(skyClouds[i]->pos_Z> WORLDZ*2)
+            skyClouds[i]->pos_Z=  skyClouds[i]->pos_Z%200;        
+*/
+
+
+
+         //For Each Cloud Create White Cubes at correct Location
+         //printf("Cloud[%d]: Length:%d", i, skyClouds[i]->cloudLength);
+         for(int j=0;j<skyClouds[i]->cloudLength;j++)
+         {
+            //Find Location
+            int cloudCube_X = (int)skyClouds[i]->pos_X;
+            int cloudCube_Z = (int)skyClouds[i]->pos_Z;
+
+            //Apply offset
+            cloudCube_X+= skyClouds[i]->cloud_voxels[j].pos_X;
+            cloudCube_Z+= skyClouds[i]->cloud_voxels[j].pos_Z;
+
+
+            //Mod for World Wrap
+            if(cloudCube_X>=0)
+               cloudCube_X= cloudCube_X% WORLDX;     
+            //This has to be done due to -Numbers not modding Correctly
+            else      
+               {
+                  cloudCube_X = WORLDX-((-1*cloudCube_X) % WORLDX);
+               }
+
+            if(cloudCube_Z>=0)
+               cloudCube_Z= cloudCube_Z% WORLDZ;     
+            //This has to be done due to -Numbers not modding Correctly
+            else      
+               {
+                  cloudCube_Z = WORLDZ-((-1*cloudCube_Z) % WORLDZ);
+               }
+
+            //If the Cell is Empty
+            if( world[cloudCube_X][WORLDY-1][cloudCube_Z]==0)
+               world[cloudCube_X][WORLDY-1][cloudCube_Z]=5;
+         }
+      }
+
+   }
+
+   //Free Malloced Memory
+   void DestroySkyClouds()
+   {
+      for(int i=0;i<num_Clouds;i++)
+      {
+         DestroyCloud(skyClouds[i]);
+      }
+      free(skyClouds);
+   }
+
+   //Free Malloced Memory
+   void DestroyCloud(Cloud* cloud)
+   {
+      free(cloud->cloud_voxels);
+      free(cloud);
+   }
