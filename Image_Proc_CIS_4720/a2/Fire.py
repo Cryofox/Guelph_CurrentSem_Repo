@@ -77,12 +77,63 @@ def Method_2(imageName, imageExt):
 
 
 
+#Here we calculate our values
+def Method_2(imageName, imageExt):
+	masked_image  = Image.open ("Fire_Original/"+imageName+"_Mask4."+imageExt)
+	grdTruth_image= Image.open("Fire_GrdTruths/"+imageName+"_flameB.tif")
+
+	#Calculate CM
+
+	masked_Img = masked_image.convert("RGBA")
+	grdTruth_Img = grdTruth_image.convert("RGBA")
+
+
+
+
+	m_Img= Image.fromarray(masked_Img)
+	g_Img= Image.fromarray(grdTruth_Img)
+
+
+	m_Img=m_Img.convert("RGBA")
+	g_Img=g_Img.convert("RGBA")
+
+
+	#segmented_image = segmented_image.convert("RGBA")
+	m_data = np.array(m_Img)   # "data" is a height x width x 4 numpy array
+	g_data = np.array(g_Img)   # "data" is a height x width x 4 numpy array
+
+	#Red
+	r1, g1, b1 = 255, 255, 255 # Target Value
+
+	#Knock out Colors outside range
+
+	m_red, m_green, m_blue 	= m_data[:,:,0], m_data[:,:,1], m_data[:,:,2]
+	g_red, g_green, g_blue 	= g_data[:,:,0], g_data[:,:,1], g_data[:,:,2]
+
+	#If the value at m_data is not black, and g_data
+	mask3= blue> red
+	data[:,:,:3][mask3] = [r2, g2, b2]
+
+	#Count Remaining White in g_Data for CM
+	#Count Remaining Non-Black in m_Data for CR
+
+	#Do two initial counts of each to find the total, divide calc by total to get value
+	#
+
+
+
+
+
 
 #Get All Image Files in Noisy_Images
 imageList=os.listdir("noisy_images")
 
-basename =os.path.splitext(filename)[0]
-extension = os.path.splitext(filename)[1]
 
 
-Method_2("lol_")
+#Create the Masks
+for filename in imageList:
+	basename  = os.path.splitext(filename)[0]
+	extension = os.path.splitext(filename)[1]	
+	Method_2(basename,extension)
+
+#Test each result
