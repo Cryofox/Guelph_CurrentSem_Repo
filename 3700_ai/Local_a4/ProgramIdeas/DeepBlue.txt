@@ -1,0 +1,100 @@
+Alpha Beta Pruning
+
+Insurance Policy.
+
+Start with a MAX, then proceed to MIN.
+
+Choose a depth: 2^N. 
+
+Depth able to check will be determined by a time algorithm which supplies the depth.
+
+Create the Tree as we go, 
+
+Values needed to be passed: 
+The Flag for if we are Minning or Maxing.
+the current value of our Min or Max if one exists.
+the original player so if we are WHITE for ex. Thats it... 
+
+Values passed back.
+Board - For Printing
+Value - For Checking
+
+
+
+
+
+
+Check if our node has children, if not, check if at depth?
+	if we are not:
+   		create children list:
+   		for each child ask It's value and clear it from the list, 
+			if the max flag is set, only keep the largest value, otherwise smallest.
+	
+
+		if we are at depth:
+    		calculate the value of the board for our root player.
+
+
+
+				
+
+
+A value is returned recursively
+
+	
+
+
+
+
+
+
+How to implement this weird Tree Algorithm...
+ For each node calculate the moves it can make,
+	these moves are represented as nodes.
+
+
+ At each node calculate eithor the MIN or MAX move.
+
+
+
+
+
+
+
+Calculate the move at this position:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//For Testing
+//Feed the Board back into the Program, so it plays against itself.
+//This is just to 
+Tester:
+Simple, once run< board works. Print the result from run < board, to a txt file then recall it,
+and print with a new name board2.txt, and so on for 20 moves.
+					
+
+
+
+
+
+
+
+
+
+
+
