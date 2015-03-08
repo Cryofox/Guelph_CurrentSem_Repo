@@ -71,6 +71,8 @@ if __name__ == "__main__":
 	#print(entryString)
 	wd = WildaBeastSolver(entryString)
 
+	#Add preset Moves to speed up initial turn decisions
+
 
 
 

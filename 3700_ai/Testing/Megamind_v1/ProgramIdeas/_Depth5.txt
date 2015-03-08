@@ -1,0 +1,13 @@
+Similar to Depth 1,2,3,4,5, etc.
+
+Instead of using a depth, take into account the remaining time.
+Calculate the average turns in an average chess game.
+
+Using the Average turns and the remaining time, find out how much time we have
+for our current move. Base the Depth on how much time is spent.
+
+If the time needed to make the move is less than even 1 turn, calculate 1 depth. Otherwise to
+how many depths it takes.
+
+
+Since each state has Children states and so on

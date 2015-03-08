@@ -337,6 +337,7 @@ class WildaBeastSolver:
 						self.chosen_NextMove=	wdb.string_Representation
 
 					elif(wdb.evaluationScore  ==  self.betaValue):
+						continue
 						#No need to check more, prune other branches. Alpha Beta Pruning
 						#self.evaluationScore= self.betaValue;
 						# if(curVal< halfChildren):
@@ -360,6 +361,7 @@ class WildaBeastSolver:
 						self.chosen_NextMove=	wdb.string_Representation
 
 					elif(wdb.evaluationScore  ==  self.alphaValue):
+						continue
 						#No need to check more, prune other branches. Alpha Beta Pruning
 						#self.evaluationScore= self.alphaValue;
 						# if(curVal< halfChildren):
