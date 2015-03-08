@@ -22,7 +22,7 @@ import sys;
 
 class WildaBeastSolver:
 	#Target Depth
-	targetDepth=3;
+	targetDepth=4;
 
 	currentDepth=0;
 
@@ -191,12 +191,13 @@ class WildaBeastSolver:
 				elif( line[x] =='G'):
 					board[x][(y-1)]	= Gorilla(x,(y-1),1)
 					board[x][(y-1)].wds =self
-					self.evaluationScore+= self.Eval_Piece(line[x])* inverseSigns;					
-				elif( line[x] =='g'):
+					self.evaluationScore+= self.Eval_Piece(line[x])* inverseSigns;
 
+				elif( line[x] =='g'):
 					board[x][(y-1)]	= Gorilla(x,(y-1),0)	
 					board[x][(y-1)].wds =self
 					self.evaluationScore-= self.Eval_Piece(line[x])* inverseSigns;
+
 				elif( line[x] =='E'):
 					board[x][(y-1)]	= GrandEmpress(x,(y-1),1)
 					board[x][(y-1)].wds =self
@@ -254,9 +255,6 @@ class WildaBeastSolver:
 			for y in range (0,8):
 			#Calculate the next BoardState while return
 				if(board[x][y]!=None):
-					# board[x][y].wds = self
-					# print("["+str(x)+"]["+str(y)+"]")
-					# print("Board="+filestring)
 					calcBoard_Num+= board[x][y].Calc_PotentialMoves(board,currentPlayer,calcBoard_Num)
 
 				#Can be modified by passing in a Node class, and when _printboard is called.
@@ -264,7 +262,7 @@ class WildaBeastSolver:
 
 
 		# At this point we have a list of Strings which can be used to Create out Children for AlphaBeta Pruning
-		print("Depth:"+str(self.currentDepth)+" My Children:"+ str(len(self.list_Children_Strings)))
+		# print("Depth:"+str(self.currentDepth)+" My Children:"+ str(len(self.list_Children_Strings)))
 
 		if(self.currentDepth<WildaBeastSolver.targetDepth):
 			self.evaluationScore=None
@@ -276,7 +274,7 @@ class WildaBeastSolver:
 			self.Setup_Children()
 
 
-		print("Depth:"+str(self.currentDepth)+" Evaled Children:"+ str(len(self.list_Children)))
+		# print("Depth:"+str(self.currentDepth)+" Evaled Children:"+ str(len(self.list_Children)))
 		isMinNode=False;
 		if(depth%2==1):	#Odd is always a Min node, 0=Even=Max
 			isMinNode=True;
@@ -303,8 +301,8 @@ class WildaBeastSolver:
 
 		#print(str(halfChildren))
 
-		for childString in self.list_Children_Strings:
-
+		#for childString in self.list_Children_Strings:
+		for i in range(0,len(self.list_Children_Strings)):
 			#Save time By ignoring branches if both AlphaBeta are set. Don't even create the child
 			if(self.betaValue!=None and self.alphaValue!=None):
 				#print("\nNEWDepth:"+str(self.currentDepth)+"Alpha="+str(self.alphaValue)+",Beta="+ str(self.betaValue) )
@@ -312,14 +310,17 @@ class WildaBeastSolver:
 
 			#print("CN="+str(i))
 			#wdb = WildaBeastSolver 	#.__new__()
-			wdb= WildaBeastSolver(childString, (depth), self.alphaValue, self.betaValue)
 
 			#This line is for Debugging only, careful it slows down the program
-			self.list_Children.append(wdb) 
+			#self.list_Children.append(wdb) 
 
 
 			#MinNode Cares about smallest Beta Value
 			if(isMinNode):
+				wdb= WildaBeastSolver(self.list_Children_Strings[i], (depth), self.alphaValue, self.betaValue)
+				#print(str(self.currentDepth)+"--MIN-Val0="+str(wdb.evaluationScore))
+				#print(str(self.currentDepth)+"--MIN-Val0="+str(self.list_Children_Strings[0]))		
+
 				if(self.betaValue==None):
 					self.betaValue		=	wdb.evaluationScore;
 					self.evaluationScore= 	self.betaValue;
@@ -327,37 +328,42 @@ class WildaBeastSolver:
 
 				else:
 					#Due to Sorting, we CAN'T do better anymore its IMPOSSIBLE, only equal or
-					if(wdb.evaluationScore<self.betaValue):
-						self.betaValue=wdb.evaluationScore;
+					if(wdb.evaluationScore  <   self.betaValue):
+						self.betaValue		=   wdb.evaluationScore;
 						self.evaluationScore= 	self.betaValue;	
 						self.chosen_NextMove=	wdb.string_Representation
 
-					else:
+					elif(wdb.evaluationScore  ==  self.betaValue):
 						#No need to check more, prune other branches. Alpha Beta Pruning
 						self.evaluationScore= self.betaValue;
 						# if(curVal< halfChildren):
-						# 	return
+					else:
+						return
 
 			#Max Node cares about biggest Alpha Value
 			else:
+				wdb= WildaBeastSolver(self.list_Children_Strings[ (len(self.list_Children_Strings)-i-1)], (depth), self.alphaValue, self.betaValue)
+				#print(str(self.currentDepth)+"--MAX-Val0="  +str(wdb.evaluationScore))
+				#print(str(self.currentDepth)+"--MAX-Val0=\n"+str(self.list_Children_Strings[0]))		
 				if(self.alphaValue==None):
 					self.alphaValue=wdb.evaluationScore;
 					self.evaluationScore= 	self.alphaValue;
 					self.chosen_NextMove=	wdb.string_Representation
 
 				else:
-					if(wdb.evaluationScore>self.alphaValue):
+					if(wdb.evaluationScore> self.alphaValue):
 						self.alphaValue=wdb.evaluationScore;
 						self.evaluationScore= 	self.alphaValue;
 						self.chosen_NextMove=	wdb.string_Representation
 
-					else:
+					elif(wdb.evaluationScore  ==  self.alphaValue):
 						#No need to check more, prune other branches. Alpha Beta Pruning
 						self.evaluationScore= self.alphaValue;
 						# if(curVal< halfChildren):
-						# 	return
+					else:
+						return
 
-			curVal+=1;
+			#curVal+=1;
 
 
 

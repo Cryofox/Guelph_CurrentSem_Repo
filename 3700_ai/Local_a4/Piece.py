@@ -174,6 +174,14 @@ class Piece:
 		else:
 			boardFile+=("W\n");		
 
+
+
+		#Make enemy pieces apply negative score
+		inverseSigns= 1
+		if((self.wds.currentDepth%2==1 and currentPlayer==0) or (self.wds.currentDepth%2==0 and currentPlayer!=0)): #Even turns = same color. Therefore odd = Inverse
+			inverseSigns=-1
+
+		eval_Node=0
 		# For each Row construct the String
 		for y in range(0,8):
 			rowString=""
@@ -182,20 +190,24 @@ class Piece:
 					rowString+="."
 				else:
 					rowString+= board[x][y].Get_Piece()
+					c = board[x][y].Get_Piece()
+					if(c.islower()):
+						eval_Node-=(self.wds.Eval_Piece(c)* inverseSigns); 
+					else:
+						eval_Node+=(self.wds.Eval_Piece(c)* inverseSigns); 							
 			boardFile+=(rowString+"\n");
 
 
 
 
 		index=1;
-
-
 		#Store Moves in Evaluation Order
 		#bisect.
-		index= bisect.bisect(self.wds.list_Children_Evals,self.wds.evaluationScore)
+		# print("String=Val=>"+str(eval_Node))
+		# print("String=\n"+boardFile)
+		index= bisect.bisect(self.wds.list_Children_Evals,eval_Node)
 
-		self.wds.list_Children_Evals.insert(index, self.wds.evaluationScore)
-
+		self.wds.list_Children_Evals.insert(index, eval_Node)
 		self.wds.list_Children_Strings.insert(index, boardFile)
 		
 
