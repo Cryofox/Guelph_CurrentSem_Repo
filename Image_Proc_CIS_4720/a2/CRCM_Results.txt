@@ -1,0 +1,16 @@
+c1_large-Completeness Score=0.70133765396
+c1_large-Correctness Score=0.666812006324
+c2-Completeness Score=0.89222787118
+c2-Correctness Score=0.883961268001
+c3-Completeness Score=0.964600374734
+c3-Correctness Score=0.948174329753
+c4-Completeness Score=0.78604609671
+c4-Correctness Score=0.773541560782
+s1-Completeness Score=0.953640234009
+s1-Correctness Score=0.939251393101
+s2-Completeness Score=0.846673925705
+s2-Correctness Score=0.829584785818
+s3-Completeness Score=0.561163853792
+s3-Correctness Score=0.560090661129
+s4-Completeness Score=0.552472947338
+s4-Correctness Score=0.550652280859

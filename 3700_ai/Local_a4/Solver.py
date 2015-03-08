@@ -21,9 +21,9 @@ from WildaBeastSolver import *;
 
 import sys;
 
+import fileinput
 
-
-
+import time
 
 
 
@@ -34,7 +34,7 @@ import sys;
 
 
 if __name__ == "__main__":
-	print("Hey Good job")
+	#print("Hey Good job")
 	#This program will work in stages to allow for optimizing areas.
 
 	#Stage 1: Read the Input File
@@ -52,14 +52,36 @@ if __name__ == "__main__":
 		#Stage 2.3: Find Answer
 
 
-
-	#Stage 3: Print Result.
-
+ 	#Stage 3: Print Result.
 
 
+	# Reads in lines from STDIN
+
+	entryString="";
+	start_Time = time.clock();
+	i =0
+	turn=0;
+	for line in fileinput.input():
+		entryString+=line;
+		if(i==11):
+			turn=(int)(line)
+		i+=1
+
+
+	#print(entryString)
+	wd = WildaBeastSolver(entryString)
 
 
 
+
+
+
+	end_Time = time.clock();
+	print("TE:"+str( (end_Time-start_Time)))
+
+	#Now to analyze the 3rd last and last values
+	print(wd.chosen_NextMove)
+	print("Turn="+str(turn+1))
 #Steps modify Wildabeast to parse NODES not textfiles
 
 # modify RUN to parse from stdin and create a ROOT node

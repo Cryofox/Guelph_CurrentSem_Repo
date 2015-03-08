@@ -1,6 +1,9 @@
 
 #from OldWomanNegation import *
 import os
+import sys
+import bisect
+
 class Piece:
 	_isWhite=False
 	_posX	=0
@@ -8,6 +11,9 @@ class Piece:
 	_pieceLetter='+'
 
 	timePrinted=0
+
+	depthLevel=0
+	wds = None
 	def __init__( self, posX, posY, isWhite):
 		return
 
@@ -80,7 +86,6 @@ class Piece:
 					self.PrintBoard(newBoard,currentPlayer,(boardNum+inc),None);
 					inc+=1
 
-
 		return inc
 
 
@@ -152,7 +157,7 @@ class Piece:
 	#This is the actual board print code, it is placed here and marked with a _
 	#to symbolize it should only be called from within this Class
 	def _PrintBoard(self,board, currentPlayer,boardNum):
-
+		# return
 		formatedCount= ""
 
 		if(Piece.timePrinted<10):
@@ -161,13 +166,13 @@ class Piece:
 			formatedCount+="0"
 		formatedCount+= str(Piece.timePrinted)
 
-		fileName=  "board."+formatedCount
-		boardFile = open(fileName,'w')
-
+		#fileName=  str(self.depthLevel)+"/board."+formatedCount
+		#boardFile = open(fileName,'w')
+		boardFile="";
 		if(currentPlayer==0):
-			boardFile.write("B\n");
+			boardFile+=("B\n");
 		else:
-			boardFile.write("W\n");		
+			boardFile+=("W\n");		
 
 		# For each Row construct the String
 		for y in range(0,8):
@@ -177,13 +182,27 @@ class Piece:
 					rowString+="."
 				else:
 					rowString+= board[x][y].Get_Piece()
-			boardFile.write(rowString+"\n");
+			boardFile+=(rowString+"\n");
 
-		boardFile.write("0\n")
-		boardFile.write("60000\n")
-		boardFile.write("0\n")
-		Piece.timePrinted+=1
-	#Check Folder Name for Last Used Number
+
+
+
+		index=1;
+
+
+		#Store Moves in Evaluation Order
+		#bisect.
+		index= bisect.bisect(self.wds.list_Children_Evals,self.wds.evaluationScore)
+
+		self.wds.list_Children_Evals.insert(index, self.wds.evaluationScore)
+
+		self.wds.list_Children_Strings.insert(index, boardFile)
+		
+
+		#print("Index="+str(index))
+		#print("Val="+str(self.wds.evaluationScore))
+		
+		#Check Folder Name for Last Used Number
 
 
 
@@ -200,10 +219,10 @@ class Piece:
 			for y in range(0,8):
 				#Check Black Pawns
 				if(y <=1 ):
-					if(board[x][y]!= None and not board[x][y]._isWhite):
+					if((board[x][y]!= None and board[x][y].Get_Piece()=='p')):
 						blackJoeyDead=True
 				if(y >=6 ):
-					if(board[x][y]!= None and not board[x][y]._isWhite):
+					if((board[x][y]!= None and board[x][y].Get_Piece()=='P')):
 						whiteJoeyDead=True				
 
 		if(blackJoeyDead):
