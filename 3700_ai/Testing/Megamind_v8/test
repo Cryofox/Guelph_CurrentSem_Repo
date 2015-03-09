@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#hmmm
+
+NUM=0
+MAX=100
+HELLO=Hello 
+BOARD='board_0.txt'
+BOARDOUT='board_O.txt'
+
+SWAP=''
+for (( i = 0 ; i <= 30; i++ ))
+do
+    #echo $BOARD
+    python Solver.py < $BOARD 
+    python Solver.py < $BOARD > $BOARDOUT
+
+    SWAP=$BOARDOUT
+    BOARDOUT=$BOARD
+    BOARD=$SWAP
+
+done
+

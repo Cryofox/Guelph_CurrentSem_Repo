@@ -1,0 +1,34 @@
+This one is simple. 
+
+Create the initial board.
+
+Calculate all the nodes and subnodes untill each board terminates.
+
+For each node keep a list of trecked nodes.
+To cull loops.
+
+When the program is done you'll have a tree where each node continues to a
+leaf node, each node will have a series of win/lose childs.
+
+Each node will be given a value of 0->N, where
+N is the amount of win states this node can lead to.
+
+//Storage.
+Now Create the tree using folders.
+At each Folder create a README containing white, and black winning moves
+from this folder.
+ 
+This is done in reverse order, 
+go to the deepest folder in a tree untill no more folders exist,
+If a folder has no children folders inside, create the README with the value 0/1 whether this leaf
+node wins or doesn't.
+Backtrack to the folder's parents, if that folder doesn't have a readme check its children and tally up the values from all
+children, create the readme with the new value for this node.
+
+Do this throughout the entire tree.
+
+Now when the program runs all that is needed is to map the current board state with this big ass tree?
+
+
+
+

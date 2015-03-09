@@ -58,32 +58,31 @@ if __name__ == "__main__":
 	# Reads in lines from STDIN
 
 	entryString="";
-	start_Time = time.clock();
+
 	i =0
 	turn=0;
+	maxTurn=0
 	for line in fileinput.input():
 		entryString+=line;
 		if(i==11):
 			turn=(int)(line)
+		elif(i==10):
+			maxTurn=(int)(line)
 		i+=1
 
-
+	start_Time = time.clock();
 	#print(entryString)
 	wd = WildaBeastSolver(entryString)
 
 	#Add preset Moves to speed up initial turn decisions
-
-
-
-
-
-
 	end_Time = time.clock();
+	print("Initialize Called:"+ str(wd.DEBUG_InitCount))
+	print("Move Value:"+ str(wd.evaluationScore))
+	print("TE:"+str( (end_Time-start_Time)))
 
-	#print("TE:"+str( (end_Time-start_Time)))
 
 	#Now to analyze the 3rd last and last values
-	print(wd.chosen_NextMove+(str( (int)((end_Time-start_Time)*1000)))+"\n60000\n"+str((turn+1))+"\n")
+	print(wd.chosen_NextMove+(str( (int)((end_Time-start_Time)*1000)))+"\n"+str(maxTurn)+"\n"+str((turn+1))+"\n")
 	#print("Turn="+str(turn+1))
 
 
