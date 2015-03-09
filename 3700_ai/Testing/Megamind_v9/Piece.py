@@ -16,6 +16,12 @@ class Piece:
 
 	depthLevel=0
 	wds = None
+
+	#SpeedupMod, use KillJoey code and set flags for Snakes and Empresses
+	#To avoid re-iterating through the Board
+	hasSnakes=False
+	hasEmpress=False
+
 	def __init__( self, posX, posY, isWhite):
 		return
 
@@ -26,34 +32,73 @@ class Piece:
 
 		#this is the function called from all pieces
 	def PrintBoard(self,board, currentPlayer,boardNum, capturedPiece):
+
+		#Speed Hack...Since the board requires traversal. Traverse it once, and use that information
+		
+		killWhiteJoey=False;
+		killBlackJoey=False;
+		pawnList=[]
+		for x in range(0,8):
+			for y in range(0,8):
+				if(board[x][y]!=None):
+					char_Piece= board[x][y].Get_Piece()
+					if(y==0 and char_Piece =='p'):
+						killWhiteJoey=True
+						pawnList.append((x,y))
+					#This can be an else, because joeys dead anyways
+					elif(y==1 and char_Piece =='p'):
+						killWhiteJoey=True				
+					if(y==7 and char_Piece =='P'):
+						killBlackJoey=True
+						pawnList.append((x,y))
+					#This can be an else, because joeys dead anyways
+					elif(y==6 and char_Piece =='P'):
+						killBlackJoey=True	
+
+					if(char_Piece=='e' or char_Piece=='E'):
+						self.hasEmpress=True
+					elif(char_Piece=='s' or char_Piece=='S'):
+						self.hasSnakes=True					
+
+					elif(char_Piece=='j'):
+						bjx = x
+						bjy = y
+					elif(char_Piece=='J'):
+						wjx = x
+						wjy = y
+		#kill joey
+		if(killWhiteJoey):
+			board[wjx][wjy]=None
+		if(killBlackJoey):
+			board[bjx][bjy]=None			
+
+
+
 		#print("PrintBoard Called")
 		#Kill Joeys, if they're supposed to be dead
-		self.KillJoey(board)
+		#self.KillJoey(board)
 
 		#Kill Enemies Adjacent to Snake
 		self.PoisonUnits(board)
 
 		#Pawn Upgrade Logic
 
-
 		pawnsModified=False
 		incrementCount =0 
 
-		for x in range(0,8):
-			if(board[x][7]!=None and board[x][7].Get_Piece()=='P'):
-				board[x][7].UpgradePawn(board,x,7,currentPlayer, capturedPiece,boardNum)
-				pawnsModified=True
-				incrementCount+=1
-			if(board[x][0]!=None and board[x][0].Get_Piece()=='p'):
-				board[x][0].UpgradePawn(board,x,0,currentPlayer, capturedPiece,boardNum)
-				pawnsModified=True
-				incrementCount+=1
+		for i in range(0, len(pawnList)):
+			board[ pawnList[i][0],pawnList[i][1]].UpgradePawn(board,pawnList[i][0],pawnList[i][1],currentPlayer, capturedPiece,boardNum)
+			pawnsModified=True
 
+		#del(pawnList)
 
+		#Speedup
+		if(capturedPiece!= None):
+			char_CapPiece =capturedPiece.Get_Piece()
 
 		#Check for TransportPad
 		if(not pawnsModified):
-			if( capturedPiece!= None and ((capturedPiece.Get_Piece()=='T' and currentPlayer==0) or (capturedPiece.Get_Piece()=='t' and currentPlayer==1))):
+			if( capturedPiece!= None and ((char_CapPiece=='T' and currentPlayer==0) or (char_CapPiece=='t' and currentPlayer==1))):
 				#Transport the Piece at capt Piece _X, _Y
 				incrementCount+= self.Apply_Transport(board, capturedPiece._posX, capturedPiece._posY, currentPlayer, (boardNum+incrementCount))
 
@@ -61,7 +106,7 @@ class Piece:
 		#If Pawns were not upgraded then we update the board here, otherwise the board has already been updated via the
 		#Negate Boards that Result in capturing a Gorilla - Illegal Move
 		if(not pawnsModified):
-			if (not( capturedPiece!= None and (capturedPiece.Get_Piece()=='g' or capturedPiece.Get_Piece()=='G'))):
+			if (not( capturedPiece!= None and (char_CapPiece=='g' or char_CapPiece=='G'))):
 				self._PrintBoard(board,currentPlayer,(boardNum+incrementCount))
 				incrementCount+=1
 
@@ -85,11 +130,13 @@ class Piece:
 
 	#CHeck if this piece at this position is floating based on an adjacent JetPack
 	def IsFloating(self, board, posX, posY):
+
+		char_Piece= board[posX][posY].Get_Piece()
 		#Gorillas Can't Fly...but golfcarts can *Shrug*
-		if(board[posX][posY].Get_Piece() == 'g' or board[posX][posY].Get_Piece() == 'G'):
+		if(char_Piece== 'g' or char_Piece == 'G'):
 			return False
 
-		if(board[posX][posY].Get_Piece() == 'w' or board[posX][posY].Get_Piece() == 'W'):
+		if(char_Piece == 'w' or char_Piece == 'W'):
 			return True
 
 		listAdjacent=self.Get_AdjacentUnits(posX, posY, board)
@@ -146,17 +193,7 @@ class Piece:
 	def _PrintBoard(self,board, currentPlayer,boardNum):
 		# return
 		boardFile="";
-		formatedCount= ""
-
-
-		if(Piece.timePrinted<10):
-			formatedCount+="00"
-		elif(Piece.timePrinted<100):
-			formatedCount+="0"
-		formatedCount+= str(Piece.timePrinted)
-
-
-
+		
 		if(currentPlayer==0):
 			boardFile+=("B\n");
 		else:
@@ -216,118 +253,136 @@ class Piece:
 		#Check if a White Pawn is in Kill Joey Position
 
 		for x in range(0,8):
-			for y in range(0,8):
-				#Check Black Pawns
-				if(y <=1 ):
-					if((board[x][y]!= None and board[x][y].Get_Piece()=='p')):
-						blackJoeyDead=True
-				if(y >=6 ):
-					if((board[x][y]!= None and board[x][y].Get_Piece()=='P')):
-						whiteJoeyDead=True				
+			# for y in range(0,8):
+			# 	#Check Black Pawns
+			# 	if(y <=1 ):
+			# 		if((board[x][y]!= None and board[x][y].Get_Piece()=='p')):
+			# 			blackJoeyDead=True
+			# 	if(y >=6 ):
+			# 		if((board[x][y]!= None and board[x][y].Get_Piece()=='P')):
+			# 			whiteJoeyDead=True						
+			if((board[x][1]!= None and board[x][1].Get_Piece()=='p')):
+				blackJoeyDead=True
+			elif((board[x][0]!= None and board[x][0].Get_Piece()=='p')):
+				blackJoeyDead=True
 
-		if(blackJoeyDead):
+			if((board[x][6]!= None and board[x][6].Get_Piece()=='P')):
+				whiteJoeyDead=True		
+			elif((board[x][7]!= None and board[x][7].Get_Piece()=='P')):
+				whiteJoeyDead=True		
+
+
+
+#	hasSnakes=False
+	# hasEmpress=False
+
+		if(blackJoeyDead or whiteJoeyDead):
 			for x in range(0,8):
 				for y in range(0,8):
 					#Find Enemy Joeys and Kill em all
-					if( board[x][y]!= None and board[x][y].Get_Piece()=='j'):
-						board[x][y] = None
-		if(whiteJoeyDead):
-			for x in range(0,8):
-				for y in range(0,8):
-					#Find Enemy Joeys and Kill em all
-					if( board[x][y]!= None and board[x][y].Get_Piece()=='J'):
-						board[x][y] = None
+					if( board[x][y]!= None):
+						char_Piece=board[x][y].Get_Piece()
+
+						if(char_Piece=='j' and blackJoeyDead):
+							board[x][y] = None
+						elif(char_Piece=='J' and whiteJoeyDead):
+							board[x][y] = None							
+
+						elif(char_Piece=='S' or char_Piece=='s'):
+							self.hasSnakes=True
+						elif(char_Piece=='E' or char_Piece=='e'):
+							self.hasEmpress=True
+
 
 	def PoisonUnits( self, board):
-		#Check for Snakes
-		snakeList=[]
-		for x in range (0,8):
-			for y in range(0,8):
-				if(board[x][y]!= None and (board[x][y].Get_Piece()=='S' or board[x][y].Get_Piece()=='s')):
-					#Create new Snake Class since this could potentially be a MOVED snake
-					snakeList.append( board[x][y])		
 
-		#For Every Snake in the List check if it has units adjacent to Poison
+		if(self.hasSnakes):
+			#Check for Snakes
+			snakeList=[]
+			for x in range (0,8):
+				for y in range(0,8):
+					if(board[x][y]!= None and (board[x][y].Get_Piece()=='S' or board[x][y].Get_Piece()=='s')):
+						#Create new Snake Class since this could potentially be a MOVED snake
+						snakeList.append( board[x][y])		
 
-
-		for i in range (0, len(snakeList)):
-			try:
-				for sX in range(0,8):
-					for sY in range(0,8):
-						if( board[sX][sY]== snakeList[i]):
-
-							listPoisonedUnits = self.Get_AdjacentUnits(  sX, sY,board)
-
-							#For Every Snake Check if the adjacent Poisoned units are adjacent to an old woman, and if they are
-							#Kill the snake, and upgrade the old woman
-
-							#For each of the Units check if any are Adjacent to an Old Woman
-							for j in range (0, len(listPoisonedUnits)):
-								#Since we can not poll their posX or posY due to that being used by the Original Board
-								for x in range(0,8):
-									for y in range(0,8):
-										if(board[x][y]== listPoisonedUnits[j] and listPoisonedUnits[j]._isWhite != snakeList[i]._isWhite):
-											list_potentialOldWoman = self.Get_AdjacentUnits(x,y,board)
-
-											for p in range(0, len(list_potentialOldWoman)):
-												for x2 in range(0,8):
-													for y2 in range(0,8):
-														if(board[x2][y2] == list_potentialOldWoman[p]):
-															if(list_potentialOldWoman[p].Get_Piece() =='o' or list_potentialOldWoman[p].Get_Piece() =='O'):
-																if(list_potentialOldWoman[p]._isWhite != snakeList[i]._isWhite):
-																	#Kill the Snake
-																	board[sX][sY]=None;
-																	snakeList.pop(i)
-																	#Insert None Object to reAlign List
-																	snakeList.insert(i,None)
-																	#Upgrade the Old Woman
-																	board[x2][y2].Upgrade(board,x2,y2)
-																	#print("OLD WOMAN YAY at="+ str(x2)+","+str(y2))
-																	raise CustomException('Old Woman Saved the day!')
-
-							# at this point if an old lady existed she would've saved the unit, therefore its safe to presume
-							#these units must die
-							isSnakeHovering = self.IsFloating(board, sX,sY)
-
-							for j in range (0, len(listPoisonedUnits)):
-								#Since we can not poll their posX or posY due to that being used by the Original Board
-								for x in range(0,8):
-									for y in range(0,8):
-										if(board[x][y]== listPoisonedUnits[j] and listPoisonedUnits[j]._isWhite != snakeList[i]._isWhite and listPoisonedUnits[j]._isWhite != (snakeList[i]._isWhite+2)):
-											if(board[x][y].Get_Piece() != 'g' and board[x][y].Get_Piece() != 'G'):
-
-												#If the snake is hovering everythings poisoned, otherwise, if the snake is not hovering
-												#and neithor is the piece
-												if((isSnakeHovering) or (not self.IsFloating(board,x,y))):
-													board[x][y]=None
-													#print("Poison At:"+ str(x)+","+str(y))
-							#raise CustomException('Old Woman Saved the day!')
-			except Exception, e:
-				#print("Exception was called")
-				pass
+			#For Every Snake in the List check if it has units adjacent to Poison
 
 
-		#Poison Grand Empress Units
-		for eX in range(0,8):
-			for eY in range(0,8):
-				if( board[eX][eY]!= None and (board[eX][eY].Get_Piece()=='E' or board[eX][eY].Get_Piece()=='e')):
-					listAdjacent = self.Get_AdjacentUnits(eX, eY, board)
+			for i in range (0, len(snakeList)):
+				try:
+					for sX in range(0,8):
+						for sY in range(0,8):
+							if( board[sX][sY]== snakeList[i]):
 
-					#Empress
-					isEmpressHovering = self.IsFloating(board, eX,eY)
-					for j in range (0, len(listAdjacent)):
-						#Since we can not poll their posX or posY due to that being used by the Original Board
-						for x in range(0,8):
-							for y in range(0,8):
-								if(board[x][y]== listAdjacent[j] and listAdjacent[j]._isWhite != board[eX][eY]._isWhite and  listAdjacent[j]._isWhite != (board[eX][eY]._isWhite+2)):
-									if(board[x][y].Get_Piece() != 'g' and board[x][y].Get_Piece() != 'G'):
+								listPoisonedUnits = self.Get_AdjacentUnits(  sX, sY,board)
 
-										if((isEmpressHovering) or (not self.IsFloating(board,x,y))):
-											board[x][y]=None
-											#print("Poison At:"+ str(x)+","+str(y))
+								#For Every Snake Check if the adjacent Poisoned units are adjacent to an old woman, and if they are
+								#Kill the snake, and upgrade the old woman
 
+								#For each of the Units check if any are Adjacent to an Old Woman
+								for j in range (0, len(listPoisonedUnits)):
+									#Since we can not poll their posX or posY due to that being used by the Original Board
+									for x in range(0,8):
+										for y in range(0,8):
+											if(board[x][y]== listPoisonedUnits[j] and listPoisonedUnits[j]._isWhite != snakeList[i]._isWhite):
+												list_potentialOldWoman = self.Get_AdjacentUnits(x,y,board)
 
-		return
+												for p in range(0, len(list_potentialOldWoman)):
+													for x2 in range(0,8):
+														for y2 in range(0,8):
+															if(board[x2][y2] == list_potentialOldWoman[p]):
+																if(list_potentialOldWoman[p].Get_Piece() =='o' or list_potentialOldWoman[p].Get_Piece() =='O'):
+																	if(list_potentialOldWoman[p]._isWhite != snakeList[i]._isWhite):
+																		#Kill the Snake
+																		board[sX][sY]=None;
+																		snakeList.pop(i)
+																		#Insert None Object to reAlign List
+																		snakeList.insert(i,None)
+																		#Upgrade the Old Woman
+																		board[x2][y2].Upgrade(board,x2,y2)
+																		#print("OLD WOMAN YAY at="+ str(x2)+","+str(y2))
+																		raise CustomException('Old Woman Saved the day!')
+
+								# at this point if an old lady existed she would've saved the unit, therefore its safe to presume
+								#these units must die
+								isSnakeHovering = self.IsFloating(board, sX,sY)
+
+								for j in range (0, len(listPoisonedUnits)):
+									#Since we can not poll their posX or posY due to that being used by the Original Board
+									for x in range(0,8):
+										for y in range(0,8):
+											if(board[x][y]== listPoisonedUnits[j] and listPoisonedUnits[j]._isWhite != snakeList[i]._isWhite and listPoisonedUnits[j]._isWhite != (snakeList[i]._isWhite+2)):
+												if(board[x][y].Get_Piece() != 'g' and board[x][y].Get_Piece() != 'G'):
+
+													#If the snake is hovering everythings poisoned, otherwise, if the snake is not hovering
+													#and neithor is the piece
+													if((isSnakeHovering) or (not self.IsFloating(board,x,y))):
+														board[x][y]=None
+														#print("Poison At:"+ str(x)+","+str(y))
+								#raise CustomException('Old Woman Saved the day!')
+				except Exception, e:
+					#print("Exception was called")
+					pass
+
+		if(self.hasEmpress):
+			#Poison Grand Empress Units
+			for eX in range(0,8):
+				for eY in range(0,8):
+					if( board[eX][eY]!= None and (board[eX][eY].Get_Piece()=='E' or board[eX][eY].Get_Piece()=='e')):
+						listAdjacent = self.Get_AdjacentUnits(eX, eY, board)
+
+						#Empress
+						isEmpressHovering = self.IsFloating(board, eX,eY)
+						for j in range (0, len(listAdjacent)):
+							#Since we can not poll their posX or posY due to that being used by the Original Board
+							for x in range(0,8):
+								for y in range(0,8):
+									if(board[x][y]== listAdjacent[j] and listAdjacent[j]._isWhite != board[eX][eY]._isWhite and  listAdjacent[j]._isWhite != (board[eX][eY]._isWhite+2)):
+										if(board[x][y].Get_Piece() != 'g' and board[x][y].Get_Piece() != 'G'):
+
+											if((isEmpressHovering) or (not self.IsFloating(board,x,y))):
+												board[x][y]=None
+												#print("Poison At:"+ str(x)+","+str(y))
 
 
 

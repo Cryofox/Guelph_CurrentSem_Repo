@@ -16,7 +16,12 @@ MM8: Dumbed down the analytics to increase time accuracy.
 
 
 
-MM9: Increase heuristic weight factor on beekeeper piece
+MM9: 
+Profiled, 
+Removed repetitive function calls to GetPiece
+Converted Kill Joey from two, to a single for loop iteration
+Add Snake and Empress Flags in Joey to check against in PoisonUnits function
+Nodes at Target Depth do not Get their children nodes created.
 
 
 Megamind must play like a human.

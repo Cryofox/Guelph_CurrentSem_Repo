@@ -25,6 +25,8 @@ import fileinput
 
 import time
 
+import cProfile
+import pstats
 
 
 
@@ -79,7 +81,20 @@ if __name__ == "__main__":
 
 	#Add preset Moves to speed up initial turn decisions
 	end_Time = time.clock();
-	'''
+
+
+
+	#tar czf code.tgz *    <tar
+
+	#tar xvfz code.tgz  	< Untar
+
+	cProfile.run('WildaBeastSolver(entryString,0,None,None,turn)', 'results')
+	stats = pstats.Stats('results')
+	#stats.sort_stats('calls', 'nfl')
+	stats.sort_stats('tottime', 'nfl')
+	stats.print_stats()
+
+
 	print("Initialize Called:"+ str(wd.DEBUG_InitCount))
 	print("Move Value:"+ str(wd.evaluationScore))
 
@@ -87,13 +102,8 @@ if __name__ == "__main__":
 	print("Move Cost:"+ str(wd.betaValue))	
 	print("TE:"+str( (end_Time-start_Time)))
 	print("Total Possible Nodes:"+ str( wd.DEBUG_children))
-	'''
-	#tar czf code.tgz *    <tar
-
-	#tar xvfz code.tgz  	< Untar
 
 
-	#Now to analyze the 3rd last and last values
 	print(wd.chosen_NextMove+(str(((int)((end_Time-start_Time)*1000)+lastTime)))+"\n"+str(maxTurn)+"\n"+str((turn+1))+"\n")
 
 

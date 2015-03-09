@@ -30,9 +30,10 @@ class WildaBeastSolver:
 	DEBUG_InitCount=0;
 
 	#Target Depth
-	targetDepth=3;
+	targetDepth=4;
 
 	traversed_Nodes=0;
+	#Node Traversal used for timing
 	maxNodes=150;
 	
 	DEBUG_children=0;
@@ -56,6 +57,25 @@ class WildaBeastSolver:
 	list_Children_Strings=[]
 	list_Children_Evals  =[]
 
+
+	#SpeedupHack- Eval
+	lookup_Piece= {
+	'p':1,
+	'o':3,
+	'j':3,
+	't':4,
+	'z':5,
+	'x':6,
+	'b':8,
+	's':8,
+	'r':10,
+	'w':10,
+	'c':10,
+	'e':20,
+	'g':0,
+	'h':0,
+	'k':1000
+	}
 
 	# Pass in a Chess GameBoard File with correct Format
 	def __init__( self, filestring, depth=0, alpha=None, beta=None, turn=None):
@@ -289,9 +309,7 @@ class WildaBeastSolver:
 					tempList.append(board[x][(y-1)])
 
 
-
-
-					#Boards without kings are invalid, so we can stop the children here
+		#Boards without kings are invalid, so we can stop the children here
 		if(whiteKing==False or blackKing==False):
 			return
 
@@ -311,9 +329,10 @@ class WildaBeastSolver:
 
 
 		#Optimized For Loop, traverse through pieces not squares
-		for piece in tempList:
-			piece.Calc_PotentialMoves(board,currentPlayer,0)
-		del(tempList)
+		if(self.currentDepth!=WildaBeastSolver.targetDepth):
+			for piece in tempList:
+				piece.Calc_PotentialMoves(board,currentPlayer,0)
+			del(tempList)
 
 
 
@@ -328,28 +347,29 @@ class WildaBeastSolver:
 			#moves don't equate to anything.
 			llen = len(self.list_Children_Strings)
 
-			#index = random.randrange(llen-17, llen,1)
-			index=18
+			index =18# random.randrange(llen-17, llen,1)
+
 			#print("Index="+str(index))
 			
 			self.chosen_NextMove= self.list_Children_Strings[index]
 			return
 
 		if(self.currentDepth<WildaBeastSolver.targetDepth):
-			#print("["+str(depth)+"]OGEVAL="+ self.evaluationScore)
 			self.evaluationScore=None
 		
 
 			#This is where Threads have fun
 			if(self.currentDepth==0):
 				#threads=[]
-				numThreads=5;
+				# numThreads=1;
+				self.Thread_Setup_Children(1,0,True)
 
-
-				for i in range(0,numThreads):
-					thread_N= threading.Thread(target = self.Thread_Setup_Children(numThreads,i))
-					thread_N.start()
-
+				# for i in range(0,(numThreads-1)):
+				# 	thread_N= threading.Thread(target = self.Thread_Setup_Children(numThreads,i))
+				# 	thread_N.start()
+				# #This Thread requires a bit more than an even amount
+				# thread_N= threading.Thread(target = self.Thread_Setup_Children(numThreads,(numThreads-1),True))
+				# thread_N.start()	
 			else:
 				self.Setup_Children()
 
@@ -384,103 +404,11 @@ class WildaBeastSolver:
 			isMinNode=True;
 
 
-		for i in range(0,listLen):
+		llen =( listLen - 0*listLen/2)
+		for i in range(0,(llen)):
 
 			#It's better to make a bad move then throw the match due to overthinking.
 			#This is done to limit the amount of nodes we can look in a turn
-			if(WildaBeastSolver.traversed_Nodes>=150):
-				return
-			#Save time By ignoring branches if both AlphaBeta are set. Don't even create the child
-			if(self.betaValue!=None and self.alphaValue!=None):
-				if(isMinNode):
-					self.evaluationScore	= 	self.betaValue;
-				else:
-					self.evaluationScore	= 	self.alphaValue;
-				return;
-
-
-			#MinNode Cares about smallest Beta Value
-			if(isMinNode):
-				wdb= WildaBeastSolver(self.list_Children_Strings[i], (depth), self.alphaValue, self.betaValue)
-
-
-				if(self.betaValue==None):
-					self.betaValue		=	wdb.evaluationScore;
-					self.evaluationScore= 	self.betaValue;
-					self.chosen_NextMove=	wdb.string_Representation
-
-				else:
-					if(	wdb.evaluationScore  	<   self.betaValue):
-						self.betaValue			=   wdb.evaluationScore;
-						self.evaluationScore	= 	self.betaValue;	
-						self.chosen_NextMove	=	wdb.string_Representation
-						#print("SCORE LESS THAN!")
-
-					#elif(wdb.evaluationScore	==	self.betaValue):
-					#	self.evaluationScore	= 	self.betaValue;
-						#return
-					else:
-						# if(threshold<=0):
-						# 	self.evaluationScore	= 	self.betaValue;
-						# 	return	
-						# threshold-=1;
-						self.evaluationScore	= 	self.betaValue;
-						return			
-
-			#Max Node cares about biggest Alpha Value
-			else:
-				wdb= WildaBeastSolver(self.list_Children_Strings[ (listLen-i-1)], (depth), self.alphaValue, self.betaValue)
-			
-				if(self.alphaValue==None):
-					self.alphaValue 			= 	wdb.evaluationScore;
-					self.evaluationScore		= 	self.alphaValue;
-					self.chosen_NextMove		=	wdb.string_Representation
-				#Need to determine when to stop evaluating nodes.
-				#Should allow for some room of continuation, to catch moves which may put us in CM
-				else:
-
-					if(wdb.evaluationScore		>	self.alphaValue):
-						self.alphaValue			=	wdb.evaluationScore;
-						self.evaluationScore	= 	self.alphaValue;
-						self.chosen_NextMove	=	wdb.string_Representation
-
-					#elif(wdb.evaluationScore	==	self.alphaValue):
-						#self.evaluationScore	= 	self.alphaValue;
-						
-					else:
-						self.evaluationScore	= 	self.alphaValue;
-						return
-
-
-#Should only be called by root
-#Num of Divisions to split the for loop in, 
-#And which section to take for the thread
-	def Thread_Setup_Children(self, division, section):
-
-		depth =(self.currentDepth+1)
-
-		listLen =len(self.list_Children_Strings)
-		WildaBeastSolver.DEBUG_children+= listLen
-		index =0;
-		targetVal=None
-
-		isMinNode=False;
-
-
-
-		if(self.currentDepth%2==1):	#Odd is always a Min node, 0=Even=Max
-			isMinNode=True;
-
-
-		sectionStart=  listLen/division*section
-		sectionEnd=  sectionStart+ listLen/division
-
-		for i in range(sectionStart,sectionEnd):
-
-			#It's better to make a bad move then throw the match due to overthinking.
-			#This is done to limit the amount of nodes we can look in a turn
-
-
 			if(WildaBeastSolver.traversed_Nodes>=WildaBeastSolver.maxNodes):
 				return
 			#Save time By ignoring branches if both AlphaBeta are set. Don't even create the child
@@ -495,7 +423,7 @@ class WildaBeastSolver:
 			#MinNode Cares about smallest Beta Value
 			if(isMinNode):
 				wdb= WildaBeastSolver(self.list_Children_Strings[i], (depth), self.alphaValue, self.betaValue)
-
+				#self.Debug(wdb,i);
 
 				if(self.betaValue==None):
 					self.betaValue		=	wdb.evaluationScore;
@@ -523,7 +451,8 @@ class WildaBeastSolver:
 			#Max Node cares about biggest Alpha Value
 			else:
 				wdb= WildaBeastSolver(self.list_Children_Strings[ (listLen-i-1)], (depth), self.alphaValue, self.betaValue)
-			
+				#self.Debug(wdb,i);
+
 				if(self.alphaValue==None):
 					self.alphaValue 			= 	wdb.evaluationScore;
 					self.evaluationScore		= 	self.alphaValue;
@@ -531,21 +460,104 @@ class WildaBeastSolver:
 				#Need to determine when to stop evaluating nodes.
 				#Should allow for some room of continuation, to catch moves which may put us in CM
 				else:
-
 					if(wdb.evaluationScore		>	self.alphaValue):
 						self.alphaValue			=	wdb.evaluationScore;
 						self.evaluationScore	= 	self.alphaValue;
 						self.chosen_NextMove	=	wdb.string_Representation
 
-
 					#elif(wdb.evaluationScore	==	self.alphaValue):
-					#	self.evaluationScore	= 	self.alphaValue;
-					#	return
+						#self.evaluationScore	= 	self.alphaValue;					
 					else:
 						self.evaluationScore	= 	self.alphaValue;
 						return
 
+	def Debug(self,wds,id=0):
+		#Debug for Turn 2
+		# if(wds.currentDepth==1):
+		print("Board:"+str(id))
+		print("Node:"+str(wds.currentDepth))
+		print("Move Value:"+ str(wds.evaluationScore))
+		print("Move Alpha(Max):"+ str(wds.alphaValue))		
+		print("Move Beta(Min):"+ str(wds.betaValue))	
+		print( wds.string_Representation)
 
+		return
+
+
+#Should only be called by root
+#Num of Divisions to split the for loop in, 
+#And which section to take for the thread
+
+#no longer using threads. this is just an entrance for the root node
+	def Thread_Setup_Children(self, division, section, isLastThread=False):
+
+		depth =(self.currentDepth+1)
+
+		listLen =len(self.list_Children_Strings)
+
+		WildaBeastSolver.DEBUG_children+= listLen
+		index =0;
+		targetVal=None
+
+		isMinNode=False;
+
+
+
+		# sectionStart=  listLen/division*section
+
+		# if(isLastThread==True):
+		# 	sectionEnd= listLen
+		# else:
+		# 	sectionEnd=  sectionStart+ listLen/division
+		
+
+
+		# print("Children="+str(listLen))
+		# print("SECT_START="+str(sectionStart))	
+		# print("SECT_END="+str(sectionEnd))
+		# for i in range(sectionStart,sectionEnd):
+
+
+		llen =( listLen - listLen/3)
+		for i in range(0,listLen):
+
+			#It's better to make a bad move then throw the match due to overthinking.
+			#This is done to limit the amount of nodes we can look in a turn
+
+			if(WildaBeastSolver.traversed_Nodes>=WildaBeastSolver.maxNodes):
+				return
+			#Save time By ignoring branches if both AlphaBeta are set. Don't even create the child
+			if(self.betaValue!=None and self.alphaValue!=None):
+				if(isMinNode):
+					self.evaluationScore	= 	self.betaValue;
+				else:
+					self.evaluationScore	= 	self.alphaValue;
+				return;
+
+			wdb= WildaBeastSolver(self.list_Children_Strings[ (listLen-i-1)], (depth), self.alphaValue, self.betaValue)
+			
+
+			if(self.alphaValue==None):
+				self.alphaValue 			= 	wdb.evaluationScore;
+				self.evaluationScore		= 	self.alphaValue;
+				self.chosen_NextMove		=	wdb.string_Representation
+			#Need to determine when to stop evaluating nodes.
+			#Should allow for some room of continuation, to catch moves which may put us in CM
+			else:
+
+				if(wdb.evaluationScore		>	self.alphaValue):
+					self.alphaValue			=	wdb.evaluationScore;
+					self.evaluationScore	= 	self.alphaValue;
+					self.chosen_NextMove	=	wdb.string_Representation
+
+				#elif(wdb.evaluationScore	==	self.alphaValue):
+				#	self.evaluationScore	= 	self.alphaValue;
+				#	return
+				else:
+					self.evaluationScore	= 	self.alphaValue;
+					#return
+
+			#self.Debug(wdb,i);
 
 
 
@@ -572,57 +584,8 @@ class WildaBeastSolver:
 		#7 is max you can get from pure movement, thus this is sufficient to offset 
 		#pure movement moves
 
-		#Pawns are worth 1
-		if(char_Piece=='P' or char_Piece=='p'):
-			modifier= 1;
-			modifier+=7
-		#King Like Pieces Worth 2
-		elif(char_Piece=='O' or char_Piece=='o'):
-			modifier= 3;
-			modifier+=7
-		elif(char_Piece=='J' or char_Piece=='j'):
-			modifier= 3;
-			modifier+=7
-		#TPad= Kinda useful, but setup is bs
-		elif(char_Piece=='T' or char_Piece=='t'):
-			modifier= 4;
-			modifier+=7
-		elif(char_Piece=='Z' or char_Piece=='z'):
-			modifier= 5;
-			modifier+=7
-		#Golf Cart captures enemy pieces if charged.
-		elif(char_Piece=='X' or char_Piece=='x'):
-			modifier= 6;
-			modifier+=7
-		#Rook weighs more than bishop
-		elif(char_Piece=='B' or char_Piece=='b'):
-			modifier= 8;
-			modifier+=7
-		#Serpent is slightly less broken than GE due to movement
-		elif(char_Piece=='S' or char_Piece=='s'):
-			modifier= 8;
-			modifier+=7
-		#Rook weighs more than bishop
-		elif(char_Piece=='R' or char_Piece=='r'):
-			modifier= 10;		
-			modifier+=7
-		#Serpent is slightly less broken than GE due to movement
-		elif(char_Piece=='W' or char_Piece=='w'):
-			modifier= 10;
-			modifier+=7
-		#Catapult is broken
-		elif(char_Piece=='C' or char_Piece=='c'):
-			modifier= 10;
-			modifier+=7
-		#Grand Empress is BS = Highest Weight
-		elif(char_Piece=='E' or char_Piece=='e'):
-			modifier= 20;
-			modifier+=7
 
-		#King = Highest Value piece
-		elif(char_Piece=='K' or char_Piece=='k'):
-			modifier= 1000;
-			modifier+=7
+		modifier=WildaBeastSolver.lookup_Piece[ char_Piece.lower()]
 
 		#Add Whatever the Max Positional Data is to the above score 
 		#to keep things consistent. Taking pieces > moving a piece
@@ -636,7 +599,8 @@ class WildaBeastSolver:
 			else:
 				modifier+= (y)
 
-		return modifier
+
+		return (modifier+7)
 
 
 
