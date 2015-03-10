@@ -38,6 +38,10 @@ class Piece:
 		killWhiteJoey=False;
 		killBlackJoey=False;
 		pawnList=[]
+		bjx = 0
+		bjy = 0
+		wjx = 0
+		wjy = 0
 		for x in range(0,8):
 			for y in range(0,8):
 				if(board[x][y]!=None):
@@ -66,6 +70,7 @@ class Piece:
 					elif(char_Piece=='J'):
 						wjx = x
 						wjy = y
+
 		#kill joey
 		if(killWhiteJoey):
 			board[wjx][wjy]=None
@@ -87,7 +92,7 @@ class Piece:
 		incrementCount =0 
 
 		for i in range(0, len(pawnList)):
-			board[ pawnList[i][0],pawnList[i][1]].UpgradePawn(board,pawnList[i][0],pawnList[i][1],currentPlayer, capturedPiece,boardNum)
+			board[ pawnList[i][0] ][ pawnList[i][1] ].UpgradePawn(board,pawnList[i][0],pawnList[i][1],currentPlayer, capturedPiece,boardNum)
 			pawnsModified=True
 
 		#del(pawnList)

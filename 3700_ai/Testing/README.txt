@@ -23,6 +23,10 @@ Converted Kill Joey from two, to a single for loop iteration
 Add Snake and Empress Flags in Joey to check against in PoisonUnits function
 Nodes at Target Depth do not Get their children nodes created.
 
+MM11:
+Fixed:
+	Gorilla now gets poisoned.
+	Constructs (Excluding Catapult) No longer get poisoned.
 
 Megamind must play like a human.
  Opening move is entirely random
