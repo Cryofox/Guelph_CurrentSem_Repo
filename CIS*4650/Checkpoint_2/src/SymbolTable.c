@@ -30,43 +30,6 @@ variable, this then gets converted to the type once we get it
 
 
 
-//Struct used for Scopes
-typedef struct n
-{
-	char *identifier;
-	node_Type type;
-
-	//Only Used for Arrays
-	node_Type arrayType;
-
-
-	//Used for Structs
-	//Variables can be called if they belong to the struct.
-	char* struct_Owner;
-
-	//Used for Arrays, and Struct
-	int size;
-
-	//To Append to Scope
-	struct n * next;
-
-
-	//Only Used if First Node
-	int scopeDefined;
-}entry_Node;
-
-//Struct used for TypeDef Linking
-typedef struct q
-{
-	node_Type type;
-}node_Typdef;
-
-//Scope can be: Function, or Struct
-typedef struct s
-{
-	char* scope_Name;
-	struct s* next;
-}node_Scopes;
 
 
 
@@ -100,14 +63,15 @@ void Initialize_HashTable()
 	{
 		symbolTable[i]= malloc(sizeof(entry_Node));
 		symbolTable[i]->scopeDefined=FALSE;
-
 	}
 
 
 	for(int i=0;i<TABLE_SIZE;i++)
-{	//	printf("Creating Ref=%d\n",i);
-	referenceTable[i]= malloc(sizeof(node_Typdef));
-	referenceTable[i]->type=nt_NONE; }
+	{	//	printf("Creating Ref=%d\n",i);
+		referenceTable[i]= malloc(sizeof(node_Typdef));
+		referenceTable[i]->type="None";
+		referenceTable[i]->size=0; 
+	}
 
 	//Adding the Temp Scope, This is so we can have a place to constantly relocate variables to and from
 
@@ -115,14 +79,20 @@ void Initialize_HashTable()
 	Add_Scope("0Tmp\0"); // Uses Global Variable, so lets set it to True.
 
 	//Add the Basic Types
-	Add_TYPEDEF("float\0", 	nt_FLOAT);
-	Add_TYPEDEF("int\0", 		nt_INT);
-	Add_TYPEDEF("char\0", 	nt_CHAR);	
-	Add_TYPEDEF("struct\0", 	nt_STRUCT);
-	Add_TYPEDEF("array\0", 	nt_ARRAY);
+	Add_TYPEDEF("float\0", 		"float");
+	Add_TYPEDEF("int\0", 		"int");
+	Add_TYPEDEF("char\0", 		"char");	
+	Add_TYPEDEF("struct\0", 	"struct");
+	Add_TYPEDEF("array\0", 		"array");
 	//Use 1, as its illegal to start with a numeral in.cb files
-	Add_TYPEDEF("1Standby\0", 	nt_STANDBY);	
+	Add_TYPEDEF("1Standby\0", 	"Standby");
+
+
+
+	//None Value is used as a placeholder untill a type Link exists	
 }
+
+
 
 void Link_StructVariables(char* structName)
 {
@@ -182,6 +152,9 @@ void Link_StructVariables(char* structName)
 
 void Add_Array(char* token_Name, char* type, int size)
 {
+	printf("Adding Var:%s\n",token_Name);
+	token_Name= strcat(token_Name,"\0");
+
 	int hashValue = hash("0Tmp");
 	if( symbolTable[hashValue]->scopeDefined == FALSE)
 	{
@@ -190,34 +163,35 @@ void Add_Array(char* token_Name, char* type, int size)
 	}
 	else
 	{
-	 	entry_Node* traveller=symbolTable[hashValue]->next;
-		while(traveller!=NULL)
+
+	 	entry_Node* traveller=symbolTable[hashValue];
+		while(traveller->next!=NULL)
 			traveller=traveller->next;
+
+
 		//Now we add the Value
 		traveller->next= malloc(sizeof(entry_Node));
+		traveller->next->size=size;
 		traveller=traveller->next;
 
 		//Setup the Variable
 		traveller->identifier= strdup(token_Name);
-		//Now to Reference it's Type.
 		traveller->struct_Owner="!";
+		//Now to Reference it's Type.
+		//printf("So far so peachy...\n");
+		//printf("Str Peachy:%s\n",type);
+		char* nt = Get_VarType(type);
 
-		node_Type nt = Get_VarType(type);
 
-
-		traveller->size=size;
-
-		traveller->type=nt_ARRAY;		
-		traveller->arrayType=nt;
+		traveller->type=nt;
 		traveller->next=NULL;
 		if(nt== nt_NONE)
 		{
 			fprintf(stderr, "\nError: Unknown Variable:%s\n", token_Name);			
 		}
 		traveller->scopeDefined=FALSE;
-
 	}
-	printf("Variable Added\n");	
+	printf("Variable Added\n");
 }
 
 
@@ -251,14 +225,14 @@ void Add_Variable(char* token_Name, char* type)
 		//Setup the Variable
 		traveller->identifier= strdup(token_Name);
 		traveller->struct_Owner="!";
+		traveller->size=Get_VarSize(type);
 		//Now to Reference it's Type.
 		//printf("So far so peachy...\n");
 		//printf("Str Peachy:%s\n",type);
-		node_Type nt = Get_VarType(type);
+		char* nt = Get_VarType(type);
 
 
 		traveller->type=nt;
-		traveller->size=1;
 		traveller->next=NULL;
 		if(nt== nt_NONE)
 		{
@@ -271,27 +245,43 @@ void Add_Variable(char* token_Name, char* type)
 //This MUST be added to an Existing scope.
 //This is called on Variable Decleration
 
+void Set_TypeDefs(char* type)
+{
+	printf("Setting Typedefs...\n");
+	//Traverse Array, 
+	for(int i=0;i< TABLE_SIZE;i++)
+		if(strcmp(referenceTable[i]->type,"None")==0)
+			referenceTable[i]->type=type;
 
+}
 
 
 //This Function takes all standby variables in this scope and assigns them the new Variable
 //This is done due to yacc doing things in reverse >.>
 void Set_Type(char* type)
 {
+	printf("Setting Type...\n");
 	int tmpScope= hash("0Tmp\0");
 	//printf("Issue?\n");
 	entry_Node* traveller=symbolTable[tmpScope]->next;
 
-	node_Type nt = Get_VarType(type);
-
+	char* nt = Get_VarType(type);
+	int size = Get_VarSize(type);
 	while(traveller!=NULL)
 	{
-		if(traveller->type==nt_STANDBY)
-			traveller->type=nt;
+		//if(traveller->type==nt_STANDBY)
+		if(strcmp(traveller->type,"Standby")==0)
+		{	traveller->type=nt;
+			//Here we promote Typedefed only variables 
+			//to Arrays if they are supposed to be
+			if(traveller->size==0)
+				traveller->size=size;
+		}
+
+
 		traveller=traveller->next;
 	}
 }
-
 
 //This MUST be added to an Existing function.
 void Add_Scope(char* newScope)
@@ -357,30 +347,77 @@ void Add_Scope(char* newScope)
 	printf("Lol\n");
 }
 
-
-
 //Since all TypeDefs are Global, we can reference these from anywhere.
-void Add_TYPEDEF(char* typeDef, node_Type type)
+void Add_TYPEDEF(char* typeDef,  char*type)
 {
+	printf("Adding typedef..\n");
 //	symbolTable = malloc(sizeof(struct entry_Node)*997);
 	int hashValue = hash(typeDef); //Get the Hashed Identifier used for TypeDef
 
 
  	node_Typdef* traveller=referenceTable[hashValue];
+	printf("HV=%d\n",hashValue);
 
 	//Setup the Variable
-	traveller->type= type;
+	traveller->structReference=NULL;
+	printf("Type=%s\n",type);
+	traveller->type=strdup(type);
+	traveller->size=0;
 	printf("Added TypeDef:%s %i\n",typeDef, hashValue);
 }
 
-node_Type Get_VarType(char* tokenType)
+void Add_TYPEDEF_Array(char* typeDef,  char*type, int size)
+{
+	printf("Adding typedef..\n");
+//	symbolTable = malloc(sizeof(struct entry_Node)*997);
+	int hashValue = hash(typeDef); //Get the Hashed Identifier used for TypeDef
+
+
+ 	node_Typdef* traveller=referenceTable[hashValue];
+	printf("HV=%d\n",hashValue);
+
+	//Setup the Variable
+	traveller->structReference=NULL;
+	printf("Type=%s\n",type);
+	traveller->type=strdup(type);
+	traveller->size=size;
+	printf("Added TypeDef:%s %i\n",typeDef, hashValue);
+}
+
+
+//TypeDefs occur before
+void Add_TYPEDEF_Struct(char* typeDef,char* structLink, char* type)
+{
+	printf("Adding typedef..\n");
+//	symbolTable = malloc(sizeof(struct entry_Node)*997);
+	int hashValue = hash(typeDef); //Get the Hashed Identifier used for TypeDef
+
+
+ 	node_Typdef* traveller=referenceTable[hashValue];
+ 	traveller->structReference=strdup(structLink);
+	//Setup the Variable
+	traveller->type=strdup(type);
+	traveller->size=0;
+	printf("Added TypeDef:%s %i\n",typeDef, hashValue);
+}
+
+
+char* Get_VarType(char* tokenType)
 {
 	// printf("poop?\n");
 	int hashValue = hash( tokenType); //Get the Hashed Identifier used for TypeDef
 	// printf("We good?\n");
-
 	return referenceTable[hashValue]->type;
 }
+//Needed to know if it's an Array
+int Get_VarSize(char* tokenType)
+{
+	// printf("poop?\n");
+	int hashValue = hash( tokenType); //Get the Hashed Identifier used for TypeDef
+	// printf("We good?\n");
+	return referenceTable[hashValue]->size;
+}
+
 
 
 unsigned int hash(char* string)
@@ -420,7 +457,7 @@ void Print_SymbolTable()
 	{
 		//Print the Scope
 		printf("\nScope:[%s]\n",scopeTraveler->scope_Name);
-		printf("Variable\tType\tStructOwner\n");
+		printf("Variable\tType\t\tStructOwner\n");
 		printf("--------------------------------\n");
 		//Grab Scope Index
 		int scope_Index;
@@ -433,25 +470,32 @@ void Print_SymbolTable()
 		while(node!=NULL)
 		{
 			//Print the Variable
-			printf("%s\t",node->identifier);
+			printf("%s",node->identifier);
+			if(strlen(node->identifier)<7)
+				printf("\t\t");
+			else
+				printf("\t" );
 
-			if(node->type==nt_FLOAT)
-				printf("Float\t");
-			else if(node->type==nt_INT)
-				printf("Int\t");
-			else if(node->type==nt_CHAR)
-				printf("Char\t");		
-			else if(node->type==nt_STRUCT)
-				printf("Struct\t");
-			else if(node->type==nt_ARRAY)
-				printf("Array\t");
-			else if(node->type==nt_STANDBY)
-				printf("Standby\t");			
-			else if(node->type==nt_NONE)
-				printf("ERROR:Undefined\t");
 
+			printf(node->type);
+			if(node->size>0)
+			{
+				printf("_Ar[%d]",node->size);
+				printf("\t" );
+			}
+			else
+			{
+				if(strlen(node->type)<7)
+				printf("\t\t");
+				else
+				printf("\t" );
+			}
+
+			
 			if( strcmp(node->struct_Owner,"!")==0)
-				{printf("None\n");}
+				{
+					printf("None\n");
+				}
 			else
 				{
 					printf(node->struct_Owner);
@@ -497,8 +541,8 @@ void Free_HashTable()
 			entry_Node* temp2;
 			while(varTraveler!=NULL)
 			{
-				if(varTraveler->type!= nt_NONE)
-					printf("i=%d val=%d\n",i, referenceTable[i]->type);
+				// if(varTraveler->type!= nt_NONE)
+				// 	printf("i=%d val=%d\n",i, referenceTable[i]->type);
 
 				temp2= varTraveler;
 				varTraveler= varTraveler->next;

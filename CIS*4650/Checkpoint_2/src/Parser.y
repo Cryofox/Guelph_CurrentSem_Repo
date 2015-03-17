@@ -124,21 +124,25 @@ TypeDefs	:%empty 								{ $$= NULL;}
 			;
 
 
-TypeDef 	: TYPEDEF KW_INT 	 			Cont_TDecl SEMICOLON		{ $$ = NULL;}
-			| TYPEDEF KW_FLOAT 	 			Cont_TDecl SEMICOLON		{ $$ = NULL;}
-			| TYPEDEF KW_CHAR 	 			Cont_TDecl SEMICOLON		{ $$ = NULL;}
+TypeDef 	: TYPEDEF KW_INT 	 			Cont_TDecl SEMICOLON		{Set_TypeDefs("int"); $$ = NULL;}
+			| TYPEDEF KW_FLOAT 	 			Cont_TDecl SEMICOLON		{Set_TypeDefs("float"); $$ = NULL;}
+			| TYPEDEF KW_CHAR 	 			Cont_TDecl SEMICOLON		{Set_TypeDefs("char"); $$ = NULL;}
 
-			| TYPEDEF KW_STRUCT  IDENTIFIER Cont_TDecl SEMICOLON 	{ $$ = NULL;}
-			| TYPEDEF IDENTIFIER 			Cont_TDecl SEMICOLON 	{ $$ = NULL;}
+			| TYPEDEF KW_STRUCT  IDENTIFIER Cont_TDecl SEMICOLON 	{Set_TypeDefs($3); $$ = NULL;}
+			| TYPEDEF IDENTIFIER 			Cont_TDecl SEMICOLON 	{Set_TypeDefs($2); $$ = NULL;}
 			|  error  SEMICOLON										{ $$ = NULL;}
 			;
 
 
 //Modify Grammar for Simpler Function Calls
-Cont_TDecl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_TDecl	{$$ = NULL;}
-			| IDENTIFIER L_SQBRACE INT R_SQBRACE 					{$$ = NULL;}
-			| IDENTIFIER COMA Cont_TDecl							{$$ = NULL;}
-			| IDENTIFIER 											{$$ = NULL;}
+Cont_TDecl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_TDecl
+			{Add_TYPEDEF_Array($1,"None",$3);$$ = NULL;}
+			| IDENTIFIER L_SQBRACE INT R_SQBRACE 					
+			{Add_TYPEDEF_Array($1,"None",$3);$$ = NULL;}
+			| IDENTIFIER COMA Cont_TDecl							
+			{Add_TYPEDEF($1,"None");$$ = NULL;}
+			| IDENTIFIER 											
+			{Add_TYPEDEF($1,"None");$$ = NULL;}
 			| error 												{$$ = NULL;}
 			;	
 
@@ -157,8 +161,11 @@ Decleration : KW_INT 	 Cont_Decl SEMICOLON								{Set_Type("int"); $$ = NULL;	 
 			| KW_FLOAT 	 Cont_Decl SEMICOLON								{Set_Type("float");$$ = NULL;    	 }
 			| KW_CHAR 	 Cont_Decl SEMICOLON								{Set_Type("char");$$ = NULL;    	 }
 			//Add Variable as Part of Struct
-			| KW_STRUCT  IDENTIFIER L_BRACE Struct_Decl R_BRACE SEMICOLON 	{Add_Variable($2, "struct"); Link_StructVariables($2); $$ = NULL;    	 }
-			| IDENTIFIER Cont_Decl SEMICOLON 								{Set_Type($2);$$ = NULL;   	 }
+			| KW_STRUCT  IDENTIFIER L_BRACE Struct_Decl R_BRACE SEMICOLON 	
+			{Add_Variable($2, "struct"); Link_StructVariables($2); Add_TYPEDEF($2,$2); $$ = NULL;    	 }
+
+			| KW_STRUCT IDENTIFIER Cont_Decl 								{Set_Type($2);$$=NULL; }
+			| IDENTIFIER Cont_Decl SEMICOLON 								{Set_Type($1);$$ = NULL;   	 }
 			| error 														{$$ = NULL;  	 }
 			;
 
