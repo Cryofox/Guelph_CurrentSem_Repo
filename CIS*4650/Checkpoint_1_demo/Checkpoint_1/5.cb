@@ -1,0 +1,98 @@
+/*
+Combined 2->4 Up untill marked
+
+
+*/
+
+
+typedef int char float a; /* This should strike as an error */
+
+typedef char c_A, c_B, c_C;
+typedef int a;
+
+typedefed int  i_A; /* This should strike as an error due to identifier int*/
+
+int a;
+/*Typedef after global decleration */
+typedef int a; 
+
+
+
+/*Program continues to parse correctly from here on.*/
+char c;
+
+
+/*Incorrect 1*/
+struct apples; 
+
+float floatzilla;
+/*Incorrect 2*/
+char char charmander;
+
+
+int validDec;
+
+/*Incorect no semi? */
+int val1, val2, val3,
+
+/*The syntax error cascades to here */
+int testFunction()
+{ return 1;}
+int main()
+{
+	int val[ 10 ];
+	
+
+	/*Valid*/
+	(a+b)/2 + (6%3);
+
+	/*Not Valid*/
+	[(a+b)/2 + (6%3) ];
+
+
+	/*Also Not Valid Ints cant have array accessors*/
+	a[(56[54]) ];
+
+	/*Valid */
+	a[ b [c[d[e[f]]]]];
+
+	/*Valid but confusing*/
+	a[ b[e.x].y].z;	
+
+	/*Missing Return, Not Valid*/
+
+}
+
+/*##########*/
+/*Function struct with no struct identifier invalid */
+struct function ()
+{
+	return 3;
+}
+
+
+
+
+void functionname ()
+{
+	/*Invalid */
+	dostuff char;
+	return 4;
+}
+
+
+
+/*PArams */
+void functionname (char char char char)
+{
+
+	return 4;
+}
+
+/*This is copy pasted just to see if message 95 gets caught which it does*/
+void functionname2 ()
+{
+	/*Invalid */
+	dostuff char;
+	return 4;
+}

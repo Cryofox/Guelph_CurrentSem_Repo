@@ -1,0 +1,37 @@
+/* 
+This tests wrong typedefs
+Lines: 
+14 is an incorrect typedef declerations.
+19 mistyped typedef resulting in cascaded error. Compiler thinks
+   we are now skipping typedefs for global decs.
+21 Showing the result of a cascaded typedef.
+*/
+
+/* Type Defines */
+
+
+
+typedef int char float a; /* This should strike as an error */
+
+typedef char c_A, c_B, c_C;
+typedef int a;
+
+typedefed int  i_A; /* This should strike as an error due to identifier int*/
+
+int a;
+/*Typedef after global decleration */
+typedef int a; 
+
+
+
+/*Program continues to parse correctly from here on.*/
+char c;
+
+int main ()
+{
+	return 1;
+}
+
+
+
+

@@ -1,0 +1,46 @@
+/*
+This program tests the following Features:
+
+
+From : http://en.cppreference.com/w/c/language/typedef
+
+TypeDefs
+
+typedef int int_t; // declares int_t to be an alias for the type int
+typedef char char_t;
+typedef struct tnode tnode;
+
+typedef int A[]; // A is int[]
+	A a = {1, 2}, b = {3,4,5}; // type of a is int[2], type of b is int[3]
+
+
+Types Supported: char, int, float
+
+global variable declarations
+
+int x;
+int a;
+char hello;
+
+
+Reserved Functions:  putc, puti, and putf
+
+
+and ofcourse comments
+*/
+
+/* Type Defs */
+
+typedef int newInt;
+typedef char myChar;
+typedef struct newStruct;
+typedef int _5Array[5]
+
+/* Global Declarations */
+
+int x;
+char y;
+
+myChar q;
+newStruct w;
+_5Array a;

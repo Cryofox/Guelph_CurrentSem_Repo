@@ -1,0 +1,35 @@
+/* 
+This tests poorly initialized global variables including structs
+ Line numbers: 13,18,24
+*/
+typedef struct fruits lemons,apples;
+
+/*Correct Initialize*/
+struct lemons{
+	int sour;
+	float ph;
+};
+
+/*Incorrect 1*/
+struct apples; 
+
+float floatzilla;
+/*Incorrect 2*/
+char char charmander;
+
+
+int validDec;
+
+/*Incorect no semi? */
+int val1, val2, val3,
+
+/*The syntax error cascades to here */
+int testFunction()
+{ return 1;}
+
+
+int main()
+{
+	
+	return 1;
+}

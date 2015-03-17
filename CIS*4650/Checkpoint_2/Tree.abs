@@ -1,0 +1,42 @@
+Printing Tree:
+			[D:2] ~NULL~
+		[D:1]Function:F2
+				[D:3] ~NULL~
+			[D:2]Expression
+					[D:4] ~NULL~
+				[D:3]Return
+					[D:4]2
+	[D:0]Function:_
+			[D:2] ~NULL~
+		[D:1]Function:main
+						[D:5] ~NULL~
+					[D:4]Expression
+							[D:6] ~NULL~
+						[D:5]Return
+							[D:6]1
+				[D:3]Expression
+										[D:9]1
+									[D:8]+
+										[D:9]x
+								[D:7]=
+									[D:8]x
+							[D:6]Return
+								[D:7]x
+						[D:5]Expression
+									[D:8] ~NULL~
+								[D:7]Expression
+											[D:10] ~NULL~
+										[D:9]Expression
+											[D:10] ~NULL~
+									[D:8]While
+										[D:9]1
+							[D:6]Expression
+								[D:7]Lol
+					[D:4]While
+							[D:6]5
+						[D:5]<
+							[D:6]y
+			[D:2]Expression
+					[D:4]1
+				[D:3]=
+					[D:4]x

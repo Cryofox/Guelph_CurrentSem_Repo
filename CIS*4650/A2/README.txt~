@@ -1,0 +1,141 @@
+To Compile: make, make all, make scanner
+To Comp & run: make run
+To Clean: make clean
+
+Notes: Fixed a rule I clumsily ommitted, if you construct an oct
+then append a "." I forgot to add the rule to branch to real...even though I didnt for e >.<
+
+
+How it works:
+
+
+Terminal symbols in this grammar are: char int real str car cdr ( ) set + ;
+
+Grammer Provided:
+
+#STMTS Sequence
+	STMTS -> STMTS STMT | STMT
+	STMT -> ASSIGN ;
+	STMT -> LISTEXPR ;
+#ASSIGN Sequence
+	ASSIGN -> set VAR LISTEXPR
+	VAR -> char
+#LISTEXPR Sequence
+	LISTEXPR -> VAR
+	LISTEXPR -> cdr LISTEXPR
+	LISTEXPR -> ( ITEMS )
+	LISTEXPR -> CONCAT
+	CONCAT -> LISTEXPR + LISTEXPR
+#ITEMS Sequence
+	ITEMS -> ITEMS ITEM | ITEM
+	ITEM -> LISTEXPR
+	ITEM -> str | int | real
+	ITEM -> car LISTEXPR
+	ITEM ->
+
+===========================
+
+The problem is it relies on the wrong type of recursion (Left), need to modify to use
+Right Recursion to produce correct Results.
+
+Start from the sequence which has the least amount of reliance, and work from there
+to produce a Grammar in an efficient manner.
+
+Therefore Assign Sequence:
+
+#ASSIGN Sequence Rewrite
+	ASSIGN -> set char LISTEXPR
+
+Assign already uses left recursion, however VAL terminates to char, therefore it is unneeded
+to have the non-terminal rule, it is removed.
+
+Items Sequence is next:
+
+#ITEMS Sequence rewrite
+
+	ITEMS -> ITEM ITEMS
+	ITEMS -> 
+
+	ITEM -> str | int | real 
+	ITEM -> LISTEXPR
+	ITEM -> car LISTEXPR
+
+
+To Fix this grammar simply relocate the Empty string so a terminal is followed by a nonterminal
+and that nonterminal can equate to nothing. This forces the predict 1 to determine whether or not
+the next iteration is eithor a non-null terminal thereby appened nonterminal, or null, in which case we are done.
+
+Next is LIST EXPR:
+
+
+
+#LISTEXPR Sequence
+	LISTEXPR -> LISTEXPR_T + LISTEXPR
+	LISTEXPR -> LISTEXPR_T
+
+	LISTEXPR_T -> char | cdr LISTEXPR
+	LISTEXPR_T -> ( ITEMS )
+
+
+
+
+To Fix this similar to before, append a null character to the "root" of this sequence LISTEXPR,
+then modify so it eithor calls null, or terminals followed by itself.
+CONCAT is a pointless rule so it was removed as :
+	LEXPR -> CONCAT  
+	CONCAT -> LEXPR + LEXPR 
+is the same as:
+	LEXPR -> LEXPR +LEXPR
+
+
+Finally STMNTS
+
+#STMTS Sequence
+	STMTS -> STMT STMTS
+	STMTS -> 
+	STMT -> ASSIGN ;
+	STMT -> LISTEXPR ;	 
+
+
+
+
+The Final Grammar is:
+Modified with OCT and HEX from A1
+
+	#PROG_START, where EOF is end of file
+		S -> STMTS EOF
+
+	#STMTS Sequence
+		STMTS -> STMT STMTS
+		STMTS -> STMT
+
+		STMT -> ASSIGN ;   //This does not Need to be altered because ASSIGN is not Left Recursed
+		STMT -> LISTEXPR ; //This does not Need to be altered because LISTEXPR it not left recursed
+	#ASSIGN 
+		ASSIGN -> set char LISTEXPR
+
+	#LISTEXPR Sequence
+		LISTEXPR -> LISTEXPR_T + LISTEXPR
+		LISTEXPR -> LISTEXPR_T
+
+		LISTEXPR_T -> char 
+		LISTEXPR_T -> cdr LISTEXPR
+		LISTEXPR_T -> ( ITEMS )
+
+	#ITEMS
+		ITEMS -> ITEM ITEMS
+		ITEMS -> 
+
+		ITEM -> str | int | real | oct | hex
+		ITEM -> LISTEXPR
+		ITEM -> car LISTEXPR
+
+Parse Checked:
+set a ( 1 2 c d blah ) ;
+
+
+
+STM
+
+
+

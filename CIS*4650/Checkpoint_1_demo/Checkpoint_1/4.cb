@@ -1,0 +1,34 @@
+/*
+Expressions inside functions are tested now.
+
+encapsulating an expression in square brackets.
+Accessing an array field inside an int
+Missing Return
+
+*/
+int somevalue [ 10 ];
+
+int main()
+{
+	int val[ 10 ];
+	
+
+	/*Valid*/
+	(a+b)/2 + (6%3);
+
+	/*Not Valid*/
+	[(a+b)/2 + (6%3) ];
+
+
+	/*Also Not Valid Ints cant have array accessors*/
+	a[(56[54]) ];
+
+	/*Valid */
+	a[ b [c[d[e[f]]]]];
+
+	/*Valid but confusing*/
+	a[ b[e.x].y].z;	
+
+	/*Missing Return, Not Valid*/
+
+}
