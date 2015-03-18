@@ -164,7 +164,7 @@ Decleration : KW_INT 	 Cont_Decl SEMICOLON								{Set_Type("int"); $$ = NULL;	 
 			| KW_STRUCT  IDENTIFIER L_BRACE Struct_Decl R_BRACE SEMICOLON 	
 			{Add_Variable($2, "struct"); Link_StructVariables($2); Add_TYPEDEF($2,$2); $$ = NULL;    	 }
 
-			| KW_STRUCT IDENTIFIER Cont_Decl 								{Set_Type($2);$$=NULL; }
+			| KW_STRUCT IDENTIFIER Cont_Decl SEMICOLON						{Set_Type($2);$$=NULL; }
 			| IDENTIFIER Cont_Decl SEMICOLON 								{Set_Type($1);$$ = NULL;   	 }
 			| error 														{$$ = NULL;  	 }
 			;
@@ -380,8 +380,14 @@ int main(int argc, char* argv[])
 
 		else if(strcmp(argv[1],"-s")==0)
 		{
-		Print_SymbolTable();
-		printf("Symbol Table File Created.\n");
+				if(errorCount==0)
+				{	Print_SymbolTable();
+					printf("Symbol Table File Created.\n");
+				}
+				else
+				{
+					printf("The file contains errors,please fix in order to continue.\n");
+				}
 		}
 
 

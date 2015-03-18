@@ -86,7 +86,7 @@ int hello;
 int main ()
 {
 	int qwep;
-	struct anotherStruct
+	struct somestruct mynewStruct;
 	for(x=1;y<5;x++)
 	{Lol;
 
