@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 typedef struct node_Expression *expressionTree;
-typedef enum {Call_OP,PlusOp, MinusOp, TimesOp, DivideOp, ModOp, AssignOp, SIZE_OP, EQ_OP, NE_OP, GT_OP, LT_OP, GTE_OP, LTE_OP, AND_OP,OR_OP,NOT_OP, ACCESS_OP, ARRAYACCESS_OP, RETURN_OP, IF_OP, ELSE_OP, WHILE_OP, FOR_OP, None} optype;
+typedef enum {USE_OP,Call_OP,PlusOp, MinusOp, TimesOp, DivideOp, ModOp, AssignOp, SIZE_OP, EQ_OP, NE_OP, GT_OP, LT_OP, GTE_OP, LTE_OP, AND_OP,OR_OP,NOT_OP, ACCESS_OP, ARRAYACCESS_OP, RETURN_OP, IF_OP, ELSE_OP, WHILE_OP, FOR_OP, None} optype;
 
 typedef enum {_Float,_Int,_Char} vartype;
 

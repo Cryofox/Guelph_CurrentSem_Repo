@@ -82,14 +82,22 @@ int hello;
 	return 2;
 }
 
+char FireQ()
+{
+	int hey;
+	return 1;
+}
 
 int main ()
 {
 	int qwep;
 	struct somestruct mynewStruct;
-	for(x=1;y<5;x++)
-	{Lol;
 
+	qwep = 1;
+	putc(d);
+	for(x=1;y<5;x++)
+	{
+		Lol;
 		while(1)
 		{
 		

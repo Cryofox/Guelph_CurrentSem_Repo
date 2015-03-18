@@ -22,12 +22,12 @@ expressionTree ContainerExpression(char* containerName,expressionTree left, expr
   retval->u.oper.right = right;
 
   if(ct==Expression)
-  retval->tokenName = strdup("Expression");
+  retval->tokenName = strdup("Exp:");
   else if(ct==Function)  
   {
     char buffer[200];
     memset(buffer,0,200);
-    strcat(buffer,"Function:");
+    strcat(buffer,"FC:");
     strcat(buffer,containerName);
     strcat(buffer,"\0");
     retval->tokenName = strdup(buffer);
@@ -102,7 +102,8 @@ expressionTree operatorExpression(optype op, expressionTree left,expressionTree 
 
       else if(op== RETURN_OP)
       retval->tokenName = strdup("Return"); 
-
+      else if(op== USE_OP)
+      retval->tokenName = strdup("Use"); 
 
       else if(op== IF_OP)
       retval->tokenName = strdup("IF");     
@@ -111,7 +112,7 @@ expressionTree operatorExpression(optype op, expressionTree left,expressionTree 
       retval->tokenName = strdup("ELSE");  
 
       else if(op== Call_OP)
-      retval->tokenName = strdup("Function Call:"); 
+      retval->tokenName = strdup("Call:"); 
 
       else if(op== WHILE_OP)
       retval->tokenName = strdup("While"); 
@@ -187,7 +188,8 @@ void padding ( char ch, int n, FILE* fptr )
     fputc (ch,fptr );
 }
 
-void PrintTree(expressionTree node, int depth, FILE* fptr)
+
+void PrintTree_Recursive(expressionTree node, int depth, FILE* fptr)
 {
   int i;
 
@@ -196,28 +198,44 @@ void PrintTree(expressionTree node, int depth, FILE* fptr)
     //These just made the tree look busy
     //in a not so groovy way.
 
-    padding ( '\t', depth, fptr );
-   fprintf (fptr, "[D:%d] ~NULL~\n",depth);
+   // padding ( '\t', depth, fptr );
+   //fprintf (fptr, "[D:%d] ~NULL~\n",depth);
   }
   else 
   {
-    if(node->kind == Containerexp || node->kind == operatorExp)
+    // if(node->kind == Containerexp || node->kind == operatorExp)
+    // {
+    //   PrintTree(node->u.oper.right, depth+1, fptr);
+    //   // padding ( '\t', depth, fptr );
+    //  // printf ( "[D:%d]%s\n",depth, node->tokenName );
+    //   fprintf(fptr, "[D:%d]%s\n",depth, node->tokenName );
+    //   PrintTree(node->u.oper.left, depth+1, fptr);
+    // }
+    // else
+    // {
+    //   padding ( '\t', depth, fptr );
+    //   fprintf(fptr, "[D:%d]%s\n",depth, node->tokenName );
+    // }
+    if(node->u.oper.left!=NULL)
     {
-      PrintTree(node->u.oper.right, depth+1, fptr);
-      padding ( '\t', depth, fptr );
-     // printf ( "[D:%d]%s\n",depth, node->tokenName );
-      fprintf(fptr, "[D:%d]%s\n",depth, node->tokenName );
-      PrintTree(node->u.oper.left, depth+1, fptr);
+      fprintf(fptr, "\"%s[%d]\" -> \"%s[%d]\";\n",node->tokenName,(depth),node->u.oper.left->tokenName,(depth+1)  );  
+      PrintTree_Recursive( (node->u.oper.left), (depth+1), fptr   );
     }
-    else
+    if(node->u.oper.right!=NULL)
     {
-      padding ( '\t', depth, fptr );
-      fprintf(fptr, "[D:%d]%s\n",depth, node->tokenName );
+      fprintf(fptr, "\"%s[%d]\" -> \"%s[%d]\";\n",node->tokenName,(depth),node->u.oper.right->tokenName,(depth+2)  );  
+      PrintTree_Recursive( (node->u.oper.right), (depth+2), fptr   );
     }
-   
+
   nodesCount++; 
   }
-    
+}
+
+void PrintTree(expressionTree node, int depth, FILE* fptr)
+{
+    fprintf(fptr, "digraph G{\n" );
+    PrintTree_Recursive(node,depth,fptr);
+    fprintf(fptr, "}\n" );   
 }
 void FreeTree (expressionTree node)
 {

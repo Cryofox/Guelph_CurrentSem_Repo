@@ -98,22 +98,22 @@ Functions	: Function Functions								{ $$ = ContainerExpression("_",$1,$2, Func
 			;
 
 Function 	: KW_INT 		IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE 		
-			{Add_Scope($2); $$ = ContainerExpression($2,$8,NULL, Function); }
+			{Add_Scope($2,"int"); $$ = ContainerExpression($2,$8,NULL, Function); }
 
 			| KW_FLOAT 	 	IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE		
-			{ $$ = ContainerExpression($2,$8,NULL, Function);}
+			{Add_Scope($2,"float"); $$ = ContainerExpression($2,$8,NULL, Function);}
 			
 			| KW_CHAR 	 	IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE 		
-			{ $$ = ContainerExpression($2,$8,NULL, Function);}	 
+			{Add_Scope($2,"char"); $$ = ContainerExpression($2,$8,NULL, Function);}	 
 			
 			| KW_STRUCT  	IDENTIFIER	IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE	
-			{ $$ = ContainerExpression($2,$8,NULL, Function);}
+			{Add_Scope($3,$2); $$ = ContainerExpression($2,$8,NULL, Function);}
 			
 			| IDENTIFIER 	IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE		
-			{    $$ = ContainerExpression($2,$8,NULL, Function);  }
+			{Add_Scope($2,$1);    $$ = ContainerExpression($2,$8,NULL, Function);  }
 			
 			| KW_VOID 	 	IDENTIFIER L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE		
-			{    $$ = ContainerExpression($2,$8,NULL, Function);  }			
+			{Add_Scope($2,"void");    $$ = ContainerExpression($2,$8,NULL, Function);  }			
 			
 			| error   L_PAREN Arguments R_PAREN L_BRACE Declerations Expressions R_BRACE						
 			{    $$ = ContainerExpression("ERROR",$7,NULL, Function);  }
@@ -148,7 +148,7 @@ Cont_TDecl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_TDecl
 
 
 //Trick Yacc into Right Recursion by using the SEMICOLON for reducing
-Declerations:%empty 									{if(globalCalled==0)Add_Scope("Global");  globalCalled=1; $$= NULL;}
+Declerations:%empty 									{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; $$= NULL;}
 			|Declerations Decleration					{$$ = NULL;}
 			;
 
@@ -288,9 +288,9 @@ Expression 	: L_PAREN Expression R_PAREN			{ $$ = $2;}
 
 			|IDENTIFIER INCREMENT 					{int i= 1; void*v=&i; 
 
-			$$ = operatorExpression(RETURN_OP,IdentifierExpression($1),operatorExpression(AssignOp,IdentifierExpression($1),operatorExpression(PlusOp,IdentifierExpression($1),ConstantExpression(v,_Int)) )); }
+			$$ = operatorExpression(USE_OP,IdentifierExpression($1),operatorExpression(AssignOp,IdentifierExpression($1),operatorExpression(PlusOp,IdentifierExpression($1),ConstantExpression(v,_Int)) )); }
 
-			|IDENTIFIER DECREMENT 					{int i= 1; void*v=&i; $$ = operatorExpression(RETURN_OP,IdentifierExpression($1),
+			|IDENTIFIER DECREMENT 					{int i= 1; void*v=&i; $$ = operatorExpression(USE_OP,IdentifierExpression($1),
 			operatorExpression(AssignOp,IdentifierExpression($1),operatorExpression(MinusOp,IdentifierExpression($1),ConstantExpression(v,_Int)) )); }
 			
 
@@ -354,7 +354,7 @@ void yyerror(char *msg)
 void PrintABS()
 {
  	FILE *f = fopen("Tree.abs", "w");
-	fprintf(f,"Printing Tree:\n");
+	//fprintf(f,"Printing Tree:\n");
 	PrintTree(root,0,f);
 	fclose(f);
 }
@@ -381,8 +381,13 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[1],"-s")==0)
 		{
 				if(errorCount==0)
-				{	Print_SymbolTable();
+				{	
+					Print_SymbolTable();
 					printf("Symbol Table File Created.\n");
+
+					TraverseTree(0,root);
+					//Perform TypeChecking on Tree
+					//PerformTypeCheck(0,root,NULL);
 				}
 				else
 				{

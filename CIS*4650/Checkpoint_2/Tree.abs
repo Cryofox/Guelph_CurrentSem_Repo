@@ -1,42 +1,46 @@
-Printing Tree:
-			[D:2] ~NULL~
-		[D:1]Function:F2
-				[D:3] ~NULL~
-			[D:2]Expression
-					[D:4] ~NULL~
-				[D:3]Return
-					[D:4]2
-	[D:0]Function:_
-			[D:2] ~NULL~
-		[D:1]Function:main
-						[D:5] ~NULL~
-					[D:4]Expression
-							[D:6] ~NULL~
-						[D:5]Return
-							[D:6]1
-				[D:3]Expression
-										[D:9]1
-									[D:8]+
-										[D:9]x
-								[D:7]=
-									[D:8]x
-							[D:6]Return
-								[D:7]x
-						[D:5]Expression
-									[D:8] ~NULL~
-								[D:7]Expression
-											[D:10] ~NULL~
-										[D:9]Expression
-											[D:10] ~NULL~
-									[D:8]While
-										[D:9]1
-							[D:6]Expression
-								[D:7]Lol
-					[D:4]While
-							[D:6]5
-						[D:5]<
-							[D:6]y
-			[D:2]Expression
-					[D:4]1
-				[D:3]=
-					[D:4]x
+digraph G{
+"FC:_[0]" -> "FC:Fire2[1]";
+"FC:Fire2[1]" -> "Exp:[2]";
+"Exp:[2]" -> "Return[3]";
+"Return[3]" -> "2[4]";
+"FC:_[0]" -> "FC:_[2]";
+"FC:_[2]" -> "FC:FireQ[3]";
+"FC:FireQ[3]" -> "Exp:[4]";
+"Exp:[4]" -> "Return[5]";
+"Return[5]" -> "1[6]";
+"FC:_[2]" -> "FC:main[4]";
+"FC:main[4]" -> "Exp:[5]";
+"Exp:[5]" -> "=[6]";
+"=[6]" -> "qwep[7]";
+"=[6]" -> "1[8]";
+"Exp:[5]" -> "Exp:[7]";
+"Exp:[7]" -> "Call:[8]";
+"Call:[8]" -> "putc[9]";
+"Call:[8]" -> "d[10]";
+"Exp:[7]" -> "Exp:[9]";
+"Exp:[9]" -> "=[10]";
+"=[10]" -> "x[11]";
+"=[10]" -> "1[12]";
+"Exp:[9]" -> "Exp:[11]";
+"Exp:[11]" -> "While[12]";
+"While[12]" -> "<[13]";
+"<[13]" -> "y[14]";
+"<[13]" -> "5[15]";
+"While[12]" -> "Exp:[14]";
+"Exp:[14]" -> "Exp:[15]";
+"Exp:[15]" -> "Lol[16]";
+"Exp:[15]" -> "Exp:[17]";
+"Exp:[17]" -> "While[18]";
+"While[18]" -> "1[19]";
+"While[18]" -> "Exp:[20]";
+"Exp:[14]" -> "Use[16]";
+"Use[16]" -> "x[17]";
+"Use[16]" -> "=[18]";
+"=[18]" -> "x[19]";
+"=[18]" -> "+[20]";
+"+[20]" -> "x[21]";
+"+[20]" -> "1[22]";
+"Exp:[11]" -> "Exp:[13]";
+"Exp:[13]" -> "Return[14]";
+"Return[14]" -> "1[15]";
+}

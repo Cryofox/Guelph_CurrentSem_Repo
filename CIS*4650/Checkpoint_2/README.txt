@@ -2,6 +2,10 @@ To Compile: make, make all, make cflatc
 To Comp & run: make run
 To Clean: make clean
 
+To Draw Graph:
+dot -Tps ./Tree.abs -o Test.ps 
+
+
 
 Note: \n and \0 Are working and implemented, however due to their
 characteristics they do affect the tree in a funny way.

@@ -1578,37 +1578,37 @@ yyreduce:
 
   case 5:
 #line 101 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Scope((yyvsp[-7].s)); (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function); }
+    {Add_Scope((yyvsp[-7].s),"int"); (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function); }
 #line 1583 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
 #line 104 "src/Parser.y" /* yacc.c:1646  */
-    { (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);}
+    {Add_Scope((yyvsp[-7].s),"float"); (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);}
 #line 1589 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
 #line 107 "src/Parser.y" /* yacc.c:1646  */
-    { (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);}
+    {Add_Scope((yyvsp[-7].s),"char"); (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);}
 #line 1595 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
 #line 110 "src/Parser.y" /* yacc.c:1646  */
-    { (yyval.xprT) = ContainerExpression((yyvsp[-8].s),(yyvsp[-2].xprT),NULL, Function);}
+    {Add_Scope((yyvsp[-7].s),(yyvsp[-8].s)); (yyval.xprT) = ContainerExpression((yyvsp[-8].s),(yyvsp[-2].xprT),NULL, Function);}
 #line 1601 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
 #line 113 "src/Parser.y" /* yacc.c:1646  */
-    {    (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);  }
+    {Add_Scope((yyvsp[-7].s),(yyvsp[-8].s));    (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);  }
 #line 1607 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
 #line 116 "src/Parser.y" /* yacc.c:1646  */
-    {    (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);  }
+    {Add_Scope((yyvsp[-7].s),"void");    (yyval.xprT) = ContainerExpression((yyvsp[-7].s),(yyvsp[-1].xprT),NULL, Function);  }
 #line 1613 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1698,7 +1698,7 @@ yyreduce:
 
   case 25:
 #line 151 "src/Parser.y" /* yacc.c:1646  */
-    {if(globalCalled==0)Add_Scope("Global");  globalCalled=1; (yyval.xprT)= NULL;}
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; (yyval.xprT)= NULL;}
 #line 1703 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2086,13 +2086,13 @@ yyreduce:
 #line 289 "src/Parser.y" /* yacc.c:1646  */
     {int i= 1; void*v=&i; 
 
-			(yyval.xprT) = operatorExpression(RETURN_OP,IdentifierExpression((yyvsp[-1].s)),operatorExpression(AssignOp,IdentifierExpression((yyvsp[-1].s)),operatorExpression(PlusOp,IdentifierExpression((yyvsp[-1].s)),ConstantExpression(v,_Int)) )); }
+			(yyval.xprT) = operatorExpression(USE_OP,IdentifierExpression((yyvsp[-1].s)),operatorExpression(AssignOp,IdentifierExpression((yyvsp[-1].s)),operatorExpression(PlusOp,IdentifierExpression((yyvsp[-1].s)),ConstantExpression(v,_Int)) )); }
 #line 2091 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
 #line 293 "src/Parser.y" /* yacc.c:1646  */
-    {int i= 1; void*v=&i; (yyval.xprT) = operatorExpression(RETURN_OP,IdentifierExpression((yyvsp[-1].s)),
+    {int i= 1; void*v=&i; (yyval.xprT) = operatorExpression(USE_OP,IdentifierExpression((yyvsp[-1].s)),
 			operatorExpression(AssignOp,IdentifierExpression((yyvsp[-1].s)),operatorExpression(MinusOp,IdentifierExpression((yyvsp[-1].s)),ConstantExpression(v,_Int)) )); }
 #line 2098 "y.tab.c" /* yacc.c:1646  */
     break;
@@ -2457,7 +2457,7 @@ void yyerror(char *msg)
 void PrintABS()
 {
  	FILE *f = fopen("Tree.abs", "w");
-	fprintf(f,"Printing Tree:\n");
+	//fprintf(f,"Printing Tree:\n");
 	PrintTree(root,0,f);
 	fclose(f);
 }
@@ -2484,8 +2484,13 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[1],"-s")==0)
 		{
 				if(errorCount==0)
-				{	Print_SymbolTable();
+				{	
+					Print_SymbolTable();
 					printf("Symbol Table File Created.\n");
+
+					TraverseTree(0,root);
+					//Perform TypeChecking on Tree
+					//PerformTypeCheck(0,root,NULL);
 				}
 				else
 				{

@@ -51,10 +51,14 @@ void Add_Variable(char* token_Name, char* type);
 void Link_StructVariables(char* structName);
 void Add_TYPEDEF_Array(char* typeDef,  char*type, int size);
 void Add_Array(char* token_Name, char* type, int size);
-void Add_Scope(char* newScope);
+void Add_Scope(char* newScope,char* type);
 void Add_TYPEDEF(char* typeDef,  char*type);
 char* Get_VarType(char* tokenType);
 void Free_HashTable();
 void Add_TYPEDEF_Struct(char* typeDef,char* structLink, char* type);
 void Set_TypeDefs(char* type);
+
+
+
+int isInScope(char* variable, char* currentscope);
 #endif
