@@ -82,9 +82,12 @@ int hello;
 	return 2;
 }
 
-char FireQ()
+char FireQ(int fire)
 {
-	int hey;
+	int hey[10];
+
+	hey[5];
+
 	return 1;
 }
 
@@ -95,6 +98,16 @@ int main ()
 
 	qwep = 1;
 	putc(d);
+
+	if(!x)
+	{
+		puti(x,y,z);
+	}
+	else
+	{
+		putd();
+	}
+
 	for(x=1;y<5;x++)
 	{
 		Lol;

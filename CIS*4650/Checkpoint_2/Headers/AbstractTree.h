@@ -24,7 +24,6 @@ struct node_Expression
 			expressionTree left;
 			expressionTree right;
 		} oper;
-
 		int constantval_i;
 		char constantval_c;
 		float constantval_f;

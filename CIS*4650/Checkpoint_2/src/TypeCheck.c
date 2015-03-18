@@ -19,30 +19,28 @@ void TraverseTree(int depth, expressionTree node)
 }
 void PerformTypeCheck(int depth, expressionTree node, char* scope)
 {
-
-
 	if(node==NULL)
 		return;
-
-
 
 	//Call this on Every node, abit in-efficient, but it'll gaurantee scope.
 	//Update the Current Scope we are in, based on the Function we just passed.
 	scope=functionScope(node, scope);
-
 
 	if(!isExpression_Container(node) && !isFunction_Container(node))
 	{
 		//If it is, then this violates the Assignment Operator.
 		// printf("Semantic Error: Can't Assign an expression to an expression.\n");
 		// int evaluateExpr(expressionTree node, char* expectedType, int value)
+		evaluateExpr(node,NULL, 0, scope);
 	}
+	PerformTypeCheck((depth+1), node->u.oper.left, scope);
+	PerformTypeCheck((depth+1), node->u.oper.right, scope);
 
 
 }
 
 //Here we recursively traverse the expression, updating the Value, and returning the Type of the evaluated token
-int evaluateExpr(expressionTree node, char* expectedType, int value)
+int evaluateExpr(expressionTree node, char* expectedType, int value, char*scope)
 {
 	//Traverse all Branches
 	if(node==NULL)
@@ -51,44 +49,58 @@ int evaluateExpr(expressionTree node, char* expectedType, int value)
 	//Check if we're +
 	if(strcmp(node->tokenName,"+")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
 		return (leftValue+rightValue);
 	}
 	else if(strcmp(node->tokenName,"=")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value);	
+		//Left Value not needed on Assign.
+		//int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
-		return (leftValue);
+		//The Right Hands expected type is EQUAL to the Left
+		char* typeWanted = Get_VarType(node->u.oper.left->tokenName);
+
+		int rightValue	=	evaluateExpr(node->u.oper.right, typeWanted, value,scope);	
+		return (rightValue);
 	}
 	else if(strcmp(node->tokenName,"-")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
 		return (leftValue-rightValue);		
 	}
 	else if(strcmp(node->tokenName,"/")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
 		return (leftValue/rightValue);		
 	}
 	else if(strcmp(node->tokenName,"*")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
 		return (leftValue*rightValue);		
 	}
+
+	else if(strcmp(node->tokenName,"*")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+
+		return (leftValue%rightValue);		
+	}
+
+
 	//Relational operators require INTS as a type
 	else if(strcmp(node->tokenName,">")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
 		if(leftValue>rightValue)
 			return (TRUE);	
 		else
@@ -96,12 +108,82 @@ int evaluateExpr(expressionTree node, char* expectedType, int value)
 	}
 	else if(strcmp(node->tokenName,"<")==0)
 	{
-		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value);
-		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value);	
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
 		if(leftValue<rightValue)
 			return (TRUE);	
 		else
 			return(FALSE);	
+	}
+	else if(strcmp(node->tokenName,">=")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		if(leftValue>=rightValue)
+			return (TRUE);	
+		else
+			return(FALSE);	
+	}
+	else if(strcmp(node->tokenName,"<=")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		if(leftValue<=rightValue)
+			return (TRUE);	
+		else
+			return(FALSE);	
+	}	
+	else if(strcmp(node->tokenName,"==")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		if(leftValue==rightValue)
+			return (TRUE);	
+		else
+			return(FALSE);	
+	}
+	else if(strcmp(node->tokenName,"!=")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		if(leftValue!=rightValue)
+			return (TRUE);	
+		else
+			return(FALSE);	
+	}	
+	else if(strcmp(node->tokenName,"!")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		// int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		if(leftValue==0)//1 is True, so reverse
+			return (TRUE);	
+		else
+			return(FALSE);	
+	}
+	else if(strcmp(node->tokenName,"Arr[]")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, "int", value,scope);	
+		return (-1); //No idea what to do with array Access yet
+	}
+	else if(strcmp(node->tokenName,"Return")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		return (-1); //No idea what to do with Return
+	}
+	else if(strcmp(node->tokenName,"Use")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		return (leftValue); //Use the Left Value...right value gets post Decremented
+	}
+	else if(strcmp(node->tokenName,"If")==0)
+	{
+		int leftValue	=	evaluateExpr(node->u.oper.left,  "int", value,scope);
+		int rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		return (leftValue); //meh
 	}
 
 

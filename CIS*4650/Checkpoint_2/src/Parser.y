@@ -74,7 +74,7 @@ letter_1 l1='c';
 
 
 //These values do not affect the ABS tree
-%type <xprT> TypeDefs TypeDef Declerations Decleration Cont_Decl Arguments Argument Brace_Expr Func_Vars For_1stParam For_2ndParam For_3rdParam Cont_TDecl Global_Decl   Struct_Decl 
+%type <xprT> TypeDefs TypeDef Declerations Decleration Cont_Decl Arguments Argument Brace_Expr Func_Vars For_1stParam For_2ndParam For_3rdParam Cont_TDecl Global_Decl  Struct_Decl 
 
 
 
@@ -213,10 +213,16 @@ Argument	: KW_INT 	 Cont_Decl		{ $$ = NULL;}
 
 Brace_Expr	: %empty											{ $$ = NULL;}
 			| Expression  SEMICOLON Brace_Expr 					{ $$ = ContainerExpression(NULL,$1,$3, Expression);}	
-			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Brace_Expr { $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
-			| ELSE L_BRACE Brace_Expr R_BRACE Brace_Expr   		{ $$ = ContainerExpression(NULL,(operatorExpression(ELSE_OP,NULL,ContainerExpression(NULL,$3,NULL, Expression))),$5, Expression);}
+			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Brace_Expr 
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
+
+			//This clusterf*ck is if/else
+			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE  ELSE L_BRACE  Brace_Expr  R_BRACE Brace_Expr
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6, /**/(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))) /**/, Expression))),$12, Expression);}			
+
 			| WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Brace_Expr{ $$ = ContainerExpression(NULL,(operatorExpression(WHILE_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
 				
+
 
 			//For Loops will be converted to WHILE Loops
 			| FOR L_PAREN For_1stParam SEMICOLON For_2ndParam SEMICOLON For_3rdParam R_PAREN L_BRACE Brace_Expr R_BRACE Brace_Expr
@@ -229,9 +235,16 @@ Brace_Expr	: %empty											{ $$ = NULL;}
 
 
 Expressions	: Expression SEMICOLON Expressions 				{ $$ = ContainerExpression(NULL,$1,$3, Expression);}
-			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE  Expressions { $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
-			//Else Doesn't Have Relational Logic
-			| ELSE L_BRACE  Brace_Expr  R_BRACE Expressions  { $$ = ContainerExpression(NULL,(operatorExpression(ELSE_OP,NULL,ContainerExpression(NULL,$3,NULL, Expression))),$5, Expression);}
+			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE  Expressions 
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
+
+
+
+
+			//This clusterf*ck is if/else
+			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE ELSE L_BRACE  Brace_Expr  R_BRACE  Expressions
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6, /**/(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))) /**/, Expression))),$12, Expression);}
+
 			| WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Expressions{ $$ = ContainerExpression(NULL,(operatorExpression(WHILE_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
 			| FOR L_PAREN For_1stParam SEMICOLON For_2ndParam SEMICOLON For_3rdParam R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
 			{$$=ContainerExpression(NULL,$3,ContainerExpression(NULL,(operatorExpression(WHILE_OP,$5,
@@ -239,8 +252,9 @@ Expressions	: Expression SEMICOLON Expressions 				{ $$ = ContainerExpression(NU
 
 			| Expression_RTRN  SEMICOLON   					{ $$ = ContainerExpression(NULL,$1,NULL, Expression);}			
 			| error SEMICOLON	 			 				{ $$ = NULL;}
-
 			;
+
+
 
 //Assign a Variable before the loop is created
 For_1stParam:%empty	{$$=NULL;}
