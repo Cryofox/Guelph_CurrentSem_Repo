@@ -16,6 +16,7 @@ extern int lineNum;
 expressionTree ContainerExpression(char* containerName,expressionTree left, expressionTree right,containerType ct)
 {
   expressionTree retval = (expressionTree) malloc(sizeof(struct node_Expression));
+  retval->lineCreated=lineNum;
   retval->kind = Containerexp;
   retval->u.oper.op = None;
   retval->u.oper.left = left;
@@ -44,6 +45,7 @@ expressionTree ContainerExpression(char* containerName,expressionTree left, expr
 expressionTree operatorExpression(optype op, expressionTree left,expressionTree right) 
 {
   expressionTree retval = (expressionTree) malloc(sizeof(struct node_Expression));
+  retval->lineCreated=lineNum;
   retval->kind = operatorExp;
   retval->u.oper.op = op;
   retval->u.oper.left = left;
@@ -93,27 +95,24 @@ expressionTree operatorExpression(optype op, expressionTree left,expressionTree 
       retval->tokenName = strdup("!");
 
      else if(op== ACCESS_OP)
-      retval->tokenName = strdup(".");
+      retval->tokenName = strdup("dot:");
 
       else if(op== ARRAYACCESS_OP)
-      retval->tokenName = strdup("Arr[ ]");   
+      retval->tokenName = strdup("Arr[]");   
 
       else if(op== RETURN_OP)
-      retval->tokenName = strdup("Return"); 
+      retval->tokenName = strdup("Return:"); 
       else if(op== USE_OP)
-      retval->tokenName = strdup("Use"); 
+      retval->tokenName = strdup("Use:"); 
 
       else if(op== IF_OP)
-      retval->tokenName = strdup("IF");     
-
-      else if(op== ELSE_OP)
-      retval->tokenName = strdup("ELSE");  
+      retval->tokenName = strdup("IF:");     
 
       else if(op== Call_OP)
       retval->tokenName = strdup("Call:"); 
 
       else if(op== WHILE_OP)
-      retval->tokenName = strdup("While"); 
+      retval->tokenName = strdup("while:"); 
 
       else
       retval->tokenName = strdup("Error"); 
@@ -133,6 +132,7 @@ expressionTree operatorExpression(optype op, expressionTree left,expressionTree 
 expressionTree IdentifierExpression(char *variable) 
 {
   expressionTree retval = (expressionTree) malloc(sizeof(struct node_Expression));
+    retval->lineCreated=lineNum;
   retval->kind = variableExp;
   retval->u.variable = variable;
 
@@ -144,9 +144,12 @@ expressionTree IdentifierExpression(char *variable)
 expressionTree ConstantExpression(void* tokenVal,vartype var) 
 {
   expressionTree retval = (expressionTree) malloc(sizeof(struct node_Expression));
+    retval->lineCreated=lineNum;
   retval->kind = constantExp;
   if(var== _Int)
   {
+    retval->constantType=i;
+
     retval->u.constantval_i = *((int*)tokenVal);
     
     //printf("Token=%d\n", retval->u.constantval_i );
@@ -160,6 +163,8 @@ expressionTree ConstantExpression(void* tokenVal,vartype var)
   }
   else if(var== _Float)
   {
+    retval->constantType=f;
+
     float f = *((float *)tokenVal);
     retval->u.constantval_f = f;
     retval->tokenName =  malloc(sizeof(float)*(retval->u.constantval_f));
@@ -167,6 +172,8 @@ expressionTree ConstantExpression(void* tokenVal,vartype var)
   }
   else if(var== _Char)
   {
+    retval->constantType=c;
+
     retval->u.constantval_c =  *((char*)tokenVal);
     retval->tokenName =  malloc(sizeof(char)*(retval->u.constantval_c));
     snprintf( retval->tokenName, sizeof(retval->tokenName), "'%c'", retval->u.constantval_c);
@@ -248,7 +255,7 @@ void FreeTree (expressionTree node)
   {
       if(strlen(node->tokenName)>0)
       {
-        printf("Node:[%s]\n", node->tokenName);
+        // printf("Node:[%s]\n", node->tokenName);
         free(node->tokenName);
       }
     node->tokenName=NULL;

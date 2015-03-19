@@ -218,7 +218,7 @@ Brace_Expr	: %empty											{ $$ = NULL;}
 
 			//This clusterf*ck is if/else
 			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE  ELSE L_BRACE  Brace_Expr  R_BRACE Brace_Expr
-			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6, /**/(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))) /**/, Expression))),$12, Expression);}			
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),(ContainerExpression(NULL,(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))),$12, Expression)), Expression);}
 
 			| WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Brace_Expr{ $$ = ContainerExpression(NULL,(operatorExpression(WHILE_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
 				
@@ -239,11 +239,16 @@ Expressions	: Expression SEMICOLON Expressions 				{ $$ = ContainerExpression(NU
 			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
 
 
-
-
 			//This clusterf*ck is if/else
 			| IF L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE ELSE L_BRACE  Brace_Expr  R_BRACE  Expressions
-			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6, /**/(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))) /**/, Expression))),$12, Expression);}
+			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),(ContainerExpression(NULL,(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))),$12, Expression)), Expression);}
+
+
+
+
+
+
+//			{ $$ = ContainerExpression(NULL,(operatorExpression(IF_OP,$3,ContainerExpression(NULL,$6, /**/(operatorExpression(IF_OP, operatorExpression(NOT_OP,$3,NULL) ,ContainerExpression(NULL,$10,NULL, Expression))) /**/, Expression))),$12, Expression);}
 
 			| WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Expressions{ $$ = ContainerExpression(NULL,(operatorExpression(WHILE_OP,$3,ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
 			| FOR L_PAREN For_1stParam SEMICOLON For_2ndParam SEMICOLON For_3rdParam R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
@@ -292,7 +297,7 @@ Expression 	: L_PAREN Expression R_PAREN			{ $$ = $2;}
 			| IDENTIFIER L_SQBRACE Expression R_SQBRACE 				{ $$ = operatorExpression( ARRAYACCESS_OP,IdentifierExpression($1),$3); }
 			| IDENTIFIER L_SQBRACE Expression R_SQBRACE DOT Accessor	{ $$ = operatorExpression(ACCESS_OP,operatorExpression( ARRAYACCESS_OP,IdentifierExpression($1),$3),$6); }
 
-			| IDENTIFIER ASSIGN Expression 			{ $$ = operatorExpression(AssignOp,IdentifierExpression($1),$3);}
+			| Accessor ASSIGN Expression 			{ $$ = operatorExpression(AssignOp,$1,$3);}
 
 			|INCREMENT IDENTIFIER 					{int i= 1; void*v=&i; $$ = operatorExpression(AssignOp,IdentifierExpression($2),operatorExpression(PlusOp,IdentifierExpression($2),ConstantExpression(v,_Int)) ); }
 
@@ -394,19 +399,19 @@ int main(int argc, char* argv[])
 
 		else if(strcmp(argv[1],"-s")==0)
 		{
-				if(errorCount==0)
-				{	
-					Print_SymbolTable();
-					printf("Symbol Table File Created.\n");
+			if(errorCount==0)
+			{	
+				Print_SymbolTable();
+				printf("Symbol Table File Created.\n");
 
-					TraverseTree(0,root);
-					//Perform TypeChecking on Tree
-					//PerformTypeCheck(0,root,NULL);
-				}
-				else
-				{
-					printf("The file contains errors,please fix in order to continue.\n");
-				}
+				//TraverseTree(0,root);
+				//Perform TypeChecking on Tree
+				PerformTypeCheck(0,root,NULL);
+			}
+			else
+			{
+				printf("The file contains errors,please fix in order to continue.\n");
+			}
 		}
 
 

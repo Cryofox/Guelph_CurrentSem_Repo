@@ -222,10 +222,8 @@ void Add_Variable(char* token_Name, char* type)
 		while(traveller->next!=NULL)
 			traveller=traveller->next;
 
-
 		//Now we add the Value
 		traveller->next= malloc(sizeof(entry_Node));
-
 		traveller=traveller->next;
 
 		//Setup the Variable
@@ -240,6 +238,8 @@ void Add_Variable(char* token_Name, char* type)
 
 		traveller->type=nt;
 		traveller->next=NULL;
+
+
 		if(nt== nt_NONE)
 		{
 			fprintf(stderr, "\nError: Unknown Variable:%s\n", token_Name);			
@@ -283,6 +283,7 @@ void Set_Type(char* type)
 			if(traveller->size==0)
 				traveller->size=size;
 		}
+		// printf("Var:[%s]Type:[%s]\n",traveller->identifier, traveller->type);
 
 
 		traveller=traveller->next;
@@ -410,13 +411,7 @@ void Add_TYPEDEF_Struct(char* typeDef,char* structLink, char* type)
 }
 
 
-char* Get_VarType(char* tokenType)
-{
-	// printf("poop?\n");
-	int hashValue = hash( tokenType); //Get the Hashed Identifier used for TypeDef
-	// printf("We good?\n");
-	return referenceTable[hashValue]->type;
-}
+
 //Needed to know if it's an Array
 int Get_VarSize(char* tokenType)
 {
@@ -447,7 +442,7 @@ unsigned int hash(char* string)
 	//Mod h by array size
 	h=hashAddress%TABLE_SIZE;
 
-
+	//printf("H=%d S=%s\n",h,string);
 	free(word);
 	// printf("HA=%d\n", h);
 	return(h); 
@@ -480,7 +475,89 @@ int isInScope(char* variable, char* currentscope)
 
 	return FALSE;
 }
+//Not sufficent
+//This returns the TRUE type of a variable based on a symLink
+// Float = float
+//typedef float x;
+// x = Float. Etc.
 
+char* Get_VarType(char* tokenType)
+{
+	// printf("poop?\n");
+	int hashValue = hash(tokenType); //Get the Hashed Identifier used for TypeDef
+	// printf("We good?%d\n",hashValue);
+	return referenceTable[hashValue]->type;
+}
+
+
+
+//Call this to get a Variable assigned Type
+char* Get_Var_AssignedType(char* variable, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return Get_VarType(traveller->type);
+		traveller=traveller->next;
+	}	
+	hashValue = hash("Global");
+	traveller = symbolTable[hashValue];
+	traveller=traveller->next;
+	//Check Global Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return Get_VarType(traveller->type);
+		traveller=traveller->next;
+	}
+
+	return NULL;
+}
+
+int doesVar_Belongto_Struct(char* variable, char* structType, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			if (strcmp(traveller->struct_Owner,structType)==0 )
+				return TRUE;
+		traveller=traveller->next;
+	}	
+	hashValue = hash("Global");
+	traveller = symbolTable[hashValue];
+	traveller=traveller->next;
+	//Check Global Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			if (strcmp(traveller->struct_Owner,structType)==0 )
+				return TRUE;
+		traveller=traveller->next;
+	}
+
+	return FALSE;	
+}
+
+char* getScopeType(char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	return traveller->type;
+}
 
 
 void Print_SymbolTable()
@@ -507,7 +584,7 @@ void Print_SymbolTable()
 		{
 			//Print the Variable
 			printf("%s",node->identifier);
-			if(strlen(node->identifier)<7)
+			if(strlen(node->identifier)<=7)
 				printf("\t\t");
 			else
 				printf("\t" );
@@ -521,7 +598,7 @@ void Print_SymbolTable()
 			}
 			else
 			{
-				if(strlen(node->type)<7)
+				if(strlen(node->type)<=7)
 				printf("\t\t");
 				else
 				printf("\t" );

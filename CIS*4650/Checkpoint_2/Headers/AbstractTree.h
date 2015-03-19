@@ -15,7 +15,9 @@ typedef enum { Expression, Function, Arguments} containerType;
 struct node_Expression
 {
 	char *tokenName;
+	int lineCreated;
 	enum {Containerexp,operatorExp, constantExp, variableExp} kind;
+	enum {c,f,i} constantType;
 	union 
 	{
 		struct 

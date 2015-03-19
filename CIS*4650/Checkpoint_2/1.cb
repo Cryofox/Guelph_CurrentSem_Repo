@@ -88,35 +88,36 @@ char FireQ(int fire)
 
 	hey[5];
 
-	return 1;
+	return 'c';
 }
 
 int main ()
 {
 	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
+	int myArray[20];
+
 	struct somestruct mynewStruct;
-
-	qwep = 1;
-	putc(d);
-
-	if(!x)
+/*
+	x=1;
+	while(x<5)
 	{
+	x++;
+	}
+*/
+	for(x=1; x<5;x++)
+	{
+		for(y=1.1; x==5;x++)
+		{
+			
+		}	
 		puti(x,y,z);
 	}
-	else
-	{
-		putd();
-	}
 
-	for(x=1;y<5;x++)
-	{
-		Lol;
-		while(1)
-		{
-		
-		}
-
-	}
+	myArray[x]=5;
 
 
 	return 1;

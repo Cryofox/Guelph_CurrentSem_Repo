@@ -13,5 +13,9 @@ expressionTree TraverseRight(expressionTree node);
 int isExpression_Container(expressionTree node);
 
 void TraverseTree(int depth, expressionTree node);
-int evaluateExpr(expressionTree node, char* expectedType, int value, char*scope);
+
+//This evaluates the expression for types.
+//It returns the Type of an evaluated expression.
+char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scope);
+void Print_Error_Arithmetic(char* expectedType, char* leftValue, char* rightValue, char* keyword, int linenum);
 #endif
