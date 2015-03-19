@@ -16,7 +16,6 @@ extern int nodesCount;
 int globalCalled=0;
 
 
-
 char* structName="None";
 
 int errorCount=0;
@@ -161,6 +160,7 @@ Decleration : KW_INT 	 Cont_Decl SEMICOLON								{Set_Type("int"); $$ = NULL;	 
 			| KW_FLOAT 	 Cont_Decl SEMICOLON								{Set_Type("float");$$ = NULL;    	 }
 			| KW_CHAR 	 Cont_Decl SEMICOLON								{Set_Type("char");$$ = NULL;    	 }
 			//Add Variable as Part of Struct
+			//Here we are declaring what is Inside of a struct
 			| KW_STRUCT  IDENTIFIER L_BRACE Struct_Decl R_BRACE SEMICOLON 	
 			{Add_Variable($2, "struct"); Link_StructVariables($2); Add_TYPEDEF($2,$2); $$ = NULL;    	 }
 
@@ -373,11 +373,27 @@ void yyerror(char *msg)
 void PrintABS()
 {
  	FILE *f = fopen("Tree.abs", "w");
-	//fprintf(f,"Printing Tree:\n");
+
 	PrintTree(root,0,f);
 	fclose(f);
 }
 
+void PrintSYM()
+{
+ 	FILE *f = fopen("Table.sym", "w");
+
+ 	if(f==NULL)
+ 	{
+ 		printf("fopen failed, errno = n");
+ 		return;
+ 	}
+ 	else
+ 	{
+ 	
+ 		Print_SymbolTable(f);
+ 		fclose(f);
+ 	}
+}
 
 int main(int argc, char* argv[])
 {
@@ -401,12 +417,16 @@ int main(int argc, char* argv[])
 		{
 			if(errorCount==0)
 			{	
-				Print_SymbolTable();
+
 				printf("Symbol Table File Created.\n");
 
 				//TraverseTree(0,root);
 				//Perform TypeChecking on Tree
 				PerformTypeCheck(0,root,NULL);
+
+
+				//Print AFTER our Code
+				PrintSYM();
 			}
 			else
 			{

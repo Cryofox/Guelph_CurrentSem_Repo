@@ -416,11 +416,6 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 	return NULL;
 
 
-
-
-
-
-
 	// evaluateChar(node->u.oper.left);
 	// evaluateChar(node->u.oper.right);
 

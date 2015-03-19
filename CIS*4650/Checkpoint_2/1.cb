@@ -51,18 +51,19 @@ char d;
 float e;
 float f;
 
+struct anotherStruct
+{
+int varX;
+int varY;
+};
+
 struct somestruct{
 	int x;
 	int y;
 	int z;
 	float a;
 	char c;
-	struct anotherStruct
-	{
-	int varX;
-	int varY;
-	
-	};
+	struct anotherStruct innerStruct;
 };
 float y;
 int arX[12];
@@ -98,9 +99,13 @@ int main ()
 	char v;
 	int z;
 	int x;
-	int myArray[20];
+	struct somestruct structArray[10];
 
+	int myArray[10];
 	struct somestruct mynewStruct;
+
+
+	structArray[5]= mynewStruct;
 /*
 	x=1;
 	while(x<5)

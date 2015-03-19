@@ -1,0 +1,74 @@
+
+Scope:[0Tmp]
+Variable	Type		StructOwner
+--------------------------------
+================================
+
+Scope:[putc]
+Variable	Type		StructOwner
+--------------------------------
+================================
+
+Scope:[putf]
+Variable	Type		StructOwner
+--------------------------------
+================================
+
+Scope:[puti]
+Variable	Type		StructOwner
+--------------------------------
+================================
+
+Scope:[Global]
+Variable	Type		StructOwner
+--------------------------------
+a		int		None
+b		int		None
+c		char		None
+d		char		None
+e		float		None
+f		float		None
+varX		int		anotherStruct
+varY		int		anotherStruct
+anotherStruct	struct		None
+x		int		somestruct
+y		int		somestruct
+z		int		somestruct
+a		float		somestruct
+c		char		somestruct
+innerStruct	anotherStruct	somestruct
+somestruct	struct		None
+y		float		None
+arX		int_Ar[12]	None
+structArray	somestruct_Ar[10]	None
+tempA		int		None
+array		int_Ar[10]	None
+================================
+
+Scope:[Fire2]
+Variable	Type		StructOwner
+--------------------------------
+myStruct	anotherStruct	None
+x		int		None
+hello		int		None
+================================
+
+Scope:[FireQ]
+Variable	Type		StructOwner
+--------------------------------
+fire		int		None
+hey		int_Ar[10]	None
+================================
+
+Scope:[main]
+Variable	Type		StructOwner
+--------------------------------
+qwep		int		None
+y		float		None
+v		char		None
+z		int		None
+x		int		None
+structArray	somestruct_Ar[10]	None
+myArray		int_Ar[10]	None
+mynewStruct	somestruct	None
+================================

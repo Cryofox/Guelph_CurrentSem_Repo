@@ -43,6 +43,7 @@ typedef struct s
 	char* scope_Name;
 	struct s* next;
 }node_Scopes;
+void Print_SymbolTable(FILE* fptr);
 
 void Set_Type(char* type);
 unsigned int hash();

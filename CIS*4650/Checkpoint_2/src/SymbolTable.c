@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "SymbolTable.h"
@@ -188,7 +189,7 @@ void Add_Array(char* token_Name, char* type, int size)
 		//printf("Str Peachy:%s\n",type);
 		char* nt = Get_VarType(type);
 
-
+		// printf("NT=%s\n",nt);
 		traveller->type=nt;
 		traveller->next=NULL;
 		if(nt== nt_NONE)
@@ -266,12 +267,13 @@ void Set_TypeDefs(char* type)
 //This is done due to yacc doing things in reverse >.>
 void Set_Type(char* type)
 {
-	// printf("Setting Type...\n");
+	// printf("Setting Type...%s\n",type);
 	int tmpScope= hash("0Tmp\0");
 	//printf("Issue?\n");
 	entry_Node* traveller=symbolTable[tmpScope]->next;
 
 	char* nt = Get_VarType(type);
+	// printf("NewType=%s\n",nt);
 	int size = Get_VarSize(type);
 	while(traveller!=NULL)
 	{
@@ -560,7 +562,7 @@ char* getScopeType(char* currentscope)
 }
 
 
-void Print_SymbolTable()
+void Print_SymbolTable(FILE* fptr)
 {
 	//Print the Variables
 	//Grab the Scope, List all Variables in scope
@@ -569,9 +571,9 @@ void Print_SymbolTable()
 	while(scopeTraveler!=NULL)
 	{
 		//Print the Scope
-		printf("\nScope:[%s]\n",scopeTraveler->scope_Name);
-		printf("Variable\tType\t\tStructOwner\n");
-		printf("--------------------------------\n");
+		fprintf(fptr,"\nScope:[%s]\n",scopeTraveler->scope_Name);
+		fprintf(fptr,"Variable\tType\t\tStructOwner\n");
+		fprintf(fptr,"--------------------------------\n");
 		//Grab Scope Index
 		int scope_Index;
 
@@ -583,42 +585,42 @@ void Print_SymbolTable()
 		while(node!=NULL)
 		{
 			//Print the Variable
-			printf("%s",node->identifier);
+			fprintf(fptr,"%s",node->identifier);
 			if(strlen(node->identifier)<=7)
-				printf("\t\t");
+				fprintf(fptr,"\t\t");
 			else
-				printf("\t" );
+				fprintf(fptr,"\t" );
 
 
-			printf(node->type);
+			fprintf(fptr,"%s",node->type);
 			if(node->size>0)
 			{
-				printf("_Ar[%d]",node->size);
-				printf("\t" );
+				fprintf(fptr,"_Ar[%d]",node->size);
+				fprintf(fptr,"\t" );
 			}
 			else
 			{
 				if(strlen(node->type)<=7)
-				printf("\t\t");
+				fprintf(fptr,"\t\t");
 				else
-				printf("\t" );
+				fprintf(fptr,"\t" );
 			}
 
 			
 			if( strcmp(node->struct_Owner,"!")==0)
 				{
-					printf("None\n");
+					fprintf(fptr,"None\n");
 				}
 			else
 				{
-					printf(node->struct_Owner);
-					printf("\n");
+					fprintf(fptr,"%s",node->struct_Owner);
+					fprintf(fptr,"\n");
 				}
 
 			node=node->next;
 		}
 
-		printf("================================\n");
+		fprintf(fptr,"================================\n");
 		scopeTraveler= scopeTraveler->next;
 	}
 
