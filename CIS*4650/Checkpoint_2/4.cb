@@ -1,34 +1,93 @@
-/*
-Expressions inside functions are tested now.
+/* 
+This program tests the following Features:
 
-encapsulating an expression in square brackets.
-Accessing an array field inside an int
-Missing Return
+	Returning mismatched type from function.
+	Post-Inc/Dec non-int
 
 */
-int somevalue [ 10 ];
 
-int main()
+
+/* Type Defines */
+typedef int  i_A;
+typedef char c_A, c_B, c_C;
+typedef float f_A, f_B, f_C;
+
+typedef int  _A, _0123456789A;
+
+typedef _A somenewInt;
+typedef int simpleArray[10];
+
+struct charStruct
 {
-	int val[ 10 ];
-	
+	char q;
+	char w;
+	char e;
+	char r;
+	char t;
+	char y;
+};
 
-	/*Valid*/
-	(a+b)/2 + (6%3);
+struct intStruct{
+	int a;
+	int b;
+	int c;
+	struct charStruct qwerty;
+};
 
-	/*Not Valid*/
-	[(a+b)/2 + (6%3) ];
+char ArrayAccess(int fire)
+{
+	int hey[10];
+	int x;
 
-
-	/*Also Not Valid Ints cant have array accessors*/
-	a[(56[54]) ];
-
-	/*Valid */
-	a[ b [c[d[e[f]]]]];
-
-	/*Valid but confusing*/
-	a[ b[e.x].y].z;	
-
-	/*Missing Return, Not Valid*/
-
+	return 'c';
 }
+
+char StructAccess()
+{
+	int hey[10];
+	int x;
+	_A x2;
+	struct intStruct s_Int;
+
+	s_Int.a=1; 
+	s_Int.qwerty.q='e';
+	return 'c';
+}
+
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 'c'; /*Returning char from int function*/
+ }
+
+
+int main ()
+{
+	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
+
+	y++; /*Error Post Inc on non-int*/
+	return 1;
+}
+

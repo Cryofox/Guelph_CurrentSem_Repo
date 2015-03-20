@@ -3,6 +3,7 @@
 #include <stdlib.h>	
 #include "AbstractTree.h"
 #include "SymbolTable.h"
+#include "IR_Instructions.h"
 typedef char letter_1, letter_2;
 void yyerror(char *msg);
 
@@ -420,13 +421,39 @@ int main(int argc, char* argv[])
 
 				printf("Symbol Table File Created.\n");
 
-				//TraverseTree(0,root);
 				//Perform TypeChecking on Tree
 				PerformTypeCheck(0,root,NULL);
 
 
 				//Print AFTER our Code
 				PrintSYM();
+
+			}
+			else
+			{
+				printf("The file contains errors,please fix in order to continue.\n");
+			}
+		}
+
+		else if(strcmp(argv[1],"-i")==0)
+		{
+			if(errorCount==0)
+			{	
+
+
+				
+				//Initialize our IR_Node
+				InitializeIR_Node();
+				//Perform TypeChecking on Tree
+				PerformTypeCheck(0,root,NULL);
+
+
+				//Print AFTER our Code
+
+				//Print IR_Instructions
+				Print_IR_Instructions();
+
+				Free_IR_Instructions();
 			}
 			else
 			{
@@ -435,12 +462,24 @@ int main(int argc, char* argv[])
 		}
 
 
+
+
+
 		else if(strcmp(argv[1],"-c")==0)
 		{
-			printf("\nError Count: %d\n", errorCount);
-
 			if(errorCount==0)
-				printf("The Program is free of syntax errors! :)\n");
+			{
+				PerformTypeCheck(0,root,NULL);
+				printf("\nError Count: %d\n", errorCount);
+				if(errorCount==0)
+					printf("The Program is free of syntax and semantic errors! :)\n");			
+			}
+
+			else
+			{
+				printf("\nError Count: %d\n", errorCount);
+			}
+			
 		}
 	}
 

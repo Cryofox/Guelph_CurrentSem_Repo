@@ -1,98 +1,109 @@
-/*
-Combined 2->4 Up untill marked
-
-
+/* 
+This program tests the following Features:
+	Bad If relational Logic.
+		Notice : The logic inside the if isn't checked if the if is bad to begin with
+				Since Elses are converted to Not IF's they produce similar errors only with a !
+	
 */
 
 
-typedef int char float a; /* This should strike as an error */
-
+/* Type Defines */
+typedef int  i_A;
 typedef char c_A, c_B, c_C;
-typedef int a;
+typedef float f_A, f_B, f_C;
 
-typedefed int  i_A; /* This should strike as an error due to identifier int*/
+typedef int  _A, _0123456789A;
 
-int a;
-/*Typedef after global decleration */
-typedef int a; 
+typedef _A somenewInt;
+typedef int simpleArray[10];
 
-
-
-/*Program continues to parse correctly from here on.*/
-char c;
-
-
-/*Incorrect 1*/
-struct apples; 
-
-float floatzilla;
-/*Incorrect 2*/
-char char charmander;
-
-
-int validDec;
-
-/*Incorect no semi? */
-int val1, val2, val3,
-
-/*The syntax error cascades to here */
-int testFunction()
-{ return 1;}
-int main()
+struct charStruct
 {
-	int val[ 10 ];
+	char q;
+	char w;
+	char e;
+	char r;
+	char t;
+	char y;
+};
+
+struct intStruct{
+	int a;
+	int b;
+	int c;
+	struct charStruct qwerty;
+};
+
+char ArrayAccess(int fire)
+{
+	int hey[10];
+	int x;
+
+	return 'c';
+}
+
+char StructAccess()
+{
+	int hey[10];
+	int x;
+	_A x2;
+	struct intStruct s_Int;
+
+	s_Int.a=1; 
+	s_Int.qwerty.q='e';
+	return 'c';
+}
+
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 1; 
+ }
+
+int BadIF()
+{
+	char x;
+	char y;
+
+	if( x>y)
+	{
+		z3++; /*Z not declared*/
+	}
+	else
+	{
+		q3= x+y; /*No Q declared */
+	}
 	
 
-	/*Valid*/
-	(a+b)/2 + (6%3);
-
-	/*Not Valid*/
-	[(a+b)/2 + (6%3) ];
-
-
-	/*Also Not Valid Ints cant have array accessors*/
-	a[(56[54]) ];
-
-	/*Valid */
-	a[ b [c[d[e[f]]]]];
-
-	/*Valid but confusing*/
-	a[ b[e.x].y].z;	
-
-	/*Missing Return, Not Valid*/
-
+	return 0;
 }
 
-/*##########*/
-/*Function struct with no struct identifier invalid */
-struct function ()
+int main ()
 {
-	return 3;
+	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
+
+	return 1;
 }
 
-
-
-
-void functionname ()
-{
-	/*Invalid */
-	dostuff char;
-	return 4;
-}
-
-
-
-/*PArams */
-void functionname (char char char char)
-{
-
-	return 4;
-}
-
-/*This is copy pasted just to see if message 95 gets caught which it does*/
-void functionname2 ()
-{
-	/*Invalid */
-	dostuff char;
-	return 4;
-}

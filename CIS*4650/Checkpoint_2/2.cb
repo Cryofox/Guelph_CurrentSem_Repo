@@ -1,8 +1,11 @@
 /* 
 This program tests the following Features:
-	1. Assigning a value to a variable not defined in scope.
-	
-*/	
+Since promotions are currently illegal these are valid to test
+against.
+	Array Access with Char
+	Adding Char to Float
+	Adding Float to int
+*/
 
 
 /* Type Defines */
@@ -19,99 +22,52 @@ typedef int  _A, _0123456789A;
 typedef _A somenewInt;
 typedef int simpleArray[10];
 
-/* Global Declerations */
 
-int a;
-int b;
-char c;
-char d;
-float e;
-float f;
-
-struct somestruct{
-	int x;
-	int y;
-	int z;
-	float a;
-	char c;
-	struct anotherStruct
-	{
-	int varX;
-	int varY;
-	
-	};
-};
-float y;
-int arX[12];
-struct somestruct structArray[10];
-
-
-
-
-_A tempA;
-simpleArray array;
-int Fire2()
+char ArrayAccess(int fire)
 {
-struct anotherStruct myStruct;
-int x;
-int hello;
-	/*Notice how It doesn't care whats returning in abs*/
-	return 2;
+	int hey[10];
+	int x;
+
+	x= hey['d']; /* Error */
+	return 'c';
+}
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 0;
 }
 
 
 int main ()
 {
 	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
 
-	notAssigned =1;
+	v= v+y; /* Error Char + Float */
 
-	struct somestruct mynewStruct;
-
-	qwep = 1;
-	putc(d);
-	for(x=1;y<5;x++)
-	{Lol;
-
-		while(1)
-		{
-		
-		}
-
-	}
-
+	x= x+y; /* Error Float + Int */
 
 	return 1;
 }
-
-
-
-
-/*
- WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
- { $$ = 
- ContainerExpression(NULL,
- (operatorExpression(WHILE_OP,$3,
-  ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
-
-
-FOR L_PAREN For_1stParam SEMICOLON For_2ndParam SEMICOLON For_3rdParam R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
-
-ContainerExpression(NULL,$3,ContainerExpression(NULL,(operatorExpression(WHILE_OP,$5,
-  ContainerExpression(NULL,$10,$7, Expression))),$12, Expression), Expression)
-
-
-
-
-ContainerExpression(NULL,(operatorExpression(WHILE_OP,$5,
- ContainerExpression(NULL,$10, ContainerExpression(NULL,$5,NULL, Expression) , Expression))),$12, Expression)
-
-
-   
-
-
-
-
-
-*/
 

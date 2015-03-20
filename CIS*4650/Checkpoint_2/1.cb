@@ -42,14 +42,9 @@ typedef int  _A, _0123456789A;
 typedef _A somenewInt;
 typedef int simpleArray[10];
 
-/* Global Declerations */
-
 int a;
-int b;
 char c;
-char d;
-float e;
-float f;
+float b;
 
 struct anotherStruct
 {
@@ -83,14 +78,44 @@ int hello;
 	return 2;
 }
 
-char FireQ(int fire)
+
+
+char ArrayAccess(int fire)
 {
+	struct anotherStruct myStructArray[10];
 	int hey[10];
+	int x;
 
-	hey[5];
+	/*Struct Arrays :) */
+	myStructArray[10].varX=2;
 
+	x= hey[10];
 	return 'c';
 }
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 0;
+}
+
 
 int main ()
 {
@@ -99,62 +124,9 @@ int main ()
 	char v;
 	int z;
 	int x;
-	struct somestruct structArray[10];
 
-	int myArray[10];
-	struct somestruct mynewStruct;
-
-
-	structArray[5]= mynewStruct;
-/*
-	x=1;
-	while(x<5)
-	{
-	x++;
-	}
-*/
-	for(x=1; x<5;x++)
-	{
-		for(y=1.1; x==5;x++)
-		{
-			
-		}	
-		puti(x,y,z);
-	}
-
-	myArray[x]=5;
 
 
 	return 1;
 }
 
-
-
-
-/*
- WHILE L_PAREN Expression R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
- { $$ = 
- ContainerExpression(NULL,
- (operatorExpression(WHILE_OP,$3,
-  ContainerExpression(NULL,$6,NULL, Expression))),$8, Expression);}
-
-
-FOR L_PAREN For_1stParam SEMICOLON For_2ndParam SEMICOLON For_3rdParam R_PAREN L_BRACE Brace_Expr R_BRACE Expressions
-
-ContainerExpression(NULL,$3,ContainerExpression(NULL,(operatorExpression(WHILE_OP,$5,
-  ContainerExpression(NULL,$10,$7, Expression))),$12, Expression), Expression)
-
-
-
-
-ContainerExpression(NULL,(operatorExpression(WHILE_OP,$5,
- ContainerExpression(NULL,$10, ContainerExpression(NULL,$5,NULL, Expression) , Expression))),$12, Expression)
-
-
-   
-
-
-
-
-
-*/

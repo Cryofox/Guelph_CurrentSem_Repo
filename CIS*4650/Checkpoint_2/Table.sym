@@ -23,11 +23,8 @@ Scope:[Global]
 Variable	Type		StructOwner
 --------------------------------
 a		int		None
-b		int		None
 c		char		None
-d		char		None
-e		float		None
-f		float		None
+b		float		None
 varX		int		anotherStruct
 varY		int		anotherStruct
 anotherStruct	struct		None
@@ -53,11 +50,25 @@ x		int		None
 hello		int		None
 ================================
 
-Scope:[FireQ]
+Scope:[ArrayAccess]
 Variable	Type		StructOwner
 --------------------------------
-fire		int		None
+fire		anotherStruct	None
+myStructArray	anotherStruct_Ar[10]	None
 hey		int_Ar[10]	None
+x		int		None
+================================
+
+Scope:[WhileLoop]
+Variable	Type		StructOwner
+--------------------------------
+x		int		None
+================================
+
+Scope:[ForLoop]
+Variable	Type		StructOwner
+--------------------------------
+x		int		None
 ================================
 
 Scope:[main]
@@ -68,7 +79,4 @@ y		float		None
 v		char		None
 z		int		None
 x		int		None
-structArray	somestruct_Ar[10]	None
-myArray		int_Ar[10]	None
-mynewStruct	somestruct	None
 ================================

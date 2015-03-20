@@ -106,7 +106,7 @@ void Link_StructVariables(char* structName)
 	// printf("Linking Structs\n");
 	int hashValue = hash("0Tmp");
 	//Iterate Untill our illegal Variable
-	entry_Node* traveller=symbolTable[hashValue]->next;
+	entry_Node* traveller=symbolTable[hashValue];
 	entry_Node* startMarker=traveller;
 	//Move Untill we Hist $tart
 	// printf("Loosy Gosoy\n");
@@ -114,7 +114,7 @@ void Link_StructVariables(char* structName)
 	{
 		if(strcmp(traveller->next->identifier,"$TART")==0)
 		{	
-				// printf("Setting SM!\n");
+				// printf("Setting SM to:%s!\n", traveller->identifier);
 				startMarker=traveller;
 		}
 
@@ -131,14 +131,15 @@ void Link_StructVariables(char* structName)
 	// printf("Loosy Gosoy2\n");
 		//ReLink Variables
 		entry_Node* temp= startMarker->next;
-	
-		// printf("SM->Next=%s\n", startMarker->next->identifier);
+		 // printf("Temp:%s\n", temp->identifier);
+	 	//  printf("SM:%s_\n", startMarker->identifier);
+
+		//printf("SM->Next=%s\n", startMarker->next->identifier);
 		startMarker->next= temp->next;
 		// printf("SM->Next=%s\n", startMarker->next->identifier);
 	 	//Free The Illegal Var
 
-	 	// printf("Temp:%s\n", temp->identifier);
-	 	// printf("SM:%s\n", startMarker->identifier);
+
 
 	 	free(temp->identifier);
 	 	free(temp);
