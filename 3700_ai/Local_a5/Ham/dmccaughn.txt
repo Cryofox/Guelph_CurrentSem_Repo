@@ -1,0 +1,23 @@
+What you’re referring to is the detection of dead code.  For example:
+
+if (1)
+     a = 1;
+else
+    a = 2;
+
+The else block here is dead.  Although a contrived example, you can clearly see that the a = 2; statement is never executed under any conditions, so has truly no effect on the code at all and can be removed (never mind not type checking it).
+
+Now - your typically compiler would indeed type check the statement anyway as at the time it’s doing type checking, it does not have sufficient information to conclude that a statement is dead.  It’s obvious to us looking at it, but the compiler doesn’t know this yet and requires some very specific analysis in order to determine the statement is dead.  As such, it just ploughs through the translation process, making temps as it needs them without regard for such things.
+
+Subsequently, during an optimization pass which is typically done over intermediate code, it is relatively easy for the compiler to determine when statements are dead as it would be computing all kinds of liveness information to allow it to determine that lines of intermediate code have no effect on future statements.
+
+As for proliferation of temps, this again doesn’t matter as when doing register allocation the compiler will be aggressively trying to minimize register use and will end up folding all the temps up as best as it can anyway - in fact, they may all be gone completely if there is insufficient register pressure to prevent everything from just living in registers.
+
+Bottom line then is that the compiler does just treat the entire program as a simple thing, step-by-step.  You wouldn’t worry about detecting dead code during type checking as that would get complicated really fast for anything other than completely trivial examples such as the above or your example (although, go a step further and consider that there could be side-effects depending on the expression, so really you’ve just pulled out one example of obviously dead code, what about all the other dead code that might be around?)…so better to just carry on doing what it knows, as it can be fixed up later anyway.
+
+If you’re interested in doing dead code removal, it’s not all that hard and I show you how it’s done in class; however, you’ll do it after you have intermediate code so would proceed normally until then anyway.  Hopefully you can see that other than trivial examples such as we’re tossing around here, you can’t sensibly remove all dead code during type checking anyway (without collecting significantly more information while doing it anyway).
+
+--
+David McCaughan, CIS*4650 Instructor
+University of Guelph --- dmccaugh@uoguelph.ca
+http://www.uoguelph.ca/~dmccaugh/teaching/CIS4650/

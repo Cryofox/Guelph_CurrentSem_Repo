@@ -1,0 +1,13 @@
+On Mar 12, 2015, at 9:30 PM, Horia Stancescu <hstances@mail.uoguelph.ca> wrote:
+
+Also if I may ask another question. For the Enemys, do you want these guys to also synchronize over the network, or are they for offline mode only?
+
+The networking will not be tested in assignment 4.
+
+On Thu, Mar 12, 2015 at 4:33 PM, Horia Stancescu <hstances@mail.uoguelph.ca> wrote:
+So the spec doesn't say anything against jumping as we're falling so long as we ensure you aren't able to jump more than once every 5 seconds. Does this mean the player is free to jump while falling for example when the game first loads, or should we be coding to prevent mid-air jumps ?
+
+If it isn’t specified then it is your choice. The Important thing is to make sure that the requirements which
+are specified are implemented correctly. 
+
+dave

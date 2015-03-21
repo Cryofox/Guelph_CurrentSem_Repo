@@ -3,8 +3,13 @@ C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\bin\Debug\Myo.exe
 C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\bin\Debug\Myo.pdb
 C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.exe
 C:\Users\Horia\Documents\GitHub\SchoolWork\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.pdb
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.csprojResolveAssemblyReference.cache
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\x64\myo.dll
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\x86\myo.dll
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\Myo.exe
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\Myo.pdb
-C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.csprojResolveAssemblyReference.cache
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\MyoSharp.dll
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\Microsoft.Contracts.dll
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\MyoSharp.pdb
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.exe
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.pdb
