@@ -23,6 +23,7 @@ typedef struct n
 	//To Append to Scope
 	struct n * next;
 
+	int memoryOffset;
 
 	//Only Used if First Node
 	int scopeDefined;
@@ -59,9 +60,11 @@ void Free_HashTable();
 void Add_TYPEDEF_Struct(char* typeDef,char* structLink, char* type);
 void Set_TypeDefs(char* type);
 
+char* Get_Var_MemoryOffset(char* variable, char* currentscope);
 char* Get_Var_AssignedType(char* variable, char* currentscope);
 
 int doesVar_Belongto_Struct(char* variable, char* structType, char* currentscope);
 char* getScopeType(char* scope);
 int isInScope(char* variable, char* currentscope);
+void CalculateOffsets();
 #endif

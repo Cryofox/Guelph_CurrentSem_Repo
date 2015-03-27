@@ -33,12 +33,14 @@ void PerformTypeCheck(int depth, expressionTree node, char* scope)
 
 	//Call this on Every node, abit in-efficient, but it'll gaurantee scope.
 	//Update the Current Scope we are in, based on the Function we just passed.
+
 	scope=functionScope(node, scope);
 
 	//Cycle through each of the FIRST expression containers immediately following a function.
 	//This is done to evaluate the Node.
 	if(!isFunction_Container(node))
 	{
+
 		//If it is, then this violates the Assignment Operator.
 		// printf("Semantic Error: Can't Assign an expression to an expression.\n");
 		// int evaluateExpr(expressionTree node, char* expectedType, int value)
@@ -47,7 +49,7 @@ void PerformTypeCheck(int depth, expressionTree node, char* scope)
 	else
 	{
 		//Create the Function Label
-		Add_IR_Instruction(NULL,NULL,NULL,NULL,scope);
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,scope,scope);
 		PerformTypeCheck((depth+1), node->u.oper.left, scope);
 		PerformTypeCheck((depth+1), node->u.oper.right, scope);
 	}
@@ -151,7 +153,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"+", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"+", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -184,7 +186,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"-", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"-", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -216,7 +218,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"/", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"/", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -247,7 +249,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"*", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"*", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -279,7 +281,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"%", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"%", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -302,15 +304,14 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 		char* leftNode= malloc(sizeof(char)*20);
 		//Current Node is now updated with what the right branch WOULD be
-		sprintf(leftNode,"*t%d",(preLeft+1));
+		sprintf(leftNode,"t%d",(preLeft+1));
 
 
 
 		//We can check if the Right Node is a USE here. If it is we assign to rightleft
 		if(node->u.oper.right->u.oper.left!= NULL && strcmp(node->u.oper.right->tokenName,"Use:")==0)
 		{
-			Add_IR_Instruction(node->u.oper.right->u.oper.left->tokenName,"=", NULL,leftNode ,NULL);
-			// printf("This bitch wont stfu--------------------------------\n");
+			Add_IR_Instruction(node->u.oper.right->u.oper.left->tokenName,"*=", NULL,leftNode ,NULL,scope);
 			evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 		}
 		else
@@ -321,7 +322,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
  			evaluateExpr(node->u.oper.right, expectedType, value,scope);
 		
- 			Add_IR_Instruction(rightNode,"=", NULL,leftNode ,NULL);
+ 			Add_IR_Instruction(rightNode,"*=", NULL,leftNode ,NULL,scope);
 
  			free(rightNode);
 		}
@@ -374,7 +375,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		{
 			//The Condition is reversed. Therefore if the expression is false
 			//we skip the If Logic instructions
-			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL);
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
 			Promote_LastIR_IF(labelIf);	
 		}
 
@@ -382,7 +383,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
 		
 		//Add an Empty instruction with a label
-		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf);
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
 
 		//We now have the target Node Label...
 
@@ -412,14 +413,14 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		sprintf(rightNode,"t%d",(postLeft+1));
 
 		
-		Add_IR_Instruction(rightNode,"*", "4", temp,NULL);
 
 		currentNode++;
 
 		char* temp2= malloc(sizeof(char)*20);
 		sprintf(temp2,"t%d",currentNode);
-
-		Add_IR_Instruction(leftNode,"+", temp, temp2,NULL);
+		
+		Add_IR_Instruction(rightNode,"*", "4", temp2,NULL,scope);
+		Add_IR_Instruction(leftNode,"+", temp2, temp,NULL,scope);
 
 		free(temp2);
 		free(temp);
@@ -451,7 +452,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"&&", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"&&", rightNode, temp,NULL,scope);
 
 
 		free(leftNode);
@@ -462,7 +463,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		sprintf(newNode,"t%d",(++currentNode));
 
 		//This will get reversed once promoted
-		Add_IR_Instruction(temp,"!=", "0", newNode,NULL);
+		Add_IR_Instruction(temp,"!=", "0", newNode,NULL,scope);
 
 		free(newNode);
 		free(temp);
@@ -490,7 +491,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"||", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"||", rightNode, temp,NULL,scope);
 
 
 		free(leftNode);
@@ -501,7 +502,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		sprintf(newNode,"t%d",(++currentNode));
 
 		//This will get reversed once promoted
-		Add_IR_Instruction(temp,"!=", "0", newNode,NULL);
+		Add_IR_Instruction(temp,"!=", "0", newNode,NULL,scope);
 
 		free(newNode);
 		free(temp);
@@ -529,7 +530,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"!", NULL, temp,NULL);
+		Add_IR_Instruction(leftNode,"!", NULL, temp,NULL,scope);
 
 
 		free(temp);
@@ -561,7 +562,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,">", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,">", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -595,7 +596,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"<", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"<", rightNode, temp,NULL,scope);
 
 		free(temp);
 		free(leftNode);
@@ -624,7 +625,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,">=", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,">=", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -655,7 +656,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"<=", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"<=", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -686,7 +687,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"==", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"==", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -717,7 +718,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft+1));
 
-		Add_IR_Instruction(leftNode,"!=", rightNode, temp,NULL);
+		Add_IR_Instruction(leftNode,"!=", rightNode, temp,NULL,scope);
 
 
 		free(temp);
@@ -735,9 +736,14 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		sprintf(temp,"t%d",currentNode);
 
 		//For Dot things MIGHT get a bit weird.
+
+
+
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 		char* varName 		= node->u.oper.right->tokenName;
 		char * rightValue;
+
+
 		//The Right token is a dot, meaning we need to check if the left variable
 		// of the dot belongs to our struct
 		if( strcmp(varName,"dot:")==0)
@@ -746,6 +752,8 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		}
 		//Since structs are typed to "themselves", all that is needed is to check if the variable on the Right
 		//belongs to the struct
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",(currentNode));
 
 		if(doesVar_Belongto_Struct(varName,leftValue,scope))
 		{
@@ -766,7 +774,12 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft));
 
-		Add_IR_Instruction(rightNode,"&", NULL, temp,NULL);
+		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
+
+
+
+		free(leftNode);
+		free(rightNode);
 		return rightValue;
 	}
 
@@ -825,7 +838,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 
 		//Add an Empty instruction with a label
-		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf);
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
 
 		//Now we go into the If Branch clause
 		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
@@ -865,7 +878,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		{
 			//The Condition is reversed. Therefore if the expression is false
 			//we skip the If Logic instructions
-			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL);
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
 			Promote_LastIR_IF(labelIf);	
 		}
 
@@ -907,7 +920,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//The Function were Calling is here...
 		// char* leftValue		=	evaluateExpr(node->u.oper.right, expectedType, value,scope);
 		//When call is used var 1 = Label. We know this...
-		Add_IR_Instruction(node->u.oper.left->tokenName,"call", params, NULL,NULL);
+		Add_IR_Instruction(node->u.oper.left->tokenName,"call", params, NULL,NULL,scope);
 
 		free(params);
 
@@ -946,7 +959,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				sprintf(temp,"t%d",currentNode);
 
 
-				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+				Add_IR_Instruction(node->tokenName,"=c", NULL, temp,NULL,scope);
 				
 
 				free(temp);
@@ -958,7 +971,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				char* temp= malloc(sizeof(char)*20);
 				sprintf(temp,"t%d",currentNode);
 
-				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+				Add_IR_Instruction(node->tokenName,"=i", NULL, temp,NULL,scope);
 
 
 				free(temp);
@@ -970,7 +983,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				char* temp= malloc(sizeof(char)*20);
 				sprintf(temp,"t%d",currentNode);
 
-				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+				Add_IR_Instruction(node->tokenName,"=f", NULL, temp,NULL,scope);
 
 
 				free(temp);
@@ -999,10 +1012,10 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 					sprintf(temp,"t%d",currentNode);
 
 					if(param==FALSE)
-						Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+						Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL,scope);
 					else
 					{		
-						Add_IR_Instruction(node->tokenName,"param", NULL, NULL,NULL);	
+						Add_IR_Instruction(node->tokenName,"param", NULL, NULL,NULL,scope);	
 						paramCount+=1;
 						//Check the Parameters of the callee Function here.
 						//Basically just check if types match...We support parameter overwriting? cool			

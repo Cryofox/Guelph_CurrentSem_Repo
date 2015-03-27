@@ -53,7 +53,8 @@ hello		int		None
 Scope:[ArrayAccess]
 Variable	Type		StructOwner
 --------------------------------
-fire		anotherStruct	None
+fire		int		None
+fire2		int		None
 myStructArray	anotherStruct_Ar[10]	None
 hey		int_Ar[10]	None
 x		int		None
@@ -63,6 +64,19 @@ Scope:[WhileLoop]
 Variable	Type		StructOwner
 --------------------------------
 x		int		None
+================================
+
+Scope:[IfCall]
+Variable	Type		StructOwner
+--------------------------------
+x		int		None
+y		int		None
+================================
+
+Scope:[RecursiveFunction]
+Variable	Type		StructOwner
+--------------------------------
+i		int		None
 ================================
 
 Scope:[ForLoop]

@@ -20,7 +20,7 @@ LIBS =
 
 
 # define the C source files
-SRCS = src/lex.yy.c src/y.tab.c src/AbstractTree.c src/SymbolTable.c src/TypeCheck.c src/IR_Instructions.c
+SRCS = src/lex.yy.c src/y.tab.c src/AbstractTree.c src/SymbolTable.c src/TypeCheck.c src/IR_Instructions.c src/Assembler.c
 
 LEX = src/Translater.l
 YACC= src/Parser.y

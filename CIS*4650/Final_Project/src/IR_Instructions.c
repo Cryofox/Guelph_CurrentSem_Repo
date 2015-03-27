@@ -8,6 +8,7 @@
 int currentLabel=0;
 int currentNode=0;
 ir_Node* root_Node;
+
 void InitializeIR_Node()
 {
 	root_Node = malloc(sizeof(ir_Node));
@@ -18,7 +19,7 @@ void InitializeIR_Node()
 
 //Add a new instruction to our current list of instructions
 //Returns index of added IR instruction, for IF's and GoTo's
-int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,char* label)
+int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,char* label,char* scope)
 {
 	int index=0;
 	if(root_Node==NULL)
@@ -49,10 +50,30 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 	currentNode->gotoLabel=NULL;
 
 	currentNode->isIF=0;
-	currentNode->isLoop=0;
-
+	currentNode->scope=scope;
 	return index;
 }
+
+void IR_Add_Scope(char* scope)
+{
+	if(scope==NULL)
+		return;
+	int i=0;
+	if(root_Node==NULL)
+		return;
+	//Get the Last Node
+	//This can be optimized by always having the last node, but w.e for now.
+	ir_Node* currentNode = root_Node;
+	while(currentNode->next!=NULL )
+	{
+		if(currentNode->scope==NULL)
+			currentNode->scope=strdup(scope);
+
+		currentNode= currentNode->next;
+	}
+
+}
+
 
 void Add_GoToLabel(int index, char* gotoLabel)
 {

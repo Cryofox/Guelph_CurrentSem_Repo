@@ -522,6 +522,39 @@ char* Get_Var_AssignedType(char* variable, char* currentscope)
 
 	return NULL;
 }
+//Call this to get a Variable assigned Type
+char* Get_Var_MemoryOffset(char* variable, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	// 
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->memoryOffset;
+		traveller=traveller->next;
+	}	
+	hashValue = hash("Global");
+	traveller = symbolTable[hashValue];
+	traveller=traveller->next;
+	//Check Global Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->memoryOffset;
+		traveller=traveller->next;
+	}
+
+	//If not found
+	// printf("COULDNT FIND Var=%s Scope =%s\n",variable,currentscope);
+	return -666;
+}
+
+
 
 int doesVar_Belongto_Struct(char* variable, char* structType, char* currentscope)
 {

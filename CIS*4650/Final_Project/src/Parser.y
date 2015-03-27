@@ -74,7 +74,7 @@ letter_1 l1='c';
 
 
 //These values do not affect the ABS tree
-%type <xprT> TypeDefs TypeDef Declerations Decleration Cont_Decl Arguments Argument Brace_Expr Func_Vars For_1stParam For_2ndParam For_3rdParam Cont_TDecl Global_Decl  Struct_Decl ExpressionOrder
+%type <xprT> TypeDefs TypeDef Declerations Decleration Cont_Decl Arguments Argument Brace_Expr Func_Vars For_1stParam For_2ndParam For_3rdParam Cont_TDecl Global_Decl  Struct_Decl ExpressionOrder ArgumentIn
 
 
 
@@ -195,18 +195,20 @@ Cont_Decl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_Decl	{Add_Array	 ($1, "
 
 
 
-Arguments  : %empty							{ $$ = NULL;}		
-		   | Argument Arguments				{ $$ = NULL;}
+Arguments  : %empty		{ $$ = NULL;}
+		   | ArgumentIn { $$ = NULL;}
 		   ;
 
-//Same as Declerations
-Argument	: KW_INT 	 Cont_Decl		{ $$ = NULL;}
-			| KW_FLOAT 	 Cont_Decl		{ $$ = NULL;}
-			| KW_CHAR 	 Cont_Decl		{ $$ = NULL;}
-			| KW_STRUCT  Cont_Decl 		{ $$ = NULL;}
-			| IDENTIFIER Cont_Decl 		{ $$ = NULL;}
+ArgumentIn  : Argument COMA ArgumentIn				{ $$ = NULL;}
+			| Argument 								{ $$ = NULL;}
 			;
-
+//Same as Declerations
+Argument	: KW_INT 	 IDENTIFIER  							{Add_Variable($2,"int"); $$ = NULL;	 	 }
+			| KW_FLOAT 	 IDENTIFIER  							{Add_Variable($2,"float");$$ = NULL;    	 }
+			| KW_CHAR 	 IDENTIFIER  							{Add_Variable($2,"char");$$ = NULL;    	 }
+			| KW_STRUCT IDENTIFIER IDENTIFIER					{Add_Variable($3,$2);$$=NULL; }
+			| IDENTIFIER IDENTIFIER  							{Add_Variable($2,$1);$$ = NULL;   	 }
+			;
 //Functions
 
 
@@ -394,7 +396,6 @@ void PrintSYM()
  	}
  	else
  	{
- 	
  		Print_SymbolTable(f);
  		fclose(f);
  	}
@@ -483,24 +484,34 @@ int main(int argc, char* argv[])
 
 
 
-
-
 		else if(strcmp(argv[1],"-c")==0)
 		{
 			if(errorCount==0)
-			{
-				PerformTypeCheck(0,root,NULL);
-				printf("\nError Count: %d\n", errorCount);
-				if(errorCount==0)
-					printf("The Program is free of syntax and semantic errors! :)\n");			
-			}
+			{	
 
+
+				
+				//Initialize our IR_Node
+				InitializeIR_Node();
+				//Perform TypeChecking on Tree
+				PerformTypeCheck(0,root,NULL);
+
+
+				//Print AFTER our Code
+				PrintSYM();
+				//Print IR_Instructions
+				PrintIR();
+
+				CreateAssembly();
+
+				Free_IR_Instructions();
+			}
 			else
 			{
-				printf("\nError Count: %d\n", errorCount);
+				printf("The file contains errors,please fix in order to continue.\n");
 			}
-			
 		}
+
 	}
 
 	FreeTree(root);
