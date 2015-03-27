@@ -1,0 +1,86 @@
+/* 
+This program tests the following Features:
+
+	Accessing a member not existant in a struct and assigning to it.
+		This is 2 errors, 1Access, 2 assigning to none type
+
+
+*/
+
+
+/* Type Defines */
+typedef int  i_A;
+typedef char c_A, c_B, c_C;
+typedef float f_A, f_B, f_C;
+
+typedef int  _A, _0123456789A;
+
+typedef _A somenewInt;
+typedef int simpleArray[10];
+
+
+struct intStruct{
+	int a;
+	int b;
+	int c;
+};
+
+char ArrayAccess(int fire)
+{
+	int hey[10];
+	int x;
+
+	return 'c';
+}
+
+char StructAccess()
+{
+	int hey[10];
+	int x;
+	_A x2;
+	struct intStruct s_Int;
+
+	s_Int.a=1; 
+	s_Int.d=1; /*2xError, no member D*/
+
+	return 'c';
+}
+
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 0;
+}
+
+
+int main ()
+{
+	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
+
+
+
+	return 1;
+}
+

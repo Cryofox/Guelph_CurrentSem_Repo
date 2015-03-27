@@ -4,6 +4,7 @@
 #include "AbstractTree.h"
 #include "TypeCheck.h"
 #include "IR_Instructions.h"
+#include <signal.h>
 #define TRUE 1
 #define FALSE 0
 
@@ -115,6 +116,8 @@ void Print_Error_Arithmetic(char* expectedType, char* leftValue, char* rightValu
 
 
 //Here we recursively traverse the expression, updating the Value, and returning the Type of the evaluated token
+int param=FALSE;
+int paramCount=0;
 char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scope)
 {
 	//Traverse all Branches
@@ -295,27 +298,96 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		int preLeft=currentNode;
 		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
-		int postLeft=currentNode;
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
-		//If we were not given a type, then we can at least check if left matches right
-		Print_Error_Arithmetic(expectedType, leftValue,rightValue,"=",node->lineCreated);
 
 		char* leftNode= malloc(sizeof(char)*20);
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(leftNode,"*t%d",(preLeft+1));
 
-		char* rightNode= malloc(sizeof(char)*20);
-		//Current Node is now updated with what the right branch WOULD be
-		sprintf(rightNode,"t%d",(postLeft+1));
-
-		Add_IR_Instruction(rightNode,"=", NULL,leftNode ,NULL);
 
 
-		free(temp);
+		//We can check if the Right Node is a USE here. If it is we assign to rightleft
+		if(node->u.oper.right->u.oper.left!= NULL && strcmp(node->u.oper.right->tokenName,"Use:")==0)
+		{
+			Add_IR_Instruction(node->u.oper.right->u.oper.left->tokenName,"=", NULL,leftNode ,NULL);
+			// printf("This bitch wont stfu--------------------------------\n");
+			evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+		}
+		else
+		{
+			char* rightNode= malloc(sizeof(char)*20);
+			//Current Node is now updated with what the right branch WOULD be
+			sprintf(rightNode,"t%d",(currentNode+1));	
+
+ 			evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		
+ 			Add_IR_Instruction(rightNode,"=", NULL,leftNode ,NULL);
+
+ 			free(rightNode);
+		}
 		free(leftNode);
-		free(rightNode);
+		free(temp);
+	}
+	else if(strcmp(node->tokenName,"IF:")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
+
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",currentNode+1);
+
+		char* labelIf = malloc(sizeof(char)*20);
+		sprintf(labelIf,"Label_t%d",currentNode);
+
+		//This is the Logic Check
+		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);			
+
+		//Promote Last IR to IF		
+
+		if(strcmp(leftValue,"int")!=0)
+		{
+			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
+			errorCount++;
+			return NULL;
+		}
+
+		int index=0;
+		//Check if There is ==. If yes, it'll handle our Relational Logic
+		//Check if First node encountered on Left is, Relational Operator.
+		if((strcmp(node->u.oper.left->tokenName,"==")==0) 	||
+				  (strcmp(node->u.oper.left->tokenName,"<")==0)		||
+				  (strcmp(node->u.oper.left->tokenName,"<=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,">")==0)		||	
+				  (strcmp(node->u.oper.left->tokenName,">=")==0)	||	
+				  (strcmp(node->u.oper.left->tokenName,"!=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"&&")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"||")==0)
+				  )
+		{
+			//We need to Change what we Promote on
+			index=	Promote_LastIR_IF(labelIf);
+		}
+		//We Create our own.
+		//Basically we ask if it ==1
+		else
+		{
+			//The Condition is reversed. Therefore if the expression is false
+			//we skip the If Logic instructions
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL);
+			Promote_LastIR_IF(labelIf);	
+		}
+
+		//Now we go into the If Branch clause
+		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
+		
+		//Add an Empty instruction with a label
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf);
+
+		//We now have the target Node Label...
+
+		free(labelIf);
+		free(temp);
 		return leftValue;
 	}
 	else if(strcmp(node->tokenName,"Arr[]")==0)
@@ -357,84 +429,304 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		return leftValue;
 		// //Arrays are typed the same as if they weren't arrays. The difference is the node will have a size >0
 	}
-	//Relational operators require INTS as a type
-	else if(strcmp(node->tokenName,">")==0)
+	else if(strcmp(node->tokenName,"&&")==0)
 	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+		int preLeft=currentNode;
 		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
 
-		Print_Error_Arithmetic("int", leftValue,rightValue,">",node->lineCreated);
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,"&&",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"&&", rightNode, temp,NULL);
 
 
+		free(leftNode);
+		free(rightNode);
+		//Now need to add an == Instruction
 
+		char* newNode= malloc(sizeof(char)*20);
+		sprintf(newNode,"t%d",(++currentNode));
+
+		//This will get reversed once promoted
+		Add_IR_Instruction(temp,"!=", "0", newNode,NULL);
+
+		free(newNode);
+		free(temp);
+		return leftValue;
+	}
+	else if(strcmp(node->tokenName,"||")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,"||",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"||", rightNode, temp,NULL);
+
+
+		free(leftNode);
+		free(rightNode);
+		//Now need to add an == Instruction
+
+		char* newNode= malloc(sizeof(char)*20);
+		sprintf(newNode,"t%d",(++currentNode));
+
+		//This will get reversed once promoted
+		Add_IR_Instruction(temp,"!=", "0", newNode,NULL);
+
+		free(newNode);
+		free(temp);
+		return leftValue;
+	}
+	else if(strcmp(node->tokenName,"!")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,leftValue,"!",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"!", NULL, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
 
 		return leftValue;
 	}
+	//Relational operators require INTS as a type
+	else if(strcmp(node->tokenName,">")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,">",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,">", rightNode, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
+
+		return leftValue;
+	}
+
+
+
 	else if(strcmp(node->tokenName,"<")==0)
 	{
-		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
 		Print_Error_Arithmetic("int", leftValue,rightValue,"<",node->lineCreated);
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"<", rightNode, temp,NULL);
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
 		return leftValue;
 	}
 	else if(strcmp(node->tokenName,">=")==0)
 	{
-		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
-		Print_Error_Arithmetic("int", leftValue,rightValue,">=",node->lineCreated);	
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,">=",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,">=", rightNode, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
+
 		return leftValue;
 	}
 	else if(strcmp(node->tokenName,"<=")==0)
 	{
-		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
-		Print_Error_Arithmetic("int", leftValue,rightValue,"<=",node->lineCreated);	
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,"<=",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"<=", rightNode, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
+
 		return leftValue;
 	}	
 	else if(strcmp(node->tokenName,"==")==0)
 	{
-		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
-		Print_Error_Arithmetic("int", leftValue,rightValue,"==",node->lineCreated);	
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+		int preLeft=currentNode;
+		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
+
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,"==",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"==", rightNode, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
+
 		return leftValue;
 	}
 	else if(strcmp(node->tokenName,"!=")==0)
 	{
-		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
-		Print_Error_Arithmetic("int", leftValue,rightValue,"!=",node->lineCreated);	
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
-		return leftValue;
-	}	
-	else if(strcmp(node->tokenName,"!")==0)
-	{
+		int preLeft=currentNode;
 		char* leftValue		=evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
-		//NOT does not have a secondary branch. So we can just feed the left side twice.
-		// char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		int postLeft=currentNode;
+		char* rightValue	=evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
-		Print_Error_Arithmetic("int", leftValue,leftValue,"!",node->lineCreated);	
-		//They should both be Int if no error was made. If an error was made and printed.
-		//The user should expect the compiler to produce buggy IR code.
+		//If we were not given a type, then we can at least check if left matches right
+		Print_Error_Arithmetic("int", leftValue,rightValue,"!=",node->lineCreated);
+
+		char* leftNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(leftNode,"t%d",(preLeft+1));
+
+		char* rightNode= malloc(sizeof(char)*20);
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft+1));
+
+		Add_IR_Instruction(leftNode,"!=", rightNode, temp,NULL);
+
+
+		free(temp);
+		free(leftNode);
+		free(rightNode);
+
 		return leftValue;
 	}
+
 
 
 	else if(strcmp(node->tokenName,"dot:")==0)
@@ -445,7 +737,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//For Dot things MIGHT get a bit weird.
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 		char* varName 		= node->u.oper.right->tokenName;
-
+		char * rightValue;
 		//The Right token is a dot, meaning we need to check if the left variable
 		// of the dot belongs to our struct
 		if( strcmp(varName,"dot:")==0)
@@ -458,7 +750,9 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		if(doesVar_Belongto_Struct(varName,leftValue,scope))
 		{
 			//Var is part of same Struct.
-			return evaluateExpr(node->u.oper.right,  expectedType, value,scope);
+			rightValue= evaluateExpr(node->u.oper.right,  expectedType, value,scope);
+
+
 		}
 		else
 		{
@@ -467,15 +761,13 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			errorCount++;
 			return NULL;
 		}
-
 		char* rightNode= malloc(sizeof(char)*20);
 		int postLeft=currentNode;
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft));
 
-
-
-		Add_IR_Instruction(rightNode,"dot", "4", temp,NULL);
+		Add_IR_Instruction(rightNode,"&", NULL, temp,NULL);
+		return rightValue;
 	}
 
 
@@ -497,42 +789,52 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 	else if(strcmp(node->tokenName,"Use:")==0)
 	{
 		//Go Right first to get params then go Left
-		char* rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);
+
+		//Modifying Node structure is risky at this point. But we can Kludge
+		//Use is only called on Post processes, meaning we can kind of cheat
+		currentNode--;
 		char* leftValue		= 	evaluateExpr(node->u.oper.left,  expectedType, value,scope);	
+		//We want to Return from here...AND go down.
+		//We now have X assigned, so we can use it normally. Now we need to Restore current node
+		currentNode+=2;
+
+		char* rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);	
 
 
-		//Return the Left Value, but as you can see we traverse the right side aswell so those instructions do their thing.
-		return leftValue;			
-	}
-
-	else if(strcmp(node->tokenName,"IF:")==0)
-	{
-		//This one's tough. Because If ELSE have a slight difference
-		//than a sole if.
-
-		//This is the Logic Check
-		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);			
-
-		if(strcmp(leftValue,"int")!=0)
-		{
-			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
-			errorCount++;
-			return NULL;
-		}
-
-		//Now we go into the If Branch clause
-		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
 
 		return leftValue;
+		//Return the Left Value, but as you can see we traverse the right side aswell so those instructions do their thing.
+				
 	}
+
+
+//For = While
+//Operation is Exact Same as if. The difference is the label and Jump position
 
 	else if(strcmp(node->tokenName,"while:")==0)
 	{
-		//This one's tough. Because If ELSE have a slight difference
-		//than a sole if.
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",currentNode+1);
+
+		char* labelIf = malloc(sizeof(char)*20);
+		sprintf(labelIf,"Label_t%d",currentNode);
+
+
+		//Add an Empty instruction with a label
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf);
+
+		//Now we go into the If Branch clause
+		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
+
 
 		//This is the Logic Check
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);			
+
+		//Promote Last IR to IF		
 
 		if(strcmp(leftValue,"int")!=0)
 		{
@@ -541,14 +843,45 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			return NULL;
 		}
 
-		//Now we go into the If Branch clause
-		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
+		int index=0;
+		//Check if There is ==. If yes, it'll handle our Relational Logic
+		//Check if First node encountered on Left is, Relational Operator.
+		if((strcmp(node->u.oper.left->tokenName,"==")==0) 	||
+				  (strcmp(node->u.oper.left->tokenName,"<")==0)		||
+				  (strcmp(node->u.oper.left->tokenName,"<=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,">")==0)		||	
+				  (strcmp(node->u.oper.left->tokenName,">=")==0)	||	
+				  (strcmp(node->u.oper.left->tokenName,"!=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"&&")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"||")==0)
+				  )
+		{
+			//We need to Change what we Promote on
+			index=	Promote_LastIR_IF(labelIf);
+		}
+		//We Create our own.
+		//Basically we ask if it ==1
+		else
+		{
+			//The Condition is reversed. Therefore if the expression is false
+			//we skip the If Logic instructions
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL);
+			Promote_LastIR_IF(labelIf);	
+		}
 
+
+
+		//We now have the target Node Label...
+
+		free(labelIf);
+		free(temp);
 		return leftValue;
 	}
-
+	//Here we need to Do a Seperate Type of Scan on the Left Side...this is because of the Params
 	else if(strcmp(node->tokenName,"Call:")==0)
 	{
+
+
 		//Go Right first to get params then go Left
 		//char* leftValue		= 	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
@@ -558,8 +891,38 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			errorCount++;
 			return NULL;			
 		}
+
+		//Toggle Params here
+
+		param=TRUE;
+		paramCount=0;
+		//The Parameters are in the RIGHT Branch
 		char* rightValue	=	evaluateExpr(node->u.oper.right, expectedType, value,scope);
+
+
+
+		char* params = malloc(sizeof(char)*20);
+		sprintf(params,"%d",paramCount);
+
+		//The Function were Calling is here...
+		// char* leftValue		=	evaluateExpr(node->u.oper.right, expectedType, value,scope);
+		//When call is used var 1 = Label. We know this...
+		Add_IR_Instruction(node->u.oper.left->tokenName,"call", params, NULL,NULL);
+
+		free(params);
+
+		param=FALSE;
+		paramCount=0;
  	}
+
+
+
+
+
+
+
+
+
 
 	else if(isExpression_Container(node))
 	{
@@ -581,7 +944,11 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			{
 				char* temp= malloc(sizeof(char)*20);
 				sprintf(temp,"t%d",currentNode);
-				Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+
+
+				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+				
+
 				free(temp);
 				return ("char");
 			}
@@ -590,7 +957,10 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			{
 				char* temp= malloc(sizeof(char)*20);
 				sprintf(temp,"t%d",currentNode);
-				Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+
+				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+
+
 				free(temp);
 				return ("int");
 			}
@@ -599,7 +969,10 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			{
 				char* temp= malloc(sizeof(char)*20);
 				sprintf(temp,"t%d",currentNode);
-				Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+
+				Add_IR_Instruction(node->tokenName,"=", NULL, temp,NULL);
+
+
 				free(temp);
 
 				return ("float");
@@ -624,7 +997,17 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				{	
 					char* temp= malloc(sizeof(char)*20);
 					sprintf(temp,"t%d",currentNode);
-					Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+
+					if(param==FALSE)
+						Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL);
+					else
+					{		
+						Add_IR_Instruction(node->tokenName,"param", NULL, NULL,NULL);	
+						paramCount+=1;
+						//Check the Parameters of the callee Function here.
+						//Basically just check if types match...We support parameter overwriting? cool			
+
+					}
 					free(temp);
 
 					return variableType;

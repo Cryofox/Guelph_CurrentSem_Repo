@@ -75,8 +75,7 @@ struct anotherStruct myStruct;
 int x;
 int hello;
 	/*Notice how It doesn't care whats returning in abs*/
-	hello=0;
-	hello++;
+	hello = x++;
 	return 2;
 }
 
@@ -86,6 +85,7 @@ char ArrayAccess(int fire)
 {
 	struct anotherStruct myStructArray[10];
 	int hey[10];
+	int x;
 
 	/*Struct Arrays :) */
 	myStructArray[10].varX=2;
@@ -104,6 +104,37 @@ int WhileLoop()
 		x++;
 	}
 	return 1;
+}
+
+int IfCall()
+{
+	int x;
+	int y;
+	y=0;
+	x=1;
+	if(x>1 && y==1 && x==1)
+	{
+		y=x+5;
+	}
+
+	if(!x)
+	{
+		y-6;
+	}
+	return 0;
+}
+
+int RecursiveFunction(int i)
+{
+
+	if(i<10)
+	{}
+	else
+	{
+		i++;
+		RecursiveFunction(i);
+	}
+	return i;
 }
 
 int ForLoop()
