@@ -375,6 +375,8 @@ void Add_TYPEDEF(char* typeDef,  char*type)
 	// printf("Type=%s\n",type);
 	traveller->type=strdup(type);
 	traveller->size=0;
+	traveller->memorySize=0;
+	traveller->memoryOffset=0;
 	// printf("Added TypeDef:%s %i\n",typeDef, hashValue);
 }
 
@@ -393,6 +395,8 @@ void Add_TYPEDEF_Array(char* typeDef,  char*type, int size)
 	// printf("Type=%s\n",type);
 	traveller->type=strdup(type);
 	traveller->size=size;
+	traveller->memorySize=0;
+	traveller->memoryOffset=0;
 	// printf("Added TypeDef:%s %i\n",typeDef, hashValue);
 }
 
@@ -410,6 +414,8 @@ void Add_TYPEDEF_Struct(char* typeDef,char* structLink, char* type)
 	//Setup the Variable
 	traveller->type=strdup(type);
 	traveller->size=0;
+	traveller->memorySize=0;
+	traveller->memoryOffset=0;
 	// printf("Added TypeDef:%s %i\n",typeDef, hashValue);
 }
 
@@ -522,8 +528,127 @@ char* Get_Var_AssignedType(char* variable, char* currentscope)
 
 	return NULL;
 }
+
 //Call this to get a Variable assigned Type
-char* Get_Var_MemoryOffset(char* variable, char* currentscope)
+char* Get_Var_Owner(char* variable, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->struct_Owner;
+		traveller=traveller->next;
+	}	
+	hashValue = hash("Global");
+	traveller = symbolTable[hashValue];
+	traveller=traveller->next;
+	//Check Global Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->struct_Owner;
+		traveller=traveller->next;
+	}
+
+	return NULL;
+}
+
+void Calculate_Offsets()
+{
+	//For each Table Entry
+
+	//Calculate the sum of the children (each dec = 4)
+	//store it in the parent and make sure its a multiple of 8
+	node_Scopes* scopeTraveler = scopeList;
+
+	while(scopeTraveler!=NULL)
+	{
+		//Grab Scope Index
+		int scope_Index;
+		scope_Index=hash(scopeTraveler->scope_Name);
+
+		int scopeSize=0;
+			printf("Scope==%s\n\n", symbolTable[scope_Index]->identifier);
+			//Create the Traveller	
+			entry_Node* traveller = symbolTable[scope_Index]->next;
+
+			//For each variable check it's size
+			int varSize=0;
+			while(traveller!=NULL)
+			{
+				varSize=0;
+				//Grab the variables size and the pass the scope.
+				//varSize= Get_Var_MemorySize(traveller->identifier,symbolTable[scope_Index]->identifier);
+				varSize=referenceTable[hash(traveller->type)]->memorySize;
+
+				//If the variable was already created, varSize >0, otherwise we give it a value
+				if(varSize==0)
+				{
+					if((strcmp(traveller->type,"int")!=0)  &&
+					  (strcmp(traveller->type,"char")!=0) &&
+ 					  (strcmp(traveller->type,"float")!=0)) 
+					{
+					//For Structs, check all children up to struct
+						entry_Node* struct_traveller = symbolTable[scope_Index]->next;
+						while(struct_traveller!= traveller)
+						{
+							//no need for nesting since we cant declare/create structs inside structs
+							if((strcmp(traveller->type,"struct")==0)&&
+							 (strcmp(struct_traveller->struct_Owner,traveller->identifier)==0)
+							)
+							{
+
+								int temp=0;
+								//temp= Get_Var_MemorySize(struct_traveller->identifier,symbolTable[scope_Index]->identifier);
+					
+								printf("%s --VS=%d\n",struct_traveller->identifier,temp);
+								
+								if(strcmp(struct_traveller->type,"struct")==0)
+									temp=referenceTable[hash(struct_traveller->identifier)]->memorySize;
+								else
+									temp=referenceTable[hash(struct_traveller->type)]->memorySize;
+								if(temp==0)
+									temp+=4+ struct_traveller->size*4;
+	
+								varSize+=temp;
+								
+							}
+							struct_traveller=struct_traveller->next;	
+						}
+
+					}
+					else
+					{
+						varSize=4+ traveller->size*4;
+					}
+				//This only works for basic types
+				}
+				if(strcmp(traveller->type,"struct")==0)
+				{
+					referenceTable[hash(traveller->identifier)]->memorySize=varSize;	
+					referenceTable[hash(traveller->identifier)]->memoryOffset=scopeSize+varSize;	
+				}
+
+				scopeSize+=varSize;
+				traveller->memoryOffset=scopeSize;
+				traveller->memorySize=varSize;
+				printf("%s[%s]=%d\n", traveller->identifier,traveller->type, varSize);
+
+				traveller=traveller->next;
+			}
+			symbolTable[scope_Index]->memoryOffset=scopeSize;
+
+		scopeTraveler=scopeTraveler->next;
+	}
+
+}
+//Call this to get a Variable assigned Type
+int Get_Var_MemoryOffset(char* variable, char* currentscope)
 {
 	int hashValue = hash(currentscope);
 	//Check if variable is in current scope
@@ -553,7 +678,36 @@ char* Get_Var_MemoryOffset(char* variable, char* currentscope)
 	// printf("COULDNT FIND Var=%s Scope =%s\n",variable,currentscope);
 	return -666;
 }
+int Get_Var_MemorySize(char* variable, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
 
+	traveller=traveller->next;
+	// 
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->memorySize;
+		traveller=traveller->next;
+	}	
+	hashValue = hash("Global");
+	traveller = symbolTable[hashValue];
+	traveller=traveller->next;
+	//Check Global Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->memorySize;
+		traveller=traveller->next;
+	}
+
+	//If not found
+	// printf("COULDNT FIND Var=%s Scope =%s\n",variable,currentscope);
+	return -666;
+}
 
 
 int doesVar_Belongto_Struct(char* variable, char* structType, char* currentscope)

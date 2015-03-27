@@ -502,8 +502,11 @@ int main(int argc, char* argv[])
 				//Print IR_Instructions
 				PrintIR();
 
-				CreateAssembly();
 
+				if(errorCount==0)
+					CreateAssembly();
+				else
+					printf("The file contains errors,please fix in order to continue.\n");
 				Free_IR_Instructions();
 			}
 			else

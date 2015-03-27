@@ -65,16 +65,15 @@ int arX[12];
 struct somestruct structArray[10];
 
 
-
-
-_A tempA;
 simpleArray array;
 int Fire2()
 {
 struct anotherStruct myStruct;
 int x;
+int we;
+char y;
 int hello;
-	/*Notice how It doesn't care whats returning in abs*/
+
 	hello = x++;
 	return 2;
 }

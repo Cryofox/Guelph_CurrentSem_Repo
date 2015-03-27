@@ -1,9 +1,6 @@
 [Fire2]:
 	t6 = & hello
 	t6 = *= x
-	t7 = & x
-	t11 = & x
-	t13 = & x
 	t14 = =i 1
 	t12 = t13 + t14
 	t11 = *= t12

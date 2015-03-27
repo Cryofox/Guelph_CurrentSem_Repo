@@ -169,7 +169,7 @@ void CreateAssembly()
 
 	//Lets calculate the Stack Frames...a little late, but better late then never.
 	printf("Starting the Assembly...\n");
-
+	Calculate_Offsets();
 	//Traverse IR instructions
 	ir_Node* currentNode = root_Node;
 	while(currentNode->next!=NULL)

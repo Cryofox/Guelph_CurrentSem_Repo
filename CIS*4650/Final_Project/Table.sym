@@ -38,7 +38,6 @@ somestruct	struct		None
 y		float		None
 arX		int_Ar[12]	None
 structArray	somestruct_Ar[10]	None
-tempA		int		None
 array		int_Ar[10]	None
 ================================
 
@@ -46,7 +45,8 @@ Scope:[Fire2]
 Variable	Type		StructOwner
 --------------------------------
 myStruct	anotherStruct	None
-x		int		None
+we		int		None
+y		char		None
 hello		int		None
 ================================
 

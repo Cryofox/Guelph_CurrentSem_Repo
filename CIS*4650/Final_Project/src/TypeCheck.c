@@ -120,6 +120,7 @@ void Print_Error_Arithmetic(char* expectedType, char* leftValue, char* rightValu
 //Here we recursively traverse the expression, updating the Value, and returning the Type of the evaluated token
 int param=FALSE;
 int paramCount=0;
+int accessFromStruct=0;
 char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scope)
 {
 	//Traverse all Branches
@@ -319,9 +320,8 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			char* rightNode= malloc(sizeof(char)*20);
 			//Current Node is now updated with what the right branch WOULD be
 			sprintf(rightNode,"t%d",(currentNode+1));	
-
- 			evaluateExpr(node->u.oper.right, expectedType, value,scope);
-		
+ 			
+			evaluateExpr(node->u.oper.right, expectedType, value,scope);	
  			Add_IR_Instruction(rightNode,"*=", NULL,leftNode ,NULL,scope);
 
  			free(rightNode);
@@ -738,7 +738,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//For Dot things MIGHT get a bit weird.
 
 
-
+accessFromStruct=1;
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 		char* varName 		= node->u.oper.right->tokenName;
 		char * rightValue;
@@ -759,8 +759,6 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		{
 			//Var is part of same Struct.
 			rightValue= evaluateExpr(node->u.oper.right,  expectedType, value,scope);
-
-
 		}
 		else
 		{
@@ -776,7 +774,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
 
-
+accessFromStruct=0;
 
 		free(leftNode);
 		free(rightNode);
@@ -999,6 +997,15 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				// fprintf(stderr, "Variable exists :/   [%s]\n",node->tokenName);	
 				//We have a variable, we can perform a lookup to see if the type matches.
 				char* variableType= Get_Var_AssignedType(node->tokenName,scope);
+				char* sOwner=  Get_Var_Owner(node->tokenName,scope);				
+				// printf("Var=%s SOWNER=%s\n",node->tokenName,sOwner);
+				if((strcmp(sOwner,"!")!=0) && accessFromStruct==0)
+				{
+					fprintf(stderr, "Attempting to access var outside of struct.\n",node->tokenName);	
+					errorCount++;
+					return NULL;	
+				}
+
 				// printf("VarType=%s\n",variableType);
 				if( strcmp(variableType,"None")==0)
 				{	
