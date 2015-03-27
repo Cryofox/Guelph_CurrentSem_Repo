@@ -399,6 +399,22 @@ void PrintSYM()
  		fclose(f);
  	}
 }
+void PrintIR()
+{
+ 	FILE *f = fopen("Code.inr", "w");
+
+ 	if(f==NULL)
+ 	{
+ 		printf("fopen failed, errno = n");
+ 		return;
+ 	}
+ 	else
+ 	{
+ 		Print_IR_Instructions(f);
+ 		fclose(f);
+ 	}
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -455,7 +471,7 @@ int main(int argc, char* argv[])
 				//Print AFTER our Code
 
 				//Print IR_Instructions
-				Print_IR_Instructions();
+				PrintIR();
 
 				Free_IR_Instructions();
 			}

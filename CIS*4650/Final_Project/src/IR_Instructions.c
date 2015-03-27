@@ -135,7 +135,7 @@ int Promote_LastIR_IF(char* label)
 
 
 
-void Print_IR_Instructions()
+void Print_IR_Instructions(FILE * fptr)
 {
 	ir_Node* currentNode = root_Node->next;
 
@@ -144,16 +144,16 @@ void Print_IR_Instructions()
 
 		if(currentNode->op!=NULL && strcmp(currentNode->op,"call")==0)
 		{
-			printf("\t%s %s %s\n", currentNode->op, currentNode->leftValue, currentNode->rightValue);
+			fprintf(fptr,"\t%s %s %s\n", currentNode->op, currentNode->leftValue, currentNode->rightValue);
 		}
 		else if(currentNode->op!=NULL && strcmp(currentNode->op,"param")==0)
 		{
-			printf("\t%s %s \n", currentNode->op, currentNode->leftValue);
+			fprintf(fptr,"\t%s %s \n", currentNode->op, currentNode->leftValue);
 		}		
 
 		else if(currentNode->isIF==1)
 		{
-			printf("\tif %s %s %s goto %s\n",currentNode->leftValue, currentNode->op,currentNode->rightValue, currentNode->gotoLabel );
+			fprintf(fptr,"\tif %s %s %s goto %s\n",currentNode->leftValue, currentNode->op,currentNode->rightValue, currentNode->gotoLabel );
 		}
 
 		//Pretty Print
@@ -161,13 +161,13 @@ void Print_IR_Instructions()
 		{			
 		//Here we print just Function Labels
 			if(currentNode->rightValue==NULL && currentNode->leftValue==NULL && currentNode->op==NULL && currentNode->result==NULL)
-				printf("[%s]:\n",currentNode->label);
+				fprintf(fptr,"[%s]:\n",currentNode->label);
 			else
 			{
 				if(currentNode->rightValue==NULL)
-					printf("%s %s = %s %s\n",currentNode->label,currentNode->result, currentNode->op, currentNode->leftValue);
+					fprintf(fptr,"%s %s = %s %s\n",currentNode->label,currentNode->result, currentNode->op, currentNode->leftValue);
 				else
-					printf("%s %s = %s %s %s\n",currentNode->label,currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
+					fprintf(fptr,"%s %s = %s %s %s\n",currentNode->label,currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
 			}
 		}
 		else
@@ -177,9 +177,9 @@ void Print_IR_Instructions()
 			else
 			{
 				if(currentNode->rightValue==NULL)
-					printf("\t%s = %s %s\n",currentNode->result, currentNode->op, currentNode->leftValue);
+					fprintf(fptr,"\t%s = %s %s\n",currentNode->result, currentNode->op, currentNode->leftValue);
 				else
-					printf("\t%s = %s %s %s\n",currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
+					fprintf(fptr,"\t%s = %s %s %s\n",currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
 			}
 		}
 		currentNode=currentNode->next;

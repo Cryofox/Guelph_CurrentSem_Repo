@@ -9,17 +9,26 @@ namespace Myo
 		public static void Main (string[] args)
 		{
 			Application.Init();
-			new Paint();
+			//Create the Gui which handles all drawing
+			Paint theGui = new Paint();
 
+			//Create the Polling Thread for Calling Draw Events outside the program.
+			Temp_Tester t_Tester = new Temp_Tester (theGui);
+
+			//Setup the Second Thread by assigning the Target to Enter on.
+			Thread secondaryThread = new Thread(t_Tester.Thread_Start);
+			//Run the Thread by using the predefined Start() function.
+			secondaryThread.Start ();
+
+			//Run the Gui Application
 			Application.Run();
-
 		}
 
 
 
 	}
 
-
+/*
 	public class GUI_Window: Window
 	{
 
@@ -113,4 +122,5 @@ namespace Myo
 
 
 	}
+*/
 }

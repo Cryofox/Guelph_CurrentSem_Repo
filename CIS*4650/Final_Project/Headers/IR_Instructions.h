@@ -23,7 +23,7 @@ void InitializeIR_Node();
 //Add a new instruction to our current list of instructions
 int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,char* label);
 int Promote_LastIR_IF(char* label);
-void Print_IR_Instructions();
+void Print_IR_Instructions(FILE * fptr);
 void Add_GoToLabel(int index, char* gotoLabel);
 void Add_Last_Label(char* Label);
 

@@ -1,9 +1,16 @@
 ﻿<Properties StartupItem="Myo\Myo.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Myo\Paint.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Myo\Myo_Wrapper.cs">
     <Files>
       <File FileName="Myo\Program.cs" Line="1" Column="1" />
-      <File FileName="Myo\Paint.cs" Line="3" Column="3" />
+      <File FileName="Myo\Paint.cs" Line="2" Column="2" />
+      <File FileName="Myo\MathFunction.cs" Line="1" Column="1" />
+      <File FileName="Myo\Cosine_Function.cs" Line="6" Column="6" />
+      <File FileName="Myo\Temp_Tester.cs" Line="12" Column="12" />
+      <File FileName="Myo\Myo_Wrapper.cs" Line="20" Column="20" />
+      <File FileName="Repo_Myo#\MyoSharp.ConsoleSample\BasicSetupExample.cs" Line="30" Column="30" />
+      <File FileName="Repo_Myo#\MyoSharp.ConsoleSample\Internal\ConsoleHelper.cs" Line="40" Column="40" />
+      <File FileName="Myo\Internal\ConsoleHelper.cs" Line="9" Column="9" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

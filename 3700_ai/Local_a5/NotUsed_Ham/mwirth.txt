@@ -1,0 +1,19 @@
+Hi everyone,
+
+I have updated the section under Pracniques/Lab2 to included the final Python file for the lab. Next weeks labs will be on processing colour images, and the following week processing chocolate-chip cookies using segmentation.
+
+I have uploaded 3 new Python files:
+
+blurMetric.py -  which includes three blur/sharpness metrics
+
+IPmetrics.py - the SSIM, structured similarity metric
+
+newALGS.py - two new algorithms: Laplacian of Gaussian unsharp masking, and Nagao-Matsuyama edge-preserving smoothing (for noise suppression).
+
+Attached is a list of the functions I have coded and how they fit into each category.
+
+Please check the pracnique on "image acuity" for seeing how to layout and test your algorithms.
+
+Hope this all helps. The A3 projects will be up by the end of the weekend... time then to look at it and decide whether to do it individually or as a group.
+
+cheers!
