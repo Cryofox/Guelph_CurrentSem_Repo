@@ -28,6 +28,8 @@ test		int		None
 Scope:[func]
 Variable	Type		StructOwner
 --------------------------------
+t6		int		None
+t5		int		None
 ================================
 
 Scope:[main]
@@ -36,4 +38,18 @@ Variable	Type		StructOwner
 x		int		None
 y		int		None
 z		int		None
+t11		int		None
+t12		int		None
+t15		int		None
+t16		int		None
+t19		int		None
+t22		int		None
+t23		int		None
+t21		int		None
+t24		int		None
+t20		int		None
+t27		int		None
+t26		int		None
+t30		int		None
+t29		int		None
 ================================

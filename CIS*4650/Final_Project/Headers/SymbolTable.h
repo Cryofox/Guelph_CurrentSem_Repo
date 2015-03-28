@@ -27,6 +27,9 @@ typedef struct n
 	int memorySize;
 	//Only Used if First Node
 	int scopeDefined;
+
+	//This only used by temps during Instructions so we can re-assign values where they belong
+	char* referencedValue;
 }entry_Node;
 
 //Struct used for TypeDef Linking
@@ -71,4 +74,8 @@ int doesVar_Belongto_Struct(char* variable, char* structType, char* currentscope
 char* getScopeType(char* scope);
 int isInScope(char* variable, char* currentscope);
 void CalculateOffsets();
+int Get_Scope_Offset(char* scope);
+int Get_Scope_Size(char* scope);
+void Add_TempSym(char * tag, char*scope);
+
 #endif

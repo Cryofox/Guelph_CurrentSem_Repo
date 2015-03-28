@@ -787,6 +787,12 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 	else if(strcmp(node->tokenName,"Return:")==0)
 	{
+		printf("RETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
+				char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",(currentNode));
+
+				char* temp2= malloc(sizeof(char)*20);
+		sprintf(temp2,"t%d",(currentNode+1));
 		//Returning from Function, need to typecheck scope with return argument
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
@@ -798,6 +804,12 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			errorCount++;
 			return NULL;
 		}
+
+
+		Add_IR_Instruction(temp2,"return",NULL, temp,NULL,scope);
+
+		free(temp);
+		free(temp2);
 	}
 
 	else if(strcmp(node->tokenName,"Use:")==0)

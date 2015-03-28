@@ -18,6 +18,7 @@ typedef struct irn
 	char* scope;
 
 	struct irn* next;
+	struct irn* prev;
 }ir_Node;
 
 void InitializeIR_Node();

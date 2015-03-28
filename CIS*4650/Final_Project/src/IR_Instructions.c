@@ -37,6 +37,7 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 	ir_Node* currentNode = root_Node;
 	while(currentNode->next!=NULL)
 	{
+		currentNode->next->prev= currentNode;
 		currentNode= currentNode->next;
 		index++;
 	}
@@ -70,6 +71,9 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 
 	currentNode->isIF=0;
 
+	//If Scope is not null, add this "result" to symbole table at scope
+
+	Add_TempSym(currentNode->result, currentNode->scope);
 	return index;
 }
 

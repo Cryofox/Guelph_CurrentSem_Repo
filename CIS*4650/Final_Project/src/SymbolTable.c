@@ -193,6 +193,7 @@ void Add_Array(char* token_Name, char* type, int size)
 		// printf("NT=%s\n",nt);
 		traveller->type=nt;
 		traveller->next=NULL;
+		traveller->referencedValue=NULL;
 		if(nt== nt_NONE)
 		{
 			fprintf(stderr, "\nError: Unknown Variable:%s\n", token_Name);			
@@ -240,7 +241,7 @@ void Add_Variable(char* token_Name, char* type)
 
 		traveller->type=nt;
 		traveller->next=NULL;
-
+		traveller->referencedValue=NULL;
 
 		if(nt== nt_NONE)
 		{
@@ -359,6 +360,10 @@ void Add_Scope(char* newScope,char* type)
 	}
 }
 
+
+
+
+
 //Since all TypeDefs are Global, we can reference these from anywhere.
 void Add_TYPEDEF(char* typeDef,  char*type)
 {
@@ -455,6 +460,33 @@ unsigned int hash(char* string)
 	free(word);
 	// printf("HA=%d\n", h);
 	return(h); 
+}
+void Add_TempSym(char * tag, char*scope)
+{
+	if(scope==NULL || tag==NULL)
+		return;
+	printf("Tag=%sScope=%s\n",tag,scope);
+	int hashValue = hash(scope);
+	//Check if variable is in current scope
+
+	entry_Node* traveller = symbolTable[hashValue];
+	while(traveller->next!=NULL)
+	{
+		if(strcmp(traveller->identifier,tag)==0)
+			return;
+		traveller=traveller->next;
+	}		
+	traveller->next=malloc(sizeof(entry_Node));
+	traveller=traveller->next;
+
+	traveller->identifier=strdup(tag);
+	traveller->type=strdup("int"); //just a byte of data in size
+	traveller->struct_Owner=strdup("!"); //just a byte of data in size
+	traveller->arrayType=NULL;
+	traveller->size=0;
+	traveller->next=NULL;
+	traveller->referencedValue=NULL;
+	traveller->memorySize=4;
 }
 
 int isInScope(char* variable, char* currentscope)
@@ -641,11 +673,66 @@ void Calculate_Offsets()
 
 				traveller=traveller->next;
 			}
+			symbolTable[scope_Index]->memorySize=scopeSize;
+
+			//Must be multiple of 8
+			if(scopeSize<24)
+				scopeSize=24;
+			else
+			{
+				int rem = scopeSize % 8;
+				if(rem!=0)
+					scopeSize+= 8-rem;
+			}
+			//Offset is 24 and 8 aligned.
 			symbolTable[scope_Index]->memoryOffset=scopeSize;
 
 		scopeTraveler=scopeTraveler->next;
 	}
 
+}
+int Get_Scope_Offset(char* scope)
+{
+	int hashValue = hash(scope);
+	return symbolTable[hashValue]->memoryOffset;	
+}
+int Get_Scope_Size(char* scope)
+{
+	int hashValue = hash(scope);
+	return symbolTable[hashValue]->memorySize;
+}
+
+//Call this to get a Variable assigned Type
+void Create_ReferenceLink(char* temp, char* addressed, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,temp)==0)
+		{
+			traveller->referencedValue=strdup(addressed);
+			return;
+		}
+		traveller=traveller->next;
+	}	
+}
+
+char* Get_ReferencedValue(char* temp,char* currentscope )
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,temp)==0)
+		{
+			return traveller->referencedValue;
+		}
+		traveller=traveller->next;
+	}	
+	return NULL;
 }
 //Call this to get a Variable assigned Type
 int Get_Var_MemoryOffset(char* variable, char* currentscope)
@@ -678,6 +765,10 @@ int Get_Var_MemoryOffset(char* variable, char* currentscope)
 	// printf("COULDNT FIND Var=%s Scope =%s\n",variable,currentscope);
 	return -666;
 }
+
+
+
+
 int Get_Var_MemorySize(char* variable, char* currentscope)
 {
 	int hashValue = hash(currentscope);

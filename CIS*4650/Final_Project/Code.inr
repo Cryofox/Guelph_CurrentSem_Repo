@@ -1,5 +1,6 @@
 [func]:
 	t6 = =i 1
+	t5 = return t6
 [main]:
 	t11 = & x
 	t12 = =i 2
@@ -14,4 +15,7 @@
 	t24 = =i 2
 	t20 = t21 + t24
 	t19 = *= t20
-	t27 = =i 1
+	param z 
+	[t26]call puti 1
+	t30 = =i 1
+	t29 = return t30

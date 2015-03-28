@@ -2580,8 +2580,6 @@ int main(int argc, char* argv[])
 			if(errorCount==0)
 			{	
 
-
-				
 				//Initialize our IR_Node
 				InitializeIR_Node();
 				//Perform TypeChecking on Tree
