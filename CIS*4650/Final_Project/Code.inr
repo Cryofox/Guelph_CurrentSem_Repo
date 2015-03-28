@@ -8,7 +8,8 @@
 	t13 = =f 4.50000
 	t12 = *= t13
 	t16 = & v
-	t17 = =c 'c'
+	t17 = =c '
+'
 	t16 = *= t17
 	param v 
 	[t19]call putc 1

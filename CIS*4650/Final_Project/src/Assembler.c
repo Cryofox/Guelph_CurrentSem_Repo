@@ -243,7 +243,7 @@ void CreateAssembly()
 						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
 						fprintf(f,"#=====//\n");						
 					}
-					if(memLeft==LITERAL_USED+1)
+					else if(memLeft==LITERAL_USED+1)
 					{
 						temp_Val* tmp=GetNode(currentNode->leftValue);
 
@@ -253,7 +253,7 @@ void CreateAssembly()
 						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
 						fprintf(f,"#=====//\n");						
 					}
-					if(memLeft==LITERAL_USED+2)
+					else if(memLeft==LITERAL_USED+2)
 					{
 						temp_Val* tmp=GetNode(currentNode->leftValue);
 
@@ -262,8 +262,15 @@ void CreateAssembly()
 						fprintf(f,"\ts.s $f0,%d($sp) #%s\n",memResult,currentNode->result);				
 						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
 						fprintf(f,"#=====//\n");						
-					}					
+					}	
+					//Otherwise we just pretend T0 is rigged with what we want.
+					else
+					{					
 
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);					
+						fprintf(f,"#=====//\n");
+					}	
+												
 				}
 
 				//}
@@ -279,10 +286,49 @@ void CreateAssembly()
 					memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
 
 				fprintf(f,"#  &  //\n");
-				fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+				//These can for the most part be ignored. This instruction would just overwrite the value
+				//inside a var with its own address...completely pointless
+				// fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+				// fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 				fprintf(f,"#=====//\n");
 			}
+
+			//Arithmetics
+			if(strcmp(currentNode->op,"+")==0)
+			{
+				//This is the memory location of this value
+				int memLeft   = LookupMemory(currentNode->leftValue);
+				int memRight   = LookupMemory(currentNode->rightValue);				
+				int memResult = LookupMemory(currentNode->result);
+
+				if(memLeft==-999)
+					memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
+				if(memRight==-999)
+					memRight= Get_Var_MemoryOffset(currentNode->rightValue, currentNode->scope); 
+
+				fprintf(f,"#  +  //\n");
+				//Possible its an int
+				if(memLeft==LITERAL_USED+1)
+				{
+					temp_Val* tmp=GetNode(currentNode->leftValue);
+					memLeft= tmp->literal_i;
+					fprintf(f,"\tli $t0,%d #%s\n",memLeft ,currentNode->leftValue);
+				}
+				else
+					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
+				if(memRight==LITERAL_USED+1)
+				{
+					temp_Val* tmp=GetNode(currentNode->rightValue);
+					memRight= tmp->literal_i;
+					fprintf(f,"\tli $t1,%d #%s\n",memRight,currentNode->rightValue);
+				}
+				else
+					fprintf(f,"\tlw $t1,%d($sp) #%s\n",memRight,currentNode->rightValue);
+
+				fprintf(f,"\tadd $t0,$t0,$t1 #");
+				fprintf(f,"#=====//\n");
+			}
+
 
 
 			if(strcmp(currentNode->op,"call")==0)
@@ -322,7 +368,10 @@ void CreateAssembly()
 					fprintf(f,"\tla $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
-				}								
+				}
+				//Otherwise it's a real function call...golly	
+
+
 			}		
 
 
