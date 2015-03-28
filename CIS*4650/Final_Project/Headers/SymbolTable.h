@@ -12,7 +12,6 @@ typedef struct n
 	//Only Used for Arrays
 	char* arrayType;
 
-
 	//Used for Structs
 	//Variables can be called if they belong to the struct.
 	char* struct_Owner;
@@ -76,6 +75,6 @@ int isInScope(char* variable, char* currentscope);
 void CalculateOffsets();
 int Get_Scope_Offset(char* scope);
 int Get_Scope_Size(char* scope);
-void Add_TempSym(char * tag, char*scope);
-
+void Add_TempSym(char * tag,char* type, char*scope);
+char* Get_ReferencedValue(char* temp,char* currentscope );
 #endif

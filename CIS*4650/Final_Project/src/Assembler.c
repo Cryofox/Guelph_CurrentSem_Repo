@@ -167,43 +167,105 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	int memResult 	= Get_Var_MemoryOffset(currentNode->result, currentNode->scope); 
 
 	fprintf(f,"#  Arithmet / Relation  //\n");
-	if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
-		fprintf(f,"\tli $t0,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
-	else
-		fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
 
-	if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
-		fprintf(f,"\tli $t1,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
-	else
-		fprintf(f,"\tlw $t1,%d($sp) #%s\n",memRight ,currentNode->leftValue);
 
-	//Possible its an int
+	//Need to check if we're operating on Float or Int Registers
+	//Since Temp values are given int just for spacing issues, we only need to
+	//check if 1 of the 2 vars are Floats, if so we op on float registers.
+	//This is due to us assuming typechecking would have caught float on non float operations
+	int isFloat=0;
+	char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
 
-		
+	if(type!=NULL)
+		if(strcmp(type,"float")==0)
+			isFloat=1;
+
+	type= Get_Var_AssignedType(currentNode->rightValue,currentNode->scope);
 	
-	//Use the following commands for 
-
-	if(strcmp(currentNode->op,"+")==0)
-		fprintf(f,"\tadd $t0,$t0,$t1 #\n");
-
-	else if(strcmp(currentNode->op,"-")==0)
-		fprintf(f,"\tsub $t0,$t0,$t1 #\n");
-
-	else if(strcmp(currentNode->op,"*")==0)
-		fprintf(f,"\tmul $t0,$t0,$t1 #\n");
-
-	else if(strcmp(currentNode->op,"/")==0)
-		fprintf(f,"\tdiv $t0,$t0,$t1 #\n");
-
-	else if(strcmp(currentNode->op,"&&")==0)
-		fprintf(f,"\tand $t0,$t0,$t1 #\n");
-
-	else if(strcmp(currentNode->op,"||")==0)
-		fprintf(f,"\tor $t0,$t0,$t1 #\n");
+	if(type!=NULL)
+		if(strcmp(type,"float")==0)
+			isFloat=1;
 
 
-	fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-	fprintf(f,"#=====//\n");	
+	if(isFloat==1)
+	{
+		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
+		else
+			fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
+
+		if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tl.s $f2,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
+		else
+			fprintf(f,"\tl.s $f2,%d($sp) #%s\n",memRight ,currentNode->leftValue);
+
+		//Possible its an int
+
+		//Use the following commands for 
+		if(strcmp(currentNode->op,"+")==0)
+			fprintf(f,"\tadd.s $f1,$f1,$f2 #\n");
+
+		else if(strcmp(currentNode->op,"-")==0)
+			fprintf(f,"\tsub.s $f1,$f1,$f2 #\n");
+
+		else if(strcmp(currentNode->op,"*")==0)
+			fprintf(f,"\tmul.s $f1,$f1,$f2 #\n");
+
+		else if(strcmp(currentNode->op,"/")==0)
+			fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
+
+		else if(strcmp(currentNode->op,"&&")==0)
+			fprintf(f,"\tand.s $f1,$f1,$f2 #\n");
+
+		else if(strcmp(currentNode->op,"||")==0)
+			fprintf(f,"\tor.s $f1,$f1,$f2 #\n");
+
+		fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
+		fprintf(f,"#=====//\n");	
+	}
+	//Int maths
+	else
+	{
+		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tli $t0,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
+		else
+			fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
+
+		if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tli $t1,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
+		else
+			fprintf(f,"\tlw $t1,%d($sp) #%s\n",memRight ,currentNode->leftValue);
+
+		//Possible its an int
+
+			
+		
+		//Use the following commands for 
+
+		if(strcmp(currentNode->op,"+")==0)
+			fprintf(f,"\tadd $t0,$t0,$t1 #\n");
+
+		else if(strcmp(currentNode->op,"-")==0)
+			fprintf(f,"\tsub $t0,$t0,$t1 #\n");
+
+		else if(strcmp(currentNode->op,"*")==0)
+			fprintf(f,"\tmul $t0,$t0,$t1 #\n");
+
+		else if(strcmp(currentNode->op,"/")==0)
+			fprintf(f,"\tdiv $t0,$t0,$t1 #\n");
+
+		else if(strcmp(currentNode->op,"&&")==0)
+			fprintf(f,"\tand $t0,$t0,$t1 #\n");
+
+		else if(strcmp(currentNode->op,"||")==0)
+			fprintf(f,"\tor $t0,$t0,$t1 #\n");
+
+
+		fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+		fprintf(f,"#=====//\n");	
+	}
+
+
 }
 
 
@@ -255,13 +317,34 @@ void CreateAssembly()
 				// if(memLeft==-999)
 				// 	memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
 
-				fprintf(f,"#  &  //\n");
-				//These can for the most part be ignored. This instruction would just overwrite the value
-				//inside a var with its own address...completely pointless
-				fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-				fprintf(f,"#=====//\n");
-				//We load the value the address holds but WE make note of what variable that was
+				//Use Left value because result could be Temp which we arbitrarily named an int
+				int isFloat=0;
+				char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
+
+				if(type!=NULL)
+					if(strcmp(type,"float")==0)
+						isFloat=1;
+
+				if(isFloat==1)
+				{
+					fprintf(f,"#  &  //\n");
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
+					fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
+					fprintf(f,"#=====//\n");
+					//We load the value the address holds but WE make note of what variable that was
+				}
+				else
+				{				
+					fprintf(f,"#  &  //\n");
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
+					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+					fprintf(f,"#=====//\n");
+					//We load the value the address holds but WE make note of what variable that was
+				}
 
 			}
 			//Chars and Ints use Same register
@@ -277,19 +360,47 @@ void CreateAssembly()
 				//First push the Address we are holding to t0
 				char* referenceVar =Get_ReferencedValue(currentNode->result,currentNode->scope);
 
+				int isFloat=0;
+				char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
+
+				if(type!=NULL)
+					if(strcmp(type,"float")==0)
+						isFloat=1;
+
 				int memRef= Get_Var_MemoryOffset(referenceVar, currentNode->scope);
-				//These can for the most part be ignored. This instruction would just overwrite the value
-				//inside a var with its own address...completely pointless
+								if(type!=NULL)
+					if(strcmp(type,"float")==0)
+						isFloat=1;
 
-				//Now we store to both the Temp on the left, AND the reference link
+				if(isFloat==1)
+				{
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
 
-				fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-				if(referenceVar!=NULL)
-					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memRef,referenceVar);					
+					//Now we store to both the Temp on the left, AND the reference link
+					fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
+					if(referenceVar!=NULL)
+						fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memRef,referenceVar);					
 
 
-				fprintf(f,"#=====//\n");
+					fprintf(f,"#=====//\n");	
+				}
+				else
+				{
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
+
+					//Now we store to both the Temp on the left, AND the reference link
+					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+					if(referenceVar!=NULL)
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memRef,referenceVar);					
+
+
+					fprintf(f,"#=====//\n");	
+				}
+
 			}	
 
 			//Chars and Ints use Same register
@@ -315,8 +426,8 @@ void CreateAssembly()
 				fprintf(f,"#  Literal Float  //\n");
 				//These can for the most part be ignored. This instruction would just overwrite the value
 				//inside a var with its own address...completely pointless
-				fprintf(f,"\tli.s $f0,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
-				fprintf(f,"\ts.s $t0,%d($sp) #%s\n",memResult,currentNode->result);
+				fprintf(f,"\tli.s $f1,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+				fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 				fprintf(f,"#=====//\n");
 			}
 			if(strcmp(currentNode->op,"call")==0)
@@ -334,6 +445,31 @@ void CreateAssembly()
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}
+				//Special Case Put_i
+				if(strcmp(currentNode->leftValue,"putc")==0)
+				{
+					ir_Node* tmp =currentNode;
+					tmp= tmp->prev;
+					// printf("%s %s %s \n", tmp->leftValue, tmp->rightValue, tmp->op);
+					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
+					fprintf(f,"#  SysCall Put_I //\n");
+					fprintf(f,"\tli $v0,4 #\n");
+					fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+					fprintf(f,"\tsyscall\n");
+					fprintf(f,"#=====//\n");
+				}				
+				if(strcmp(currentNode->leftValue,"putf")==0)
+				{
+					ir_Node* tmp =currentNode;
+					tmp= tmp->prev;
+					// printf("%s %s %s \n", tmp->leftValue, tmp->rightValue, tmp->op);
+					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
+					fprintf(f,"#  SysCall Put_I //\n");
+					fprintf(f,"\tli $v0,2 #\n");
+					fprintf(f,"\tl.s $f12,%d($sp) #%s\n",memparam,tmp->leftValue);
+					fprintf(f,"\tsyscall\n");
+					fprintf(f,"#=====//\n");
+				}			
 			}
 			//Arithmetics
 			if((strcmp(currentNode->op,"+")==0) ||

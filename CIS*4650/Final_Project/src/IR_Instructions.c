@@ -73,7 +73,31 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 
 	//If Scope is not null, add this "result" to symbole table at scope
 
-	Add_TempSym(currentNode->result, currentNode->scope);
+	//Check for giveaways
+	if(currentNode->op!=NULL)
+	{
+		if(strcmp(currentNode->op,"=f")==0)
+			Add_TempSym(currentNode->result,"float",currentNode->scope);
+		else if(strcmp(currentNode->op,"=c")==0)
+			Add_TempSym(currentNode->result,"char",currentNode->scope);
+		else if(strcmp(currentNode->op,"=i")==0)
+			Add_TempSym(currentNode->result,"int",currentNode->scope);
+		else
+		{
+			char * type = Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
+			Add_TempSym(currentNode->result,type,currentNode->scope);
+		}
+	}
+
+	// if(type!=NULL)
+	// {
+		// 
+		
+	// }
+	// else
+	// {
+	// 	Add_TempSym(currentNode->result,currentNode->scope);
+	// }
 	return index;
 }
 

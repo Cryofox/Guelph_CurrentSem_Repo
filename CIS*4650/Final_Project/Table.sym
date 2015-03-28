@@ -35,21 +35,37 @@ t5		int		None
 Scope:[main]
 Variable	Type		StructOwner
 --------------------------------
+f		float		None
+t12		float		None
+t13		float		None
+t16		float		None
+t18		float		None
+t19		float		None
+t17		float		None
+t22		float		None
+t21		int		None
+t25		int		None
+t24		int		None
+================================
+
+Scope:[arithmetic_Int]
+Variable	Type		StructOwner
+--------------------------------
 x		int		None
 y		int		None
 z		int		None
-t11		int		None
-t12		int		None
-t15		int		None
-t16		int		None
-t19		int		None
-t22		int		None
-t23		int		None
-t21		int		None
-t24		int		None
-t20		int		None
-t27		int		None
-t26		int		None
 t30		int		None
-t29		int		None
+t31		int		None
+t34		int		None
+t35		int		None
+t38		int		None
+t41		int		None
+t42		int		None
+t40		int		None
+t43		int		None
+t39		int		None
+t46		int		None
+t45		int		None
+t49		int		None
+t48		int		None
 ================================

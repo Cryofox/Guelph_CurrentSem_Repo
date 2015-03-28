@@ -5,7 +5,18 @@ int func()
 
 return 1;
 }
+
 int main()
+{
+	float f;
+	f=4.5;
+
+	f= 4.5 +1.0;
+	putf(f);
+	return 0;
+}
+
+int arithmetic_Int()
 {
 	int x;
 	int y;

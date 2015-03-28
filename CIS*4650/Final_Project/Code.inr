@@ -2,20 +2,33 @@
 	t6 = =i 1
 	t5 = return t6
 [main]:
-	t11 = & x
-	t12 = =i 2
-	t11 = *= t12
-	t15 = & y
-	t16 = =i 4
-	t15 = *= t16
-	t19 = & z
-	t22 = & y
-	t23 = & x
-	t21 = t22 * t23
-	t24 = =i 2
-	t20 = t21 + t24
-	t19 = *= t20
+	t12 = & f
+	t13 = =f 4.50000
+	t12 = *= t13
+	t16 = & f
+	t18 = =f 4.50000
+	t19 = =f 1.00000
+	t17 = t18 + t19
+	t16 = *= t17
+	param f 
+	[t21]call putf 1
+	t25 = =i 0
+	t24 = return t25
+[arithmetic_Int]:
+	t30 = & x
+	t31 = =i 2
+	t30 = *= t31
+	t34 = & y
+	t35 = =i 4
+	t34 = *= t35
+	t38 = & z
+	t41 = & y
+	t42 = & x
+	t40 = t41 * t42
+	t43 = =i 2
+	t39 = t40 + t43
+	t38 = *= t39
 	param z 
-	[t26]call puti 1
-	t30 = =i 1
-	t29 = return t30
+	[t45]call puti 1
+	t49 = =i 1
+	t48 = return t49

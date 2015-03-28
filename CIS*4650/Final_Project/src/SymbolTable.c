@@ -461,11 +461,12 @@ unsigned int hash(char* string)
 	// printf("HA=%d\n", h);
 	return(h); 
 }
-void Add_TempSym(char * tag, char*scope)
+void Add_TempSym(char * tag,char* type, char*scope)
 {
 	if(scope==NULL || tag==NULL)
 		return;
 	printf("Tag=%sScope=%s\n",tag,scope);
+	printf("Type=%s\n",type);
 	int hashValue = hash(scope);
 	//Check if variable is in current scope
 
@@ -480,7 +481,11 @@ void Add_TempSym(char * tag, char*scope)
 	traveller=traveller->next;
 
 	traveller->identifier=strdup(tag);
-	traveller->type=strdup("int"); //just a byte of data in size
+	if(type!=NULL)
+		traveller->type=strdup(type); //just a byte of data in size
+	else
+		traveller->type=strdup("int"); //just a byte of data in size
+
 	traveller->struct_Owner=strdup("!"); //just a byte of data in size
 	traveller->arrayType=NULL;
 	traveller->size=0;
@@ -536,6 +541,7 @@ char* Get_VarType(char* tokenType)
 char* Get_Var_AssignedType(char* variable, char* currentscope)
 {
 	int hashValue = hash(currentscope);
+
 	//Check if variable is in current scope
 	entry_Node* traveller = symbolTable[hashValue];
 
