@@ -430,6 +430,58 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		return leftValue;
 		// //Arrays are typed the same as if they weren't arrays. The difference is the node will have a size >0
 	}
+	else if(strcmp(node->tokenName,"dot:")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+		//For Dot things MIGHT get a bit weird.
+
+		//Since structs are typed to "themselves", all that is needed is to check if the variable on the Right
+		//belongs to the struct
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",(currentNode+1));
+
+		accessFromStruct=1;
+		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		char* varName 		= node->u.oper.right->tokenName;
+		char * rightValue;
+
+
+		//The Right token is a dot, meaning we need to check if the left variable
+		// of the dot belongs to our struct
+		if( strcmp(varName,"dot:")==0)
+		{
+			varName = node->u.oper.right->u.oper.left->tokenName;
+		}
+
+
+		if(doesVar_Belongto_Struct(varName,leftValue,scope))
+		{
+			//Var is part of same Struct.
+			rightValue= evaluateExpr(node->u.oper.right,  expectedType, value,scope);
+		}
+		else
+		{
+			//This var is not inside the struct
+			fprintf(stderr,"Type Error: Line[%d] Could not find [%s] inside struct:%s\n",node->lineCreated,varName, leftValue);
+			errorCount++;
+			return NULL;
+		}
+		char* rightNode= malloc(sizeof(char)*20);
+		int postLeft=currentNode;
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft));
+
+		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
+
+		accessFromStruct=0;
+
+		free(leftNode);
+		free(rightNode);
+		return rightValue;
+	}
+
 	else if(strcmp(node->tokenName,"&&")==0)
 	{
 		char* temp= malloc(sizeof(char)*20);
@@ -730,56 +782,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 
 
-	else if(strcmp(node->tokenName,"dot:")==0)
-	{
-		char* temp= malloc(sizeof(char)*20);
-		sprintf(temp,"t%d",currentNode);
 
-		//For Dot things MIGHT get a bit weird.
-
-
-accessFromStruct=1;
-		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
-		char* varName 		= node->u.oper.right->tokenName;
-		char * rightValue;
-
-
-		//The Right token is a dot, meaning we need to check if the left variable
-		// of the dot belongs to our struct
-		if( strcmp(varName,"dot:")==0)
-		{
-			varName = node->u.oper.right->u.oper.left->tokenName;
-		}
-		//Since structs are typed to "themselves", all that is needed is to check if the variable on the Right
-		//belongs to the struct
-		char* leftNode= malloc(sizeof(char)*20);
-		sprintf(leftNode,"t%d",(currentNode));
-
-		if(doesVar_Belongto_Struct(varName,leftValue,scope))
-		{
-			//Var is part of same Struct.
-			rightValue= evaluateExpr(node->u.oper.right,  expectedType, value,scope);
-		}
-		else
-		{
-			//This var is not inside the struct
-			fprintf(stderr,"Type Error: Line[%d] Could not find [%s] inside struct:%s\n",node->lineCreated,varName, leftValue);
-			errorCount++;
-			return NULL;
-		}
-		char* rightNode= malloc(sizeof(char)*20);
-		int postLeft=currentNode;
-		//Current Node is now updated with what the right branch WOULD be
-		sprintf(rightNode,"t%d",(postLeft));
-
-		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
-
-accessFromStruct=0;
-
-		free(leftNode);
-		free(rightNode);
-		return rightValue;
-	}
 
 
 	else if(strcmp(node->tokenName,"Return:")==0)
@@ -904,6 +907,8 @@ accessFromStruct=0;
 		}
 
 		//Toggle Params here
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
 
 		param=TRUE;
 		paramCount=0;
@@ -918,10 +923,10 @@ accessFromStruct=0;
 		//The Function were Calling is here...
 		// char* leftValue		=	evaluateExpr(node->u.oper.right, expectedType, value,scope);
 		//When call is used var 1 = Label. We know this...
-		Add_IR_Instruction(node->u.oper.left->tokenName,"call", params, NULL,NULL,scope);
+		Add_IR_Instruction(node->u.oper.left->tokenName,"call", params, temp,NULL,scope);
 
 		free(params);
-
+		free(temp);
 		param=FALSE;
 		paramCount=0;
  	}
@@ -1022,7 +1027,7 @@ accessFromStruct=0;
 						Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL,scope);
 					else
 					{		
-						Add_IR_Instruction(node->tokenName,"param", NULL, NULL,NULL,scope);	
+						Add_IR_Instruction(node->tokenName,"param", NULL, temp,NULL,scope);	
 						paramCount+=1;
 						//Check the Parameters of the callee Function here.
 						//Basically just check if types match...We support parameter overwriting? cool			

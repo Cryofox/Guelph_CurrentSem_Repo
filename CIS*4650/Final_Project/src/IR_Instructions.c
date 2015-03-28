@@ -165,7 +165,7 @@ void Print_IR_Instructions(FILE * fptr)
 
 		if(currentNode->op!=NULL && strcmp(currentNode->op,"call")==0)
 		{
-			fprintf(fptr,"\t%s %s %s\n", currentNode->op, currentNode->leftValue, currentNode->rightValue);
+			fprintf(fptr,"\t[%s]%s %s %s\n",currentNode->result, currentNode->op, currentNode->leftValue, currentNode->rightValue);
 		}
 		else if(currentNode->op!=NULL && strcmp(currentNode->op,"param")==0)
 		{

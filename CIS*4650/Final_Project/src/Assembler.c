@@ -10,6 +10,7 @@ typedef struct temp
 	float 	literal_f;
 	char 	literal_c;
 	struct temp* next;
+	struct temp* prev;
 }temp_Val;
 
 temp_Val* root_Temp;
@@ -48,7 +49,7 @@ int LookupMemory(char* var)
 		//printf("Checking [%s] with [%s]\n", currentNode->tag, var);
 		currentNode= currentNode->next;
 	}
-	printf("Could not Find:%s  Value=%d\n", var);
+	// printf("Could not Find:%s  Value=%d\n", var);
 	return -999;
 }
 
@@ -71,14 +72,19 @@ void Add_Temp(ir_Node* curNode)
 		if(currentNode->next==NULL)
 			break;
 
+
 		currentNode= currentNode->next;
 	}
 	//We are now at the index of target node.
 	//What sucks? Well, we have to basically do the operation here...AND in spim =_=;...
 	int memory=-101; //Default memory value, must get replaced
+
+	if(exists==1)
+		memory=currentNode->memory;
+
 	char lC='_';
-	int li=0;
-	int lf=0.0f;
+	int li=-1;
+	float lf=-1.0f;
 
 	if(strcmp(curNode->op,"&")==0)
 	{		
@@ -100,7 +106,7 @@ void Add_Temp(ir_Node* curNode)
 		//Were assigning an address, look it up in SymbolTable
 		memory = LITERAL_USED+1; //Secret number
 		li= atoi(curNode->leftValue);
-		// printf("Loading Address: %s Val=%d\n", curNode->result,memory);
+		printf("Loading Address: %s Val=%d\n", curNode->result,li);
 	}	
 	else if(strcmp(curNode->op,"=f")==0)
 	{		
@@ -124,14 +130,22 @@ void Add_Temp(ir_Node* curNode)
 			memory2=LookupMemory(curNode->rightValue);//Not a variable, could be a temp		
 
 		memory= memory1+memory2;
-		printf("Memory=%d\n",memory);
-		printf("Memory1=%d\n",memory1);
-		printf("Memory2=%d\n",memory2);
+		// printf("%sMemory=%d\n",curNode->result,memory);
+		// printf("%sMemory1=%d\n",curNode->leftValue,memory1);
+		// printf("%sMemory2=%d\n",curNode->rightValue,memory2);
+	}
+	else if(strcmp(curNode->op,"param")==0)
+	{		
+		printf("PARAM Found\n");
+		memory = Get_Var_MemoryOffset(curNode->leftValue, curNode->scope);
 	}
 
 
+
 	if(exists==1)
-		currentNode->memory=memory;
+	{	
+		currentNode->memory=memory;	
+	}
 	else
 	{
 		currentNode->next=malloc(sizeof(temp_Val));
@@ -139,14 +153,17 @@ void Add_Temp(ir_Node* curNode)
 		currentNode->next->memory=memory;
 
 		//Only used if LITERAL is given for Memory
-		currentNode->literal_c=lC;
-		currentNode->literal_f=lf;		
-		currentNode->literal_i=li;				
+		currentNode->next->literal_c=lC;
+		currentNode->next->literal_f=lf;		
+		currentNode->next->literal_i=li;				
+		
+		currentNode->next->prev = currentNode;
 
 		currentNode->next->tag=curNode->result;
 		currentNode->next->next=NULL;
 		currentNode= currentNode->next;
 	}
+	printf("Added: %s %d \n", currentNode->tag, currentNode->literal_i);
 	//printf("Added: %s-------------\n",currentNode->tag);
 }
 
@@ -164,6 +181,7 @@ void CreateAssembly()
 	root_Temp->tag="$";
 	root_Temp->memory=-1;
 	root_Temp->next=NULL;
+	root_Temp->prev=NULL;
  	FILE *f = fopen("Code.asm", "w");
 	//Well we'll need the start of the IR list
 
@@ -189,7 +207,7 @@ void CreateAssembly()
 			//Regardless the OP, we need to perform the calculations ourselves
 			//incase an array is called or any other nonsense everything must be up to date
 			
-			if((currentNode->result!=NULL) && (strcmp(currentNode->op,"*=")!=0))
+			if((currentNode->result!=NULL) /*&& (strcmp(currentNode->op,"*=")!=0)*/)
 				Add_Temp(currentNode);
 
 			//Now we'll have memory for all these guys
@@ -201,39 +219,72 @@ void CreateAssembly()
 				int memLeft   = LookupMemory(currentNode->leftValue);
 				int memResult = LookupMemory(currentNode->result);
 
+				//-999 is a number I used for Not Found in lookup memory
 				if(memLeft==-999)
 					memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
 
-				if(memLeft<-999)
+
+				if(memLeft>0)
 				{
-					temp_Val* tmp=GetNode(currentNode->leftValue);
-					if(tmp->memory== LITERAL_USED)
-					{
-						//Now we can print the correct value
-						fprintf(f,"\t\t//  *=  //\n");
-						fprintf(f,"\tsw %c,%d($sp) //%s\n",tmp->literal_c,memResult,currentNode->result);
-					}
-					else if(tmp->memory== LITERAL_USED+1)
-					{
-						//Now we can print the correct value
-						fprintf(f,"\t\t//  *=  //\n");
-						fprintf(f,"\tsw %d,%d($sp) //%s\n",tmp->literal_i,memResult,currentNode->result);
-					}
-					else if(tmp->memory== LITERAL_USED+2)
-					{
-						//Now we can print the correct value
-						fprintf(f,"\t\t//  *=  //\n");
-						fprintf(f,"\tsw %f,%d($sp) //%s\n",tmp->literal_f,memResult,currentNode->result);
-					}						
+					fprintf(f,"#  *=  //\n");
+					fprintf(f,"\tlw $t0,%d($sp)  #%s\n",memLeft  ,currentNode->leftValue);
+					fprintf(f,"\tsw $t0,%d($sp)  #%s\n",memResult,currentNode->result);
+					fprintf(f,"\t\t#=====//\n");
 				}
-				else	
-				{//If the left value is not a literal
-					//Load the variable 1
-					fprintf(f,"\t\t//  *=  //\n");
-					fprintf(f,"\tlw $t0,%d($sp) //%s\n",memLeft  ,currentNode->leftValue);
-					fprintf(f,"\tsw $t0,%d($sp) //%s\n",memResult,currentNode->result);
+				else
+				{	//A Literal was assigned to the 1st argument
+					if(memLeft==LITERAL_USED+1)
+					{
+						temp_Val* tmp=GetNode(currentNode->leftValue);
+
+						fprintf(f,"#  = Literal  #\n");
+						fprintf(f,"\tli $t0,%d #--%s\n",tmp->literal_i  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);				
+						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
+						fprintf(f,"#=====//\n");						
+					}
+
 				}
+
+				//}
 			}
+			//Load Address into Var at offset
+			if(strcmp(currentNode->op,"&")==0)
+			{
+				//This is the memory location of this value
+				int memLeft   = LookupMemory(currentNode->leftValue);
+				int memResult = LookupMemory(currentNode->result);
+
+				if(memLeft==-999)
+					memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
+
+				fprintf(f,"#  &  //\n");
+				fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+				fprintf(f,"#=====//\n");
+			}
+
+
+			if(strcmp(currentNode->op,"call")==0)
+			{
+				if(strcmp(currentNode->leftValue,"puti")==0)
+				{
+					//we only need 1 param back. So lets grab it
+					temp_Val* tmp=GetNode(currentNode->result);
+
+					tmp= tmp->prev;
+
+
+
+					fprintf(f,"#  SysCall Put_I //\n");
+					fprintf(f,"\tli $v0,1 #\n");
+					fprintf(f,"\tlw $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
+					fprintf(f,"\tsyscall\n");
+					fprintf(f,"#=====//\n");
+				}
+			}		
+
+
 		}
 	}
 	//Since Main should be the last instruction

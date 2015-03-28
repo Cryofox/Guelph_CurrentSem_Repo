@@ -1,117 +1,23 @@
-[Fire2]:
-	t6 = & hello
-	t6 = *= x
-	t14 = =i 1
-	t12 = t13 + t14
-	t11 = *= t12
-	t17 = =i 2
-[ArrayAccess]:
-	t25 = & myStructArray
-	t26 = =i 10
-	t27 = t26 * 4
-	t24 = t25 + t27
-	t28 = & varX
-	t23 = t28 + t27
-	t29 = =i 2
-	t23 = *= t29
-	t32 = & x
-	t34 = & hey
-	t35 = =i 10
-	t36 = t35 * 4
-	t33 = t34 + t36
-	t32 = *= t33
-	t39 = =c 'c'
-[WhileLoop]:
-	t45 = =i 1
-	t46 = =i 2
-	t44 = t45 + t46
-	t49 = & x
-	t51 = =i 4
-	t52 = =i 4
-	t50 = t51 + t52
-	t49 = *= t50
-	t55 = & x
-	t56 = =i 3
-	t55 = *= t56
-[Label_t58]:
-	t61 = & x
-	t65 = & x
-	t67 = & x
-	t68 = =i 1
-	t66 = t67 + t68
-	t65 = *= t66
-	t70 = & x
-	t71 = =i 10
-	if t70 >= t71 goto Label_t58
-	t74 = =i 1
-[IfCall]:
-	t80 = & y
-	t81 = =i 0
-	t80 = *= t81
-	t84 = & x
-	t85 = =i 1
-	t84 = *= t85
-	t91 = & x
-	t92 = =i 1
-	t90 = t91 > t92
-	t94 = & y
-	t95 = =i 1
-	t93 = t94 == t95
-	t89 = t90 && t93
-	t96 = t89 != 0
-	t98 = & x
-	t99 = =i 1
-	t97 = t98 == t99
-	t88 = t89 && t97
-	if t88 == 0 goto Label_t87
-	t104 = & y
-	t106 = & x
-	t107 = =i 5
-	t105 = t106 + t107
-	t104 = *= t105
-[Label_t87]:
-	t111 = & x
-	t110 = ! t111
-	if t110 == 0 goto Label_t109
-	t115 = & y
-	t116 = =i 6
-	t114 = t115 - t116
-[Label_t109]:
-	t119 = =i 0
-[RecursiveFunction]:
-	t126 = & i
-	t127 = =i 10
-	if t126 >= t127 goto Label_t124
-[Label_t124]:
-	t133 = & i
-	t134 = =i 10
-	t132 = t133 < t134
-	t131 = ! t132
-	if t131 == 0 goto Label_t130
-	t137 = & i
-	t141 = & i
-	t143 = & i
-	t144 = =i 1
-	t142 = t143 + t144
-	t141 = *= t142
-	param i 
-	call RecursiveFunction 1
-[Label_t130]:
-	t150 = & i
-[ForLoop]:
-	t156 = & x
-	t157 = =i 0
-	t156 = *= t157
-[Label_t159]:
-	t161 = & x
-	t165 = & x
-	t167 = & x
-	t168 = =i 1
-	t166 = t167 + t168
-	t165 = *= t166
-	t170 = & x
-	t171 = =i 10
-	if t170 >= t171 goto Label_t159
-	t174 = =i 0
 [main]:
-	t179 = =i 1
+	t5 = & x
+	t6 = =i 3
+	t5 = *= t6
+	param x 
+	[t8]call puti 1
+	t11 = & x
+	t15 = & x
+	t17 = & x
+	t18 = =i 1
+	t16 = t17 + t18
+	t15 = *= t16
+	param x 
+	[t20]call puti 1
+	t24 = & z
+	t25 = =i 6
+	t24 = *= t25
+	t28 = & x
+	t30 = & x
+	t31 = & z
+	t29 = t30 + t31
+	t28 = *= t29
+	t34 = & x

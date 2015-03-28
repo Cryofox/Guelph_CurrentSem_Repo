@@ -606,7 +606,7 @@ void Calculate_Offsets()
 								int temp=0;
 								//temp= Get_Var_MemorySize(struct_traveller->identifier,symbolTable[scope_Index]->identifier);
 					
-								printf("%s --VS=%d\n",struct_traveller->identifier,temp);
+								// printf("%s --VS=%d\n",struct_traveller->identifier,temp);
 								
 								if(strcmp(struct_traveller->type,"struct")==0)
 									temp=referenceTable[hash(struct_traveller->identifier)]->memorySize;
