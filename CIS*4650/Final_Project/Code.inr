@@ -1,57 +1,77 @@
-[func]:
-	t6 = =i 1
-	t5 = return t6
-[main]:
-	t12 = & x
-	t13 = =i 0
-	t12 = *= t13
-[Label_t15]:
-	param x 
-	[t18]call puti 1
-	t21 = & x
-	t25 = & x
-	t27 = & x
-	t28 = =i 1
-	t26 = t27 + t28
-	t25 = *= t26
-	t31 = & x
-	t32 = =i 10
-	t30 = t31 < t32
-	t34 = & x
-	t35 = =i 20
-	t33 = t34 < t35
-	t29 = t30 && t33
-	if t29 != 0 goto Label_t15
-	t39 = =i 0
-	t38 = return t39
-[arithmetic_Float]:
-	t45 = & f
-	t46 = =f 4.50000
-	t45 = *= t46
-	t49 = & f
-	t51 = =f 4.50000
-	t52 = =f 1.00000
-	t50 = t51 + t52
-	t49 = *= t50
-	param f 
-	[t54]call putf 1
-	t58 = =i 0
-	t57 = return t58
+[test_CharPrint]:
+	t6 = & c
+	t7 = =c 'c'
+	t6 = *= t7
+	t10 = & a
+	t11 = =c 'a'
+	t10 = *= t11
+	t14 = & t
+	t15 = =c 't'
+	t14 = *= t15
+	t18 = & nl
+	t19 = =c '
+'
+	t18 = *= t19
+	param c 
+	[t21]call putc 1
+	param a 
+	[t24]call putc 1
+	param t 
+	[t27]call putc 1
+	t31 = =i 1
+	t30 = return t31
 [arithmetic_Int]:
-	t63 = & x
-	t64 = =i 2
-	t63 = *= t64
-	t67 = & y
-	t68 = =i 4
-	t67 = *= t68
-	t71 = & z
-	t74 = & y
-	t75 = & x
-	t73 = t74 * t75
-	t76 = =i 2
-	t72 = t73 + t76
-	t71 = *= t72
+	t37 = & x
+	t38 = =i 2
+	t37 = *= t38
+	t41 = & y
+	t42 = =i 4
+	t41 = *= t42
+	t45 = & z
+	t48 = & y
+	t49 = & x
+	t47 = t48 * t49
+	t50 = =i 2
+	t46 = t47 + t50
+	t45 = *= t46
 	param z 
-	[t78]call puti 1
-	t82 = =i 1
-	t81 = return t82
+	[t52]call puti 1
+	t56 = =i 1
+	t55 = return t56
+[arithmetic_Float]:
+	t62 = & x
+	t63 = =f 4.50000
+	t62 = *= t63
+	t66 = & x
+	t68 = & x
+	t69 = =f 1.00000
+	t67 = t68 + t69
+	t66 = *= t67
+	param x 
+	[t71]call putf 1
+	t75 = =i 0
+	t74 = return t75
+[main]:
+	t80 = & x
+	t81 = =i 0
+	t80 = *= t81
+	[t83]call test_CharPrint 0
+[Label_t85]:
+	param x 
+	[t88]call puti 1
+	t91 = & x
+	t95 = & x
+	t97 = & x
+	t98 = =i 1
+	t96 = t97 + t98
+	t95 = *= t96
+	t101 = & x
+	t102 = =i 10
+	t100 = t101 < t102
+	t104 = & x
+	t105 = =i 20
+	t103 = t104 < t105
+	t99 = t100 && t103
+	if t99 != 0 goto Label_t85
+	t109 = =i 0
+	t108 = return t109

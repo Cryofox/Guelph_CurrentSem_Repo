@@ -502,7 +502,7 @@ void CreateAssembly()
 			}	
 
 			//Chars and Ints use Same register
-			if(strcmp(currentNode->op,"=i")==0 || strcmp(currentNode->op,"=c")==0 )
+			if(strcmp(currentNode->op,"=i")==0)
 			{
 				//This is the memory location of this value
 				// int memLeft   = Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); //LookupMemory(currentNode->leftValue);
@@ -511,10 +511,36 @@ void CreateAssembly()
 				fprintf(f,"#  Literal Int/Char  //\n");
 				//These can for the most part be ignored. This instruction would just overwrite the value
 				//inside a var with its own address...completely pointless
+
 				fprintf(f,"\tli $t0,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+
 				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 				fprintf(f,"#=====//\n");
-			}			
+			}		
+
+
+			if(strcmp(currentNode->op,"=c")==0 )
+			{
+				//This is the memory location of this value
+				// int memLeft   = Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); //LookupMemory(currentNode->leftValue);
+				int memResult = Get_Var_MemoryOffset(currentNode->result, currentNode->scope); //LookupMemory(currentNode->result);
+
+				fprintf(f,"#  Literal Int/Char  //\n");
+				//These can for the most part be ignored. This instruction would just overwrite the value
+				//inside a var with its own address...completely pointless
+
+
+				if(strcmp(currentNode->leftValue,"'\n'")==0)
+				{
+				fprintf(f,"\tli $t0,%s #'\\n'\n",currentNode->leftValue  ,currentNode->leftValue);
+				}
+				else
+				fprintf(f,"\tli $t0,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+
+				fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+				fprintf(f,"#=====//\n");
+			}		
+
 			if(strcmp(currentNode->op,"=f")==0)
 			{
 				//This is the memory location of this value
@@ -544,7 +570,7 @@ void CreateAssembly()
 					fprintf(f,"#=====//\n");
 				}
 				//Special Case Put_i
-				if(strcmp(currentNode->leftValue,"putc")==0)
+				else if(strcmp(currentNode->leftValue,"putc")==0)
 				{
 					ir_Node* tmp =currentNode;
 					tmp= tmp->prev;
@@ -552,11 +578,11 @@ void CreateAssembly()
 					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
 					fprintf(f,"#  SysCall Put_I //\n");
 					fprintf(f,"\tli $v0,4 #\n");
-					fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+					fprintf(f,"\tla $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}				
-				if(strcmp(currentNode->leftValue,"putf")==0)
+				else if(strcmp(currentNode->leftValue,"putf")==0)
 				{
 					ir_Node* tmp =currentNode;
 					tmp= tmp->prev;
@@ -567,8 +593,71 @@ void CreateAssembly()
 					fprintf(f,"\tl.s $f12,%d($sp) #%s\n",memparam,tmp->leftValue);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
-				}			
+				}
+				
+				else
+				{
+				//We Copy the Argument Parameters onto the Modified Stack
+
+				//To Setup for a Function call we need to modify the Stack Pointer
+					int funcMem = Get_Scope_Memory(currentNode->leftValue);
+					int myFuncMem=Get_Scope_Memory(currentNode->scope);
+					fprintf(f,"#  Function Call:%s //\n", currentNode->leftValue);
+
+
+
+
+
+					//Save Return Address and Frame Pointer
+					//This needs tweeking as it tells the subroutine to jump to OUR return...thats a fault
+
+					//Copy our Address to the RA
+
+					//Store the current Ret Address here for us.
+					fprintf(f,"\tsw $ra, %d($sp)\n",(myFuncMem+8));				
+					
+					//Offset SP
+					fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
+					//Store FP, for restoring
+					fprintf(f,"\tsw $fp, %d($sp)\n",(funcMem+4));
+
+					//Offset FP
+					fprintf(f,"\tadd $fp,$sp, %d\n",(funcMem+16));
+
+					//Jump to Address
+					fprintf(f,"\tjal %s\n",currentNode->leftValue);
+
+					//Restore the RA
+					fprintf(f,"\tlw $ra, %d($sp)\n",(myFuncMem+8));
+
+
+				 	
+
+					fprintf(f,"#=====//\n");
+				}
+
+
+
+
+
+
 			}
+			if(strcmp(currentNode->op,"return")==0)
+			{
+				int funcMem = Get_Scope_Memory(currentNode->scope);	
+				//Before We Jump back.
+				//
+					fprintf(f,"# Return Called\n");
+					// fprintf(f,"\tlw $ra, %d($sp)\n",(funcMem+8));
+					fprintf(f,"\tlw $fp, %d($sp)\n",(funcMem+4));	
+					fprintf(f,"\tadd $sp, $sp, %d\n",(funcMem+16));
+
+					fprintf(f,"\tjr $ra\n");
+
+					fprintf(f,"#=====//\n");
+			}
+
+
 			//Arithmetics
 			if(
 			  (strcmp(currentNode->op,"+")==0)	||

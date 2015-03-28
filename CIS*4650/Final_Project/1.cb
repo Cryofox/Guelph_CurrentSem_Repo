@@ -1,36 +1,29 @@
 int test;
 
-int func()
+int test_CharPrint()
 {
+	char c;
+	char a;
+	char t;
+	char nl;
+	c='c';
+	a='a';
+	t='t';
+	nl='\n';
+	putc(c);
+	putc(a);
+	putc(t);
 
 return 1;
 }
 
 
-int main()
-{
-	int x;
-	x=0;
-	while(x<10 && x<20)
-	{
-	  puti(x);
-	  x++;	
-	}
-	return 0;
-}
 
 
 
 
-int arithmetic_Float()
-{
-	float f;
-	f=4.5;
 
-	f= 4.5 +1.0;
-	putf(f);
-	return 0;
-}
+
 
 int arithmetic_Int()
 {
@@ -44,4 +37,31 @@ int arithmetic_Int()
 	puti(z);
 	return 1;
 }
+int arithmetic_Float()
+{
+	float x;
+	
+	x=4.5;
+	x= x+1.0;
 
+	putf(x);
+
+	return 0;
+}
+int main()
+{
+	int x;
+	x=0;
+	/*arithmetic_Float();*/
+	/*arithmetic_Int();  */
+	test_CharPrint();
+
+		
+
+	while(x<10 && x<20)
+	{
+	  puti(x);
+	  x++;	
+	}
+	return 0;
+}

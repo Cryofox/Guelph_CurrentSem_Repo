@@ -216,14 +216,34 @@ void PrintTree_Recursive(expressionTree node, int depth, int* totalNodes, FILE* 
     if(node->u.oper.left!=NULL)
     {
       *totalNodes+=1;
-      fprintf(fptr, "\"%s[%d]\" -> \"%s[%d]\";\n",node->tokenName,(depth),node->u.oper.left->tokenName,(*totalNodes)  );
+      if(strcmp("'\n'",node->tokenName)==0)
+        fprintf(fptr, "\"newline [%d]\" ->",(depth));
+      else
+        fprintf(fptr, "\"%s[%d]\" ->",node->tokenName,(depth));
+
+      if(strcmp("'\n'",node->u.oper.left->tokenName)==0)
+        fprintf(fptr, " \"newline [%d]\";\n",(*totalNodes)  );
+      else
+        fprintf(fptr, " \"%s[%d]\";\n",node->u.oper.left->tokenName,(*totalNodes)  );        
+
+
       int val=  *totalNodes;
       PrintTree_Recursive( (node->u.oper.left), (val),totalNodes, fptr   );
     }
     if(node->u.oper.right!=NULL)
     {
       *totalNodes+=1;
-      fprintf(fptr, "\"%s[%d]\" -> \"%s[%d]\";\n",node->tokenName,(depth),node->u.oper.right->tokenName,(*totalNodes)  );  
+      if(strcmp("'\n'",node->tokenName)==0)
+        fprintf(fptr, "\"newline [%d]\" ->",(depth));
+      else
+        fprintf(fptr, "\"%s[%d]\" ->",node->tokenName,(depth));
+
+      if(strcmp("'\n'",node->u.oper.right->tokenName)==0)
+        fprintf(fptr, " \"newline [%d]\";\n",(*totalNodes)  );
+      else
+        fprintf(fptr, " \"%s[%d]\";\n",node->u.oper.right->tokenName,(*totalNodes)  ); 
+
+
       int val=  *totalNodes;
       PrintTree_Recursive( (node->u.oper.right),(val),totalNodes, fptr   );
     }

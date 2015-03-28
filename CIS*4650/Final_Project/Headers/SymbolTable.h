@@ -77,4 +77,5 @@ int Get_Scope_Offset(char* scope);
 int Get_Scope_Size(char* scope);
 void Add_TempSym(char * tag,char* type, char*scope);
 char* Get_ReferencedValue(char* temp,char* currentscope );
+int Get_Scope_Memory(char* currentscope);
 #endif

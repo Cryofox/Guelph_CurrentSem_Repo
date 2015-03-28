@@ -772,7 +772,14 @@ int Get_Var_MemoryOffset(char* variable, char* currentscope)
 	return -666;
 }
 
+int Get_Scope_Memory(char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
 
+	return traveller->memorySize;
+}
 
 
 int Get_Var_MemorySize(char* variable, char* currentscope)
