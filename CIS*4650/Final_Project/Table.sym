@@ -35,17 +35,42 @@ t5		int		None
 Scope:[main]
 Variable	Type		StructOwner
 --------------------------------
-f		float		None
-t12		float		None
-t13		float		None
-t16		float		None
-t18		float		None
-t19		float		None
-t17		float		None
-t22		float		None
+x		int		None
+t12		int		None
+t13		int		None
+t19		int		None
+t18		int		None
 t21		int		None
 t25		int		None
-t24		int		None
+t27		int		None
+t28		int		None
+t26		int		None
+t31		int		None
+t32		int		None
+t30		int		None
+t34		int		None
+t35		int		None
+t33		int		None
+t29		int		None
+t36		int		None
+t39		int		None
+t38		int		None
+================================
+
+Scope:[arithmetic_Float]
+Variable	Type		StructOwner
+--------------------------------
+f		float		None
+t45		float		None
+t46		float		None
+t49		float		None
+t51		float		None
+t52		float		None
+t50		float		None
+t55		float		None
+t54		int		None
+t58		int		None
+t57		int		None
 ================================
 
 Scope:[arithmetic_Int]
@@ -54,18 +79,18 @@ Variable	Type		StructOwner
 x		int		None
 y		int		None
 z		int		None
-t30		int		None
-t31		int		None
-t34		int		None
-t35		int		None
-t38		int		None
-t41		int		None
-t42		int		None
-t40		int		None
-t43		int		None
-t39		int		None
-t46		int		None
-t45		int		None
-t49		int		None
-t48		int		None
+t63		int		None
+t64		int		None
+t67		int		None
+t68		int		None
+t71		int		None
+t74		int		None
+t75		int		None
+t73		int		None
+t76		int		None
+t72		int		None
+t79		int		None
+t78		int		None
+t82		int		None
+t81		int		None
 ================================

@@ -6,7 +6,23 @@ int func()
 return 1;
 }
 
+
 int main()
+{
+	int x;
+	x=0;
+	while(x<10 && x<20)
+	{
+	  puti(x);
+	  x++;	
+	}
+	return 0;
+}
+
+
+
+
+int arithmetic_Float()
 {
 	float f;
 	f=4.5;

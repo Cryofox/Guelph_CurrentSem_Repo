@@ -884,6 +884,8 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		{
 			//We need to Change what we Promote on
 			index=	Promote_LastIR_IF(labelIf);
+			//Double Promote, to inverse the IF Inverse
+			index=	Promote_LastIR_IF(labelIf);			
 		}
 		//We Create our own.
 		//Basically we ask if it ==1

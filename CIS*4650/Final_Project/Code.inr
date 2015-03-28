@@ -2,33 +2,56 @@
 	t6 = =i 1
 	t5 = return t6
 [main]:
-	t12 = & f
-	t13 = =f 4.50000
+	t12 = & x
+	t13 = =i 0
 	t12 = *= t13
-	t16 = & f
-	t18 = =f 4.50000
-	t19 = =f 1.00000
-	t17 = t18 + t19
-	t16 = *= t17
+[Label_t15]:
+	param x 
+	[t18]call puti 1
+	t21 = & x
+	t25 = & x
+	t27 = & x
+	t28 = =i 1
+	t26 = t27 + t28
+	t25 = *= t26
+	t31 = & x
+	t32 = =i 10
+	t30 = t31 < t32
+	t34 = & x
+	t35 = =i 20
+	t33 = t34 < t35
+	t29 = t30 && t33
+	if t29 != 0 goto Label_t15
+	t39 = =i 0
+	t38 = return t39
+[arithmetic_Float]:
+	t45 = & f
+	t46 = =f 4.50000
+	t45 = *= t46
+	t49 = & f
+	t51 = =f 4.50000
+	t52 = =f 1.00000
+	t50 = t51 + t52
+	t49 = *= t50
 	param f 
-	[t21]call putf 1
-	t25 = =i 0
-	t24 = return t25
+	[t54]call putf 1
+	t58 = =i 0
+	t57 = return t58
 [arithmetic_Int]:
-	t30 = & x
-	t31 = =i 2
-	t30 = *= t31
-	t34 = & y
-	t35 = =i 4
-	t34 = *= t35
-	t38 = & z
-	t41 = & y
-	t42 = & x
-	t40 = t41 * t42
-	t43 = =i 2
-	t39 = t40 + t43
-	t38 = *= t39
+	t63 = & x
+	t64 = =i 2
+	t63 = *= t64
+	t67 = & y
+	t68 = =i 4
+	t67 = *= t68
+	t71 = & z
+	t74 = & y
+	t75 = & x
+	t73 = t74 * t75
+	t76 = =i 2
+	t72 = t73 + t76
+	t71 = *= t72
 	param z 
-	[t45]call puti 1
-	t49 = =i 1
-	t48 = return t49
+	[t78]call puti 1
+	t82 = =i 1
+	t81 = return t82

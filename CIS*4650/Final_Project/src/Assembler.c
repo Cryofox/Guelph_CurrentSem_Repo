@@ -180,11 +180,13 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		if(strcmp(type,"float")==0)
 			isFloat=1;
 
-	type= Get_Var_AssignedType(currentNode->rightValue,currentNode->scope);
-	
-	if(type!=NULL)
-		if(strcmp(type,"float")==0)
-			isFloat=1;
+	if(currentNode->rightValue!=NULL)
+	{		
+		type= Get_Var_AssignedType(currentNode->rightValue,currentNode->scope);
+		if(type!=NULL)
+			if(strcmp(type,"float")==0)
+				isFloat=1;
+	}
 
 
 	if(isFloat==1)
@@ -193,11 +195,13 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 			fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
 		else
 			fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
-
-		if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
-			fprintf(f,"\tl.s $f2,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
-		else
-			fprintf(f,"\tl.s $f2,%d($sp) #%s\n",memRight ,currentNode->leftValue);
+		if(currentNode->rightValue!=NULL)
+		{
+			if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
+				fprintf(f,"\tl.s $f2,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
+			else
+				fprintf(f,"\tl.s $f2,%d($sp) #%s\n",memRight ,currentNode->leftValue);
+		}
 
 		//Possible its an int
 
@@ -213,12 +217,6 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 
 		else if(strcmp(currentNode->op,"/")==0)
 			fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
-
-		else if(strcmp(currentNode->op,"&&")==0)
-			fprintf(f,"\tand.s $f1,$f1,$f2 #\n");
-
-		else if(strcmp(currentNode->op,"||")==0)
-			fprintf(f,"\tor.s $f1,$f1,$f2 #\n");
 
 		fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
@@ -241,7 +239,6 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 			
 		
 		//Use the following commands for 
-
 		if(strcmp(currentNode->op,"+")==0)
 			fprintf(f,"\tadd $t0,$t0,$t1 #\n");
 
@@ -254,13 +251,114 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		else if(strcmp(currentNode->op,"/")==0)
 			fprintf(f,"\tdiv $t0,$t0,$t1 #\n");
 
+
+
 		else if(strcmp(currentNode->op,"&&")==0)
 			fprintf(f,"\tand $t0,$t0,$t1 #\n");
 
 		else if(strcmp(currentNode->op,"||")==0)
 			fprintf(f,"\tor $t0,$t0,$t1 #\n");
+		//Lets Add More Relational Logic
 
 
+		//Here we check the Ifs
+		else if(strcmp(currentNode->op,">=")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tbge $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, whic fkin sucks...but w.e
+				// Perform Set Less than, then Not it
+				fprintf(f,"\tslt $t0, $t0, $t1#\n");
+				fprintf(f,"\tnot $t0, $t0\n"); 
+				//We Just performed >=
+			}
+		}
+		else if(strcmp(currentNode->op,">")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tbgt $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, whic fkin sucks...but w.e
+				// Perform Set Less than, then Not it
+				fprintf(f,"\tsgt $t0, $t0, $t1\n");
+				//Check if t1<t0  ..IE if t0>t1 :)
+			}
+		}
+		else if(strcmp(currentNode->op,"<=")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tble $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, which fkin sucks...but w.e
+				// Perform Set Less than in reverse (greater than), then Not it
+				fprintf(f,"\tsgt $t0, $t0, $t1\n");
+				fprintf(f,"\tnot $t0, $t0\n"); 
+			}
+		}
+		else if(strcmp(currentNode->op,"<")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tblt $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, which fkin sucks...but w.e
+				fprintf(f,"\tslt $t0, $t0, $t1\n");
+			}
+		}
+
+		else if(strcmp(currentNode->op,"==")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tbeq $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, which fkin sucks...but w.e
+				fprintf(f,"\tseq $t0, $t0, $t1\n"); 
+				// fprintf(f,"\tslt $t3, $t1, $t0");
+				// //Not both Registers
+				// fprintf(f,"\tnot $t2, $t2");
+				// fprintf(f,"\tnot $t3, $t3");
+				// //AND in t0, for == check
+				// fprintf(f,"\t")
+			}
+		}		
+		else if(strcmp(currentNode->op,"!=")==0)
+		{
+			if(currentNode->isIF==1)
+			{
+				fprintf(f,"\tbne $t0, $t1, %s\n",currentNode->gotoLabel);
+			}
+			else
+			{
+				//We only have SetLess than, which fkin sucks...but w.e
+				fprintf(f,"\tsne $t0, $t0, $t1\n"); 
+				// fprintf(f,"\tslt $t3, $t1, $t0");
+				// //Not both Registers
+				// fprintf(f,"\tnot $t2, $t2");
+				// fprintf(f,"\tnot $t3, $t3");
+				// //AND in t0, for == check
+				// fprintf(f,"\t")
+			}
+		}
+		else if(strcmp(currentNode->op,"!")==0)
+		{
+			//We only have SetLess than, which fkin sucks...but w.e
+			fprintf(f,"\tnot $t0, $t0\n");				
+		}
 		fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
 	}
@@ -472,12 +570,21 @@ void CreateAssembly()
 				}			
 			}
 			//Arithmetics
-			if((strcmp(currentNode->op,"+")==0) ||
-			  (strcmp(currentNode->op,"*")==0) ||
-			  (strcmp(currentNode->op,"/")==0) ||
-			  (strcmp(currentNode->op,"-")==0) ||
+			if(
+			  (strcmp(currentNode->op,"+")==0)	||
+			  (strcmp(currentNode->op,"*")==0) 	||
+			  (strcmp(currentNode->op,"/")==0) 	||
+			  (strcmp(currentNode->op,"-")==0) 	||
 			  (strcmp(currentNode->op,"||")==0) ||  
-			  (strcmp(currentNode->op,"&&")==0) )
+			  (strcmp(currentNode->op,"&&")==0) || 
+			  (strcmp(currentNode->op,">=")==0) || 
+			  (strcmp(currentNode->op,"<=")==0) || 
+			  (strcmp(currentNode->op,">")==0)	|| 
+			  (strcmp(currentNode->op,"<")==0)	|| 
+			  (strcmp(currentNode->op,"==")==0) || 
+			  (strcmp(currentNode->op,"!=")==0)	||
+			  (strcmp(currentNode->op,"!")==0)	
+			  )
 			{
 				CreateArithRel_Statement(f,currentNode);
 			}
