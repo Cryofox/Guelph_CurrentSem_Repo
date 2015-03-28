@@ -4,20 +4,30 @@
 	t5 = *= t6
 	param x 
 	[t8]call puti 1
-	t11 = & x
-	t15 = & x
-	t17 = & x
-	t18 = =i 1
-	t16 = t17 + t18
-	t15 = *= t16
+	t12 = & y
+	t13 = =f 4.50000
+	t12 = *= t13
+	t16 = & v
+	t17 = =c 'c'
+	t16 = *= t17
+	param v 
+	[t19]call putc 1
+	param y 
+	[t22]call putf 1
+	t25 = & x
+	t29 = & x
+	t31 = & x
+	t32 = =i 1
+	t30 = t31 + t32
+	t29 = *= t30
 	param x 
-	[t20]call puti 1
-	t24 = & z
-	t25 = =i 6
-	t24 = *= t25
-	t28 = & x
-	t30 = & x
-	t31 = & z
-	t29 = t30 + t31
-	t28 = *= t29
-	t34 = & x
+	[t34]call puti 1
+	t38 = & z
+	t39 = =i 6
+	t38 = *= t39
+	t42 = & x
+	t44 = & x
+	t45 = & z
+	t43 = t44 + t45
+	t42 = *= t43
+	t48 = & x

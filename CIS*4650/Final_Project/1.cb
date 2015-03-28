@@ -10,6 +10,12 @@ int main ()
 	/*Spim should show a 3*/
 		
 	puti(x);
+	y=4.5;
+
+	v='c';
+	putc(v);
+	putf(y);
+
 	x++;
 	puti(x);
 

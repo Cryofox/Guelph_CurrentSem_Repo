@@ -97,7 +97,7 @@ void Add_Temp(ir_Node* curNode)
 
 		//Were assigning an address, look it up in SymbolTable
 		memory = LITERAL_USED; //Secret number
-		lC=curNode->leftValue[0];
+		lC=curNode->leftValue[1];
 		// printf("Loading Address: %s Val=%d\n", curNode->result,memory);
 	}
 	else if(strcmp(curNode->op,"=i")==0)
@@ -233,16 +233,36 @@ void CreateAssembly()
 				}
 				else
 				{	//A Literal was assigned to the 1st argument
+					if(memLeft==LITERAL_USED) 
+					{
+						temp_Val* tmp=GetNode(currentNode->leftValue);
+
+						fprintf(f,"#  = Literal C #\n");
+						fprintf(f,"\tli $t0,'%c' #--%s\n",tmp->literal_c  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);				
+						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
+						fprintf(f,"#=====//\n");						
+					}
 					if(memLeft==LITERAL_USED+1)
 					{
 						temp_Val* tmp=GetNode(currentNode->leftValue);
 
-						fprintf(f,"#  = Literal  #\n");
+						fprintf(f,"#  = Literal I #\n");
 						fprintf(f,"\tli $t0,%d #--%s\n",tmp->literal_i  ,currentNode->leftValue);
 						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);				
 						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
 						fprintf(f,"#=====//\n");						
 					}
+					if(memLeft==LITERAL_USED+2)
+					{
+						temp_Val* tmp=GetNode(currentNode->leftValue);
+
+						fprintf(f,"#  = Literal F #\n");
+						fprintf(f,"\tli.s $f0,%f #--%s\n",tmp->literal_f  ,currentNode->leftValue);
+						fprintf(f,"\ts.s $f0,%d($sp) #%s\n",memResult,currentNode->result);				
+						//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
+						fprintf(f,"#=====//\n");						
+					}					
 
 				}
 
@@ -273,15 +293,36 @@ void CreateAssembly()
 					temp_Val* tmp=GetNode(currentNode->result);
 
 					tmp= tmp->prev;
-
-
-
 					fprintf(f,"#  SysCall Put_I //\n");
 					fprintf(f,"\tli $v0,1 #\n");
 					fprintf(f,"\tlw $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}
+				if(strcmp(currentNode->leftValue,"putf")==0)
+				{
+					//we only need 1 param back. So lets grab it
+					temp_Val* tmp=GetNode(currentNode->result);
+
+					tmp= tmp->prev;
+					fprintf(f,"#  SysCall Put_F //\n");
+					fprintf(f,"\tli $v0,2 #\n");
+					fprintf(f,"\tl.s $f12,%d($sp) #%s\n",tmp->memory,tmp->tag);
+					fprintf(f,"\tsyscall\n");
+					fprintf(f,"#=====//\n");
+				}	
+				if(strcmp(currentNode->leftValue,"putc")==0)
+				{
+					//we only need 1 param back. So lets grab it
+					temp_Val* tmp=GetNode(currentNode->result);
+
+					tmp= tmp->prev;
+					fprintf(f,"#  SysCall Put_C //\n");
+					fprintf(f,"\tli $v0,4 #\n");
+					fprintf(f,"\tla $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
+					fprintf(f,"\tsyscall\n");
+					fprintf(f,"#=====//\n");
+				}								
 			}		
 
 
