@@ -172,6 +172,61 @@ void Add_Temp(ir_Node* curNode)
 
 
 
+void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
+{
+	//This is the memory location of this value
+	int memLeft   = LookupMemory(currentNode->leftValue);
+	int memRight   = LookupMemory(currentNode->rightValue);				
+	int memResult = LookupMemory(currentNode->result);
+
+	if(memLeft==-999)
+		memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
+	if(memRight==-999)
+		memRight= Get_Var_MemoryOffset(currentNode->rightValue, currentNode->scope); 
+
+	fprintf(f,"#  +  //\n");
+	//Possible its an int
+	if(memLeft==LITERAL_USED+1)
+	{
+		temp_Val* tmp=GetNode(currentNode->leftValue);
+		memLeft= tmp->literal_i;
+		fprintf(f,"\tli $t0,%d #%s\n",memLeft ,currentNode->leftValue);
+	}
+	else
+		fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
+	if(memRight==LITERAL_USED+1)
+	{
+		temp_Val* tmp=GetNode(currentNode->rightValue);
+		memRight= tmp->literal_i;
+		fprintf(f,"\tli $t1,%d #%s\n",memRight,currentNode->rightValue);
+	}
+	else
+		fprintf(f,"\tlw $t1,%d($sp) #%s\n",memRight,currentNode->rightValue);
+
+	//Use the following commands for 
+
+	if(strcmp(currentNode->op,"+")==0)
+		fprintf(f,"\tadd $t0,$t0,$t1 #");
+
+	else if(strcmp(currentNode->op,"-")==0)
+		fprintf(f,"\tsub $t0,$t0,$t1 #");
+
+	else if(strcmp(currentNode->op,"*")==0)
+		fprintf(f,"\tmul $t0,$t0,$t1 #");
+
+	else if(strcmp(currentNode->op,"/")==0)
+		fprintf(f,"\tdiv $t0,$t0,$t1 #");
+
+	else if(strcmp(currentNode->op,"&&")==0)
+		fprintf(f,"\tand $t0,$t0,$t1 #");
+
+	else if(strcmp(currentNode->op,"||")==0)
+		fprintf(f,"\tor $t0,$t0,$t1 #");
+
+	fprintf(f,"#=====//\n");	
+}
+
+
 
 
 
@@ -294,39 +349,14 @@ void CreateAssembly()
 			}
 
 			//Arithmetics
-			if(strcmp(currentNode->op,"+")==0)
+			if((strcmp(currentNode->op,"+")==0) ||
+			  (strcmp(currentNode->op,"*")==0) ||
+			  (strcmp(currentNode->op,"/")==0) ||
+			  (strcmp(currentNode->op,"-")==0) ||
+			  (strcmp(currentNode->op,"||")==0) ||  
+			  (strcmp(currentNode->op,"&&")==0) )
 			{
-				//This is the memory location of this value
-				int memLeft   = LookupMemory(currentNode->leftValue);
-				int memRight   = LookupMemory(currentNode->rightValue);				
-				int memResult = LookupMemory(currentNode->result);
-
-				if(memLeft==-999)
-					memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
-				if(memRight==-999)
-					memRight= Get_Var_MemoryOffset(currentNode->rightValue, currentNode->scope); 
-
-				fprintf(f,"#  +  //\n");
-				//Possible its an int
-				if(memLeft==LITERAL_USED+1)
-				{
-					temp_Val* tmp=GetNode(currentNode->leftValue);
-					memLeft= tmp->literal_i;
-					fprintf(f,"\tli $t0,%d #%s\n",memLeft ,currentNode->leftValue);
-				}
-				else
-					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
-				if(memRight==LITERAL_USED+1)
-				{
-					temp_Val* tmp=GetNode(currentNode->rightValue);
-					memRight= tmp->literal_i;
-					fprintf(f,"\tli $t1,%d #%s\n",memRight,currentNode->rightValue);
-				}
-				else
-					fprintf(f,"\tlw $t1,%d($sp) #%s\n",memRight,currentNode->rightValue);
-
-				fprintf(f,"\tadd $t0,$t0,$t1 #");
-				fprintf(f,"#=====//\n");
+				CreateArithRel_Statement(f,currentNode);
 			}
 
 

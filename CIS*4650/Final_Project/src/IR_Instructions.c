@@ -12,6 +12,13 @@ ir_Node* root_Node;
 void InitializeIR_Node()
 {
 	root_Node = malloc(sizeof(ir_Node));
+	root_Node->next=NULL;
+	root_Node->label = NULL;
+	root_Node->scope = NULL;
+	root_Node->next= NULL;
+	root_Node->rightValue=NULL;
+	root_Node->leftValue=NULL;	
+	root_Node->op=NULL;
 }
 
 
@@ -21,6 +28,7 @@ void InitializeIR_Node()
 //Returns index of added IR instruction, for IF's and GoTo's
 int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,char* label,char* scope)
 {
+	//printf("Adding:%s %s %s %s %s %s\n", leftVal, op, rightVal,result,label, scope);
 	int index=0;
 	if(root_Node==NULL)
 		return;
@@ -32,9 +40,18 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 		currentNode= currentNode->next;
 		index++;
 	}
+
 	currentNode->next= malloc(sizeof(ir_Node));
+
 	currentNode=currentNode->next;
+
 	currentNode->label = NULL;
+	currentNode->scope = NULL;
+	currentNode->next= NULL;
+	currentNode->rightValue=NULL;
+	currentNode->leftValue=NULL;
+	currentNode->result=NULL;	
+	currentNode->op=NULL;
 
 	if(leftVal!=NULL)
 		currentNode->leftValue=strdup(leftVal);
@@ -46,11 +63,13 @@ int Add_IR_Instruction(char* leftVal, char* op, char* rightVal, char* result,cha
 		currentNode-> result=strdup(result);
 	if(label!=NULL)
 		currentNode->label=strdup(label);
+	if(scope!=NULL)
+		currentNode->scope=strdup(scope);
 
 	currentNode->gotoLabel=NULL;
 
 	currentNode->isIF=0;
-	currentNode->scope=scope;
+
 	return index;
 }
 
@@ -191,17 +210,15 @@ void Print_IR_Instructions(FILE * fptr)
 					fprintf(fptr,"%s %s = %s %s %s\n",currentNode->label,currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
 			}
 		}
+		else if(currentNode->result==NULL)
+		{}
 		else
 		{
-			if(currentNode->rightValue==NULL && currentNode->leftValue==NULL && currentNode->op==NULL && currentNode->result==NULL)		
-			{}
-			else
-			{
-				if(currentNode->rightValue==NULL)
-					fprintf(fptr,"\t%s = %s %s\n",currentNode->result, currentNode->op, currentNode->leftValue);
-				else
-					fprintf(fptr,"\t%s = %s %s %s\n",currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
-			}
+			if(currentNode->rightValue==NULL)
+				fprintf(fptr,"\t%s = %s %s\n",currentNode->result, currentNode->op, currentNode->leftValue);
+			else if(currentNode->rightValue!=NULL && currentNode->leftValue!=NULL)
+				fprintf(fptr,"\t%s = %s %s %s\n",currentNode->result,currentNode->leftValue, currentNode->op,currentNode->rightValue );
+		
 		}
 		currentNode=currentNode->next;
 	}

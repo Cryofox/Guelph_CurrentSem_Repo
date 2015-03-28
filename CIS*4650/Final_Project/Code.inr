@@ -1,34 +1,17 @@
+[func]:
+	t6 = =i 1
 [main]:
-	t5 = & x
-	t6 = =i 3
-	t5 = *= t6
-	param x 
-	[t8]call puti 1
-	t12 = & y
-	t13 = =f 4.50000
-	t12 = *= t13
-	t16 = & v
-	t17 = =c '
-'
-	t16 = *= t17
-	param v 
-	[t19]call putc 1
-	param y 
-	[t22]call putf 1
-	t25 = & x
-	t29 = & x
-	t31 = & x
-	t32 = =i 1
-	t30 = t31 + t32
-	t29 = *= t30
-	param x 
-	[t34]call puti 1
-	t38 = & z
-	t39 = =i 6
-	t38 = *= t39
-	t42 = & x
-	t44 = & x
-	t45 = & z
-	t43 = t44 + t45
-	t42 = *= t43
-	t48 = & x
+	t11 = & x
+	t12 = =i 2
+	t11 = *= t12
+	t15 = & y
+	t16 = =i 4
+	t15 = *= t16
+	t19 = & z
+	t22 = & y
+	t23 = & x
+	t21 = t22 * t23
+	t24 = =i 2
+	t20 = t21 + t24
+	t19 = *= t20
+	t27 = =i 1

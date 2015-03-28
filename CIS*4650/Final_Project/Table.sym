@@ -22,14 +22,18 @@ Variable	Type		StructOwner
 Scope:[Global]
 Variable	Type		StructOwner
 --------------------------------
+test		int		None
+================================
+
+Scope:[func]
+Variable	Type		StructOwner
+--------------------------------
 ================================
 
 Scope:[main]
 Variable	Type		StructOwner
 --------------------------------
-qwep		int		None
-y		float		None
-v		char		None
-z		int		None
 x		int		None
+y		int		None
+z		int		None
 ================================

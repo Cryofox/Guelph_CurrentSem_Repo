@@ -492,14 +492,18 @@ int main(int argc, char* argv[])
 
 				PrintABS();
 				//Initialize our IR_Node
+				printf("Initializing IR Node\n");
 				InitializeIR_Node();
 				//Perform TypeChecking on Tree
+				printf("Performing Type Checking\n");
 				PerformTypeCheck(0,root,NULL);
 
 
 				//Print AFTER our Code
+				printf("Outputting SymbolTable\n");
 				PrintSYM();
 				//Print IR_Instructions
+				printf("Outputting IR_Instructionset\n");
 				PrintIR();
 
 
