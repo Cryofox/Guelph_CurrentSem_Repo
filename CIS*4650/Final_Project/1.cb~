@@ -23,6 +23,7 @@ int test_CharPrint()
 	putc(a);
 	putc(t);
 	putc(nl);
+	putc('t');
 return 1;
 }
 int arithmetic_Int()

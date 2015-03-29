@@ -565,8 +565,9 @@ void CreateAssembly()
 						fprintf(f,"#  &  //\n");
 						//These can for the most part be ignored. This instruction would just overwrite the value
 						//inside a var with its own address...completely pointless
-						fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
-						fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);//These are local Temp Registers
+						//Whenever we're loading an address zero out the value at it
+						fprintf(f,"\tla $t0,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);//These are local Temp Registers
 						fprintf(f,"#=====//\n");
 						//We load the value the address holds but WE make note of what variable that was
 
@@ -820,9 +821,9 @@ void CreateAssembly()
 					tmp= tmp->prev;
 					// printf("%s %s %s \n", tmp->leftValue, tmp->rightValue, tmp->op);
 					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
-					fprintf(f,"#  SysCall Put_I //\n");
+					fprintf(f,"#  SysCall Put_C //\n");
 					fprintf(f,"\tli $v0,4 #\n");
-					fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+					fprintf(f,"\tla $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}				
@@ -830,11 +831,17 @@ void CreateAssembly()
 				{
 					ir_Node* tmp =currentNode;
 					tmp= tmp->prev;
+					int isGlobal = isVar_Global(tmp->leftValue,tmp->scope);
 					// printf("%s %s %s \n", tmp->leftValue, tmp->rightValue, tmp->op);
 					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
-					fprintf(f,"#  SysCall Put_I //\n");
+					fprintf(f,"#  SysCall Put_F //\n");
 					fprintf(f,"\tli $v0,2 #\n");
-					fprintf(f,"\tl.s $f12,%d($sp) #%s\n",memparam,tmp->leftValue);
+					if(isGlobal==1)
+						fprintf(f,"\tl.s $f12,%s #%s\n",tmp->leftValue,tmp->leftValue);
+					else
+						fprintf(f,"\tl.s $f12,%d($sp) #%s\n",memparam,tmp->leftValue);
+
+					
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}
