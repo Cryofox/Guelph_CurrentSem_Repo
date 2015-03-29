@@ -194,6 +194,59 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 
 	if(isFloat==1)
 	{
+		//printf("ML:%d \t MR:%d \t MRES:%d\n",memLeft,memRight,memResult);
+		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
+		else
+			fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
+
+		if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
+			fprintf(f,"\tl.s $f2,%s #%s\n",currentNode->rightValue ,currentNode->rightValue );
+		else
+			fprintf(f,"\tl.s $f2,%d($sp) #%s\n",memRight ,currentNode->rightValue );
+
+
+
+		//Possible its an int
+
+		//+_ and *_ are for Addressing.
+
+			// //By addressed we mean the register is currently holding an address as opposed to
+			//the intended value
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+			{
+				fprintf(f,"\tlw $t0,%d($sp) #LEEEEFT%s\n",memLeft ,currentNode->leftValue);
+				fprintf(f,"\tl.s $f1, ($t0) #LEEEEFT\n");				
+			}
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+			{
+				fprintf(f,"\tlw $t1,%d($sp) #RIIIIIIGHT%s\n",memLeft ,currentNode->leftValue);
+				fprintf(f,"\tl.s $f2, ($t1) #RIIIIIIGHT\n");			
+			}		
+
+		//Use the following commands for 
+		if(strcmp(currentNode->op,"+")==0)
+		{
+			fprintf(f,"\tadd.s $f1,$f1,$f2 #\n");
+		}
+
+		else if(strcmp(currentNode->op,"-")==0)
+		{
+			fprintf(f,"\tsub.s $f1,$f1,$f2 #\n");
+		}
+
+		else if(strcmp(currentNode->op,"*")==0)
+		{
+			fprintf(f,"\tmul.s $f1,$f1,$f2 #\n");
+		}
+
+		else if(strcmp(currentNode->op,"/")==0)
+		{
+			fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
+		}
+		
+		/*
 		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
 			fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
 		else
@@ -250,7 +303,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
 				SetAddressed(currentNode->result, currentNode->scope);
 		}
-
+*/
 		fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
 	}
@@ -286,7 +339,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		}
 		else if(strcmp(currentNode->op,"*_")==0)
 		{
-			fprintf(f,"\tadd $t0,$t0,$t1 #\n");
+			fprintf(f,"\tmul $t0,$t0,$t1 #\n");
 
 			//Here we check if our new temp is also addressed
 			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
@@ -315,73 +368,21 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		if(strcmp(currentNode->op,"+")==0)
 		{
 			fprintf(f,"\tadd $t0,$t0,$t1 #\n");
-
-			// //Here we check if our new temp is also addressed
-			// if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-			// if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-
-			// //IF Left & Right are Effed (Addresses)
-			// if(GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1 &&   GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-			// {
-			// 	fprintf(f,"\tlw $t1 , ($t1) #\n");
-			// 	fprintf(f,"\tlw $t2 , ($t0) #\n");
-
-			// 	fprintf(f,"\tadd $t2 ,$t2 ,$t1 #\n");
-			// 	fprintf(f,"\tsw $t2, ($t0) #\n");
-			// }
-			// else if(GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-			// {
-			// 	fprintf(f,"\tlw $t2 , ($t0) #\n");				
-			// 	fprintf(f,"\tadd $t2 ,$t2, $t1 #\n");
-			// 	fprintf(f,"\tsw $t2, ($t0) #\n");
-			// }			
-
 		}
 
 		else if(strcmp(currentNode->op,"-")==0)
 		{
 			fprintf(f,"\tsub $t0,$t0,$t1 #\n");
-
-			//Here we check if our new temp is also addressed
-			// if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-			// if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-
 		}
 
 		else if(strcmp(currentNode->op,"*")==0)
 		{
 			fprintf(f,"\tmul $t0,$t0,$t1 #\n");
-
-			//Here we check if our new temp is also addressed
-			// if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-			// if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-
 		}
 
 		else if(strcmp(currentNode->op,"/")==0)
 		{
 			fprintf(f,"\tdiv $t0,$t0,$t1 #\n");
-
-			//Here we check if our new temp is also addressed
-			// if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-			// if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-			// 	SetAddressed(currentNode->result, currentNode->scope);
-
-
 		}
 
 
@@ -697,7 +698,8 @@ void CreateAssembly()
 
 					if(GetAddressedFlag(currentNode->leftValue,currentNode->scope)==1)
 					{
-						fprintf(f,"\tl.s $f1, ($f1) #\n");
+						fprintf(f,"\tlw $t0, %d($sp) #%s\n",memResult  ,currentNode->result);					
+						fprintf(f,"\tl.s $f1, ($t0) #\n");
 					}
 					fprintf(f,"\ts.s $f1, ($t1) #%s\n",currentNode->result);
 					fprintf(f,"#=====//\n");

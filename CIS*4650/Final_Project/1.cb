@@ -60,6 +60,7 @@ int Test_Global()
 	nl='n';
 	test=67;
 	putf(fifty);
+	putc(nl);
 	puti(test);
 	putc(nl);
 	return 0;
@@ -99,20 +100,27 @@ int main()
 	int array[20];
 	int x;	
 	int y;
+	char nl;
 	someStruct myTestStruct;
 
+	nl='\n';
+/*
 	y=6;
 	y= y+1;
-	/* Y=6, Lets Call Rec Function */
-	RecursiveFunction(y);
 
+
+	RecursiveFunction(y);
 	test_CharPrint();
-	
+	*/
+
 	floatTest=999.9;
+	floatTest= floatTest + 5.4;
+
 	putf(floatTest);
 		
 
 	test= 54;
+
 	myTestStruct.varx=21;
 	myTestStruct.varf=24.654;
 	array[5]=65;
@@ -121,12 +129,16 @@ int main()
 
 
 	x= array[5];
-
 	puti(x);
+	putc(nl);
 	puti(y);
+	putc(nl);
 	puti(array[5]);
+	putc(nl);
 	puti(myTestStruct.varx);
+	putc(nl);
 	putf(myTestStruct.varf);
+	putc(nl);
 
 	cyberSix.dataY=2224; 
  	ModifyTestArr();
