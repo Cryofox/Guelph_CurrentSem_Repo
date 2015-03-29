@@ -29,6 +29,8 @@ typedef struct n
 
 	//This only used by temps during Instructions so we can re-assign values where they belong
 	char* referencedValue;
+	char* ref_Offset;
+	int isAddress;
 }entry_Node;
 
 //Struct used for TypeDef Linking
@@ -78,4 +80,11 @@ int Get_Scope_Size(char* scope);
 void Add_TempSym(char * tag,char* type, char*scope);
 char* Get_ReferencedValue(char* temp,char* currentscope );
 int Get_Scope_Memory(char* currentscope);
+
+
+
+void SetAddressed(char* variable, char* current);
+
+int GetAddressedFlag(char* variable, char* current);
+
 #endif

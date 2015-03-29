@@ -22,94 +22,30 @@ Variable	Type		StructOwner
 Scope:[Global]
 Variable	Type		StructOwner
 --------------------------------
-test		int		None
-================================
-
-Scope:[test_CharPrint]
-Variable	Type		StructOwner
---------------------------------
-c		char		None
-a		char		None
-t		char		None
-nl		char		None
-t6		char		None
-t7		char		None
-t10		char		None
-t11		char		None
-t14		char		None
-t15		char		None
-t18		char		None
-t19		char		None
-t22		char		None
-t21		int		None
-t25		char		None
-t24		int		None
-t28		char		None
-t27		int		None
-t31		int		None
-t30		int		None
-================================
-
-Scope:[arithmetic_Int]
-Variable	Type		StructOwner
---------------------------------
-x		int		None
-y		int		None
-z		int		None
-t37		int		None
-t38		int		None
-t41		int		None
-t42		int		None
-t45		int		None
-t48		int		None
-t49		int		None
-t47		int		None
-t50		int		None
-t46		int		None
-t53		int		None
-t52		int		None
-t56		int		None
-t55		int		None
-================================
-
-Scope:[arithmetic_Float]
-Variable	Type		StructOwner
---------------------------------
-x		float		None
-t62		float		None
-t63		float		None
-t66		float		None
-t68		float		None
-t69		float		None
-t67		float		None
-t72		float		None
-t71		int		None
-t75		int		None
-t74		int		None
 ================================
 
 Scope:[main]
 Variable	Type		StructOwner
 --------------------------------
+array		int_Ar[20]	None
 x		int		None
-t80		int		None
-t81		int		None
-t83		int		None
-t89		int		None
-t88		int		None
-t91		int		None
-t95		int		None
-t97		int		None
-t98		int		None
-t96		int		None
-t101		int		None
-t102		int		None
-t100		int		None
-t104		int		None
-t105		int		None
-t103		int		None
-t99		int		None
-t106		int		None
-t109		int		None
-t108		int		None
+y		int		None
+t6		int		None
+t7		int		None
+t8		int		None
+t5		int		None
+t9		int		None
+t12		int		None
+t13		int		None
+t16		int		None
+t18		int		None
+t19		int		None
+t20		int		None
+t17		int		None
+t23		int		None
+t22		int		None
+t26		int		None
+t25		int		None
+t29		int		None
+t28		int		None
 ================================

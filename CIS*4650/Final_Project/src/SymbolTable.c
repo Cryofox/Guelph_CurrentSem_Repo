@@ -189,7 +189,7 @@ void Add_Array(char* token_Name, char* type, int size)
 		//printf("So far so peachy...\n");
 		//printf("Str Peachy:%s\n",type);
 		char* nt = Get_VarType(type);
-
+traveller->isAddress=0;
 		// printf("NT=%s\n",nt);
 		traveller->type=nt;
 		traveller->next=NULL;
@@ -242,7 +242,7 @@ void Add_Variable(char* token_Name, char* type)
 		traveller->type=nt;
 		traveller->next=NULL;
 		traveller->referencedValue=NULL;
-
+		traveller->isAddress=0;
 		if(nt== nt_NONE)
 		{
 			fprintf(stderr, "\nError: Unknown Variable:%s\n", token_Name);			
@@ -596,6 +596,41 @@ char* Get_Var_Owner(char* variable, char* currentscope)
 	return NULL;
 }
 
+
+void SetAddressed(char* variable, char* currentscope)
+
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			traveller->isAddress=1;
+		traveller=traveller->next;
+	}	
+}
+int GetAddressedFlag(char* variable, char* currentscope)
+{
+	int hashValue = hash(currentscope);
+	//Check if variable is in current scope
+	entry_Node* traveller = symbolTable[hashValue];
+
+	traveller=traveller->next;
+	//Check Current Scope
+	while(traveller!=NULL)
+	{
+		if( strcmp(traveller->identifier,variable)==0)
+			return traveller->isAddress;
+		traveller=traveller->next;
+	}	
+	return 0;
+}
+
+
 void Calculate_Offsets()
 {
 	//For each Table Entry
@@ -740,9 +775,11 @@ char* Get_ReferencedValue(char* temp,char* currentscope )
 	}	
 	return NULL;
 }
+
 //Call this to get a Variable assigned Type
 int Get_Var_MemoryOffset(char* variable, char* currentscope)
 {
+
 	int hashValue = hash(currentscope);
 	//Check if variable is in current scope
 	entry_Node* traveller = symbolTable[hashValue];

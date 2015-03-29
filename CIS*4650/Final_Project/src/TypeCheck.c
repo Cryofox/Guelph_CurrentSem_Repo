@@ -329,68 +329,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		free(leftNode);
 		free(temp);
 	}
-	else if(strcmp(node->tokenName,"IF:")==0)
-	{
-		char* temp= malloc(sizeof(char)*20);
-		sprintf(temp,"t%d",currentNode);
 
-
-		char* leftNode= malloc(sizeof(char)*20);
-		sprintf(leftNode,"t%d",currentNode+1);
-
-		char* labelIf = malloc(sizeof(char)*20);
-		sprintf(labelIf,"Label_t%d",currentNode);
-
-		//This is the Logic Check
-		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);			
-
-		//Promote Last IR to IF		
-
-		if(strcmp(leftValue,"int")!=0)
-		{
-			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
-			errorCount++;
-			return NULL;
-		}
-
-		int index=0;
-		//Check if There is ==. If yes, it'll handle our Relational Logic
-		//Check if First node encountered on Left is, Relational Operator.
-		if((strcmp(node->u.oper.left->tokenName,"==")==0) 	||
-				  (strcmp(node->u.oper.left->tokenName,"<")==0)		||
-				  (strcmp(node->u.oper.left->tokenName,"<=")==0)	||
-				  (strcmp(node->u.oper.left->tokenName,">")==0)		||	
-				  (strcmp(node->u.oper.left->tokenName,">=")==0)	||	
-				  (strcmp(node->u.oper.left->tokenName,"!=")==0)	||
-				  (strcmp(node->u.oper.left->tokenName,"&&")==0)	||
-				  (strcmp(node->u.oper.left->tokenName,"||")==0)
-				  )
-		{
-			//We need to Change what we Promote on
-			index=	Promote_LastIR_IF(labelIf);
-		}
-		//We Create our own.
-		//Basically we ask if it ==1
-		else
-		{
-			//The Condition is reversed. Therefore if the expression is false
-			//we skip the If Logic instructions
-			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
-			Promote_LastIR_IF(labelIf);	
-		}
-
-		//Now we go into the If Branch clause
-		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
-		
-		//Add an Empty instruction with a label
-		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
-
-		//We now have the target Node Label...
-
-		free(labelIf);
-		free(temp);
-		return leftValue;
-	}
 	else if(strcmp(node->tokenName,"Arr[]")==0)
 	{
 		char* temp= malloc(sizeof(char)*20);
@@ -850,6 +789,102 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		sprintf(labelIf,"Label_t%d",currentNode);
 
 
+		//This is the Logic Check Occurs twice once to know if we skip, 2nd time to reloop
+		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);	
+		if(strcmp(leftValue,"int")!=0)
+		{
+			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
+			errorCount++;
+			return NULL;
+		}
+
+		int index=0;
+
+
+		char* labelSkipLoop = malloc(sizeof(char)*20);
+		sprintf(labelSkipLoop,"SkipLabel_t%d",currentNode);
+		//Promote Last IR to IF		
+		//Check if There is ==. If yes, it'll handle our Relational Logic
+		//Check if First node encountered on Left is, Relational Operator.
+
+		//We need to Change what we Promote on
+		index=	Promote_LastIR_IF(labelSkipLoop);	
+		
+
+		//Add an Empty instruction with a label
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
+
+		//Now we go into the If Branch clause
+		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
+
+
+		//This is the Logic Check
+		leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);	
+
+
+
+
+		if(strcmp(leftValue,"int")!=0)
+		{
+			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
+			errorCount++;
+			return NULL;
+		}
+
+		index=0;
+		//Check if There is ==. If yes, it'll handle our Relational Logic
+		//Check if First node encountered on Left is, Relational Operator.
+		if((strcmp(node->u.oper.left->tokenName,"==")==0) 	||
+				  (strcmp(node->u.oper.left->tokenName,"<")==0)		||
+				  (strcmp(node->u.oper.left->tokenName,"<=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,">")==0)		||	
+				  (strcmp(node->u.oper.left->tokenName,">=")==0)	||	
+				  (strcmp(node->u.oper.left->tokenName,"!=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"&&")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"||")==0)
+				  )
+		{
+			//We need to Change what we Promote on
+			index=	Promote_LastIR_IF(labelIf);
+			//Double Promote, to inverse the IF Inverse
+			index=	Promote_LastIR_IF(labelIf);			
+		}
+		//We Create our own.
+		//Basically we ask if it ==1
+		else
+		{
+			char* labelIf = malloc(sizeof(char)*20);
+			sprintf(labelIf,"Label_t%d",currentNode);
+			//The Condition is reversed. Therefore if the expression is false
+			//we skip the If Logic instructions
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
+			Promote_LastIR_IF(labelIf);	
+		}
+
+		//Add an Empty instruction with a label
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelSkipLoop,scope);
+
+		//We now have the target Node Label...
+		free(labelSkipLoop);
+		free(labelIf);
+		free(temp);
+		return leftValue;
+	}
+	/*While Snapshot
+
+	else if(strcmp(node->tokenName,"while:")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",currentNode+1);
+
+		char* labelIf = malloc(sizeof(char)*20);
+		sprintf(labelIf,"Label_t%d",currentNode);
+
+
 		//Add an Empty instruction with a label
 		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
 
@@ -891,6 +926,8 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Basically we ask if it ==1
 		else
 		{
+			char* labelIf = malloc(sizeof(char)*20);
+			sprintf(labelIf,"Label_t%d",currentNode);
 			//The Condition is reversed. Therefore if the expression is false
 			//we skip the If Logic instructions
 			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
@@ -898,6 +935,69 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		}
 
 
+
+		//We now have the target Node Label...
+
+		free(labelIf);
+		free(temp);
+		return leftValue;
+	}
+	*/
+	else if(strcmp(node->tokenName,"IF:")==0)
+	{
+		char* temp= malloc(sizeof(char)*20);
+		sprintf(temp,"t%d",currentNode);
+
+
+		char* leftNode= malloc(sizeof(char)*20);
+		sprintf(leftNode,"t%d",currentNode+1);
+
+		char* labelIf = malloc(sizeof(char)*20);
+		sprintf(labelIf,"Label_t%d",currentNode);
+
+		//This is the Logic Check
+		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);			
+
+		//Promote Last IR to IF		
+
+		if(strcmp(leftValue,"int")!=0)
+		{
+			fprintf(stderr, "Type Error: Line[%d] Relation Logic must result as int, instead:%s\n",node->lineCreated, leftValue);
+			errorCount++;
+			return NULL;
+		}
+
+		int index=0;
+		//Check if There is ==. If yes, it'll handle our Relational Logic
+		//Check if First node encountered on Left is, Relational Operator.
+		if((strcmp(node->u.oper.left->tokenName,"==")==0) 	||
+				  (strcmp(node->u.oper.left->tokenName,"<")==0)		||
+				  (strcmp(node->u.oper.left->tokenName,"<=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,">")==0)		||	
+				  (strcmp(node->u.oper.left->tokenName,">=")==0)	||	
+				  (strcmp(node->u.oper.left->tokenName,"!=")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"&&")==0)	||
+				  (strcmp(node->u.oper.left->tokenName,"||")==0)
+				  )
+		{
+			//We need to Change what we Promote on
+			index=	Promote_LastIR_IF(labelIf);
+		}
+		//We Create our own.
+		//Basically we ask if it ==1
+		else
+		{
+			//The Condition is reversed. Therefore if the expression is false
+			//we skip the If Logic instructions
+			index= Add_IR_Instruction(leftNode,"!=", "0", temp,NULL,scope);
+			Promote_LastIR_IF(labelIf);	
+		}
+
+		//Now we go into the If Branch clause
+		char* rightValue=evaluateExpr(node->u.oper.right,  expectedType, value,scope);			
+		
+		//Add an Empty instruction with a label
+		Add_IR_Instruction(NULL,NULL,NULL,NULL,labelIf,scope);
 
 		//We now have the target Node Label...
 

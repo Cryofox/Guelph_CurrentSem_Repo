@@ -63,9 +63,10 @@ int main()
 {
 	/*int x;	x=32;*/
 	int array[20];
-	int x;	
-	int y;
+	int x;
 	array[5]=65;
+	
+	int y;
 
 	y=6;
 	x= array[5];

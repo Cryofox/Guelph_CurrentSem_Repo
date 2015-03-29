@@ -161,6 +161,8 @@ void Add_Temp(ir_Node* curNode)
 
 void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 {
+	// printf("ATTEMPTING ARITHMETIC:\n");
+	// printf(" %s = %s %s %s\n", currentNode->result, currentNode->leftValue, currentNode->op, currentNode->rightValue);
 	//This is the memory location of this value
 	int memLeft   	= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
 	int memRight   	= Get_Var_MemoryOffset(currentNode->rightValue, currentNode->scope); 
@@ -175,7 +177,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	//This is due to us assuming typechecking would have caught float on non float operations
 	int isFloat=0;
 	char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
-
+	printf("Type1=%s\n",type);
 	if(type!=NULL)
 		if(strcmp(type,"float")==0)
 			isFloat=1;
@@ -183,6 +185,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	if(currentNode->rightValue!=NULL)
 	{		
 		type= Get_Var_AssignedType(currentNode->rightValue,currentNode->scope);
+		printf("Type2=%s\n",type);		
 		if(type!=NULL)
 			if(strcmp(type,"float")==0)
 				isFloat=1;
@@ -224,6 +227,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	//Int maths
 	else
 	{
+		//printf("ML:%d \t MR:%d \t MRES:%d\n",memLeft,memRight,memResult);
 		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
 			fprintf(f,"\tli $t0,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
 		else
@@ -240,19 +244,63 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		
 		//Use the following commands for 
 		if(strcmp(currentNode->op,"+")==0)
+		{
 			fprintf(f,"\tadd $t0,$t0,$t1 #\n");
 
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+
+		}
+
 		else if(strcmp(currentNode->op,"-")==0)
+		{
 			fprintf(f,"\tsub $t0,$t0,$t1 #\n");
 
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+
+		}
+
 		else if(strcmp(currentNode->op,"*")==0)
+		{
 			fprintf(f,"\tmul $t0,$t0,$t1 #\n");
 
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+
+		}
+
 		else if(strcmp(currentNode->op,"/")==0)
+		{
 			fprintf(f,"\tdiv $t0,$t0,$t1 #\n");
 
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
 
 
+		}
+
+
+		//Dont care after here, because the values are 0-1 ....
 		else if(strcmp(currentNode->op,"&&")==0)
 			fprintf(f,"\tand $t0,$t0,$t1 #\n");
 
@@ -401,6 +449,8 @@ void CreateAssembly()
 		//Doesn't work....
 		if(currentNode->op!=NULL)
 		{
+
+			printf(" %s = %s %s %s\n", currentNode->result, currentNode->leftValue, currentNode->op, currentNode->rightValue);
 			//Since all  Temp Variables are stored, we don't need to do any dancing..just use the variables
 
 			//We don't actually want the address, we just want
@@ -412,6 +462,7 @@ void CreateAssembly()
 
 				//Create the Reference for bookkeeping
 				Create_ReferenceLink(currentNode->result, currentNode->leftValue, currentNode->scope);
+
 				// if(memLeft==-999)
 				// 	memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
 
@@ -432,16 +483,25 @@ void CreateAssembly()
 					fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 					fprintf(f,"#=====//\n");
 					//We load the value the address holds but WE make note of what variable that was
+
+
+					//Set Left side Flag to True
+					 SetAddressed(currentNode->result, currentNode->scope);
 				}
 				else
 				{				
 					fprintf(f,"#  &  //\n");
 					//These can for the most part be ignored. This instruction would just overwrite the value
 					//inside a var with its own address...completely pointless
-					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					//Whenever we're loading an address zero out the value at it
+					fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
 					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 					fprintf(f,"#=====//\n");
 					//We load the value the address holds but WE make note of what variable that was
+
+					//Set Left side Flag to True
+					 SetAddressed(currentNode->result, currentNode->scope);
+
 				}
 
 			}
@@ -465,7 +525,6 @@ void CreateAssembly()
 					if(strcmp(type,"float")==0)
 						isFloat=1;
 
-				int memRef= Get_Var_MemoryOffset(referenceVar, currentNode->scope);
 								if(type!=NULL)
 					if(strcmp(type,"float")==0)
 						isFloat=1;
@@ -479,8 +538,10 @@ void CreateAssembly()
 					fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
 					fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 					if(referenceVar!=NULL)
+					{
+						int memRef= Get_Var_MemoryOffset(referenceVar, currentNode->scope);
 						fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memRef,referenceVar);					
-
+					}
 
 					fprintf(f,"#=====//\n");	
 				}
@@ -490,10 +551,23 @@ void CreateAssembly()
 					//inside a var with its own address...completely pointless
 
 					//Now we store to both the Temp on the left, AND the reference link
-					fprintf(f,"\tlw $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-					if(referenceVar!=NULL)
-						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memRef,referenceVar);					
+					fprintf(f,"\tlw $t0, %d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					//fprintf(f,"\tlw $t0, ($t0) #Grab Word from Address\n");
+
+					fprintf(f,"\tlw $t1, %d($sp) #%s\n",memResult  ,currentNode->result);
+
+
+					if(GetAddressedFlag(currentNode->leftValue,currentNode->scope)==1)
+					{
+						fprintf(f,"\tlw $t0, ($t0) #\n");
+					}
+					fprintf(f,"\tsw $t0, ($t1) #%s\n",currentNode->result);
+					//fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+					// if(referenceVar!=NULL)
+					// {
+					// 	int memRef= Get_Var_MemoryOffset(referenceVar, currentNode->scope);
+					// 	fprintf(f,"\tsw $t0,%d($sp) #%s\n",memRef,referenceVar);
+					// }
 
 
 					fprintf(f,"#=====//\n");	
@@ -578,7 +652,7 @@ void CreateAssembly()
 					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
 					fprintf(f,"#  SysCall Put_I //\n");
 					fprintf(f,"\tli $v0,4 #\n");
-					fprintf(f,"\tla $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+					fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}				
@@ -616,6 +690,7 @@ void CreateAssembly()
 					//Store the current Ret Address here for us.
 					fprintf(f,"\tsw $ra, %d($sp)\n",(myFuncMem+8));				
 					
+
 					//Offset SP
 					fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
 					//Store FP, for restoring
@@ -677,180 +752,7 @@ void CreateAssembly()
 			{
 				CreateArithRel_Statement(f,currentNode);
 			}
-
-
-
-			// if(strcmp(currentNode->leftValue,"putf")==0)
-			// {
-			// 	//we only need 1 param back. So lets grab it
-			// 	temp_Val* tmp=GetNode(currentNode->result);
-
-			// 	tmp= tmp->prev;
-			// 	fprintf(f,"#  SysCall Put_F //\n");
-			// 	fprintf(f,"\tli $v0,2 #\n");
-			// 	fprintf(f,"\tl.s $f12,%d($sp) #%s\n",tmp->memory,tmp->tag);
-			// 	fprintf(f,"\tsyscall\n");
-			// 	fprintf(f,"#=====//\n");
-			// }	
-			// if(strcmp(currentNode->leftValue,"putc")==0)
-			// {
-			// 	//we only need 1 param back. So lets grab it
-			// 	temp_Val* tmp=GetNode(currentNode->result);
-
-			// 	tmp= tmp->prev;
-			// 	fprintf(f,"#  SysCall Put_C //\n");
-			// 	fprintf(f,"\tli $v0,4 #\n");
-			// 	fprintf(f,"\tla $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
-			// 	fprintf(f,"\tsyscall\n");
-			// 	fprintf(f,"#=====//\n");
-			// }
-
-
-
-			// //Regardless the OP, we need to perform the calculations ourselves
-			// //incase an array is called or any other nonsense everything must be up to date
-			
-			// if((currentNode->result!=NULL) /*&& (strcmp(currentNode->op,"*=")!=0)*/)
-			// 	Add_Temp(currentNode);
-
-			// //Now we'll have memory for all these guys
-			// //Whenever * is encountered as the first char, we need to lookup somememory
-
-			// if(strcmp(currentNode->op,"*=")==0)
-			// {
-			// 	//This is the memory location of this value
-			// 	int memLeft   = LookupMemory(currentNode->leftValue);
-			// 	int memResult = LookupMemory(currentNode->result);
-
-			// 	//-999 is a number I used for Not Found in lookup memory
-			// 	if(memLeft==-999)
-			// 		memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
-
-
-			// 	if(memLeft>0)
-			// 	{
-			// 		fprintf(f,"#  *=  //\n");
-			// 		fprintf(f,"\tlw $t0,%d($sp)  #%s\n",memLeft  ,currentNode->leftValue);
-			// 		fprintf(f,"\tsw $t0,%d($sp)  #%s\n",memResult,currentNode->result);
-			// 		fprintf(f,"\t\t#=====//\n");
-			// 	}
-			// 	else
-			// 	{	//A Literal was assigned to the 1st argument
-			// 		if(memLeft==LITERAL_USED) 
-			// 		{
-			// 			temp_Val* tmp=GetNode(currentNode->leftValue);
-
-			// 			fprintf(f,"#  = Literal C #\n");
-			// 			fprintf(f,"\tli $t0,'%c' #--%s\n",tmp->literal_c  ,currentNode->leftValue);
-			// 			fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);				
-			// 			//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
-			// 			fprintf(f,"#=====//\n");						
-			// 		}
-			// 		else if(memLeft==LITERAL_USED+1)
-			// 		{
-			// 			temp_Val* tmp=GetNode(currentNode->leftValue);
-
-			// 			fprintf(f,"#  = Literal I #\n");
-			// 			fprintf(f,"\tli $t0,%d #--%s\n",tmp->literal_i  ,currentNode->leftValue);
-			// 			fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);				
-			// 			//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
-			// 			fprintf(f,"#=====//\n");						
-			// 		}
-			// 		else if(memLeft==LITERAL_USED+2)
-			// 		{
-			// 			temp_Val* tmp=GetNode(currentNode->leftValue);
-
-			// 			fprintf(f,"#  = Literal F #\n");
-			// 			fprintf(f,"\tli.s $f0,%f #--%s\n",tmp->literal_f  ,currentNode->leftValue);
-			// 			fprintf(f,"\ts.s $f0,%d($sp) #%s\n",memResult,currentNode->result);				
-			// 			//fprintf(f,"\tsw %s,%d($sp)   #%s\n",currentNode->leftValue,memResult,currentNode->result);
-			// 			fprintf(f,"#=====//\n");						
-			// 		}	
-			// 		//Otherwise we just pretend T0 is rigged with what we want.
-			// 		else
-			// 		{					
-
-			// 			fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);					
-			// 			fprintf(f,"#=====//\n");
-			// 		}	
-												
-			// 	}
-
-			// 	//}
-			// }
-			// //Load Address into Var at offset
-			// if(strcmp(currentNode->op,"&")==0)
-			// {
-			// 	//This is the memory location of this value
-			// 	int memLeft   = LookupMemory(currentNode->leftValue);
-			// 	int memResult = LookupMemory(currentNode->result);
-
-			// 	if(memLeft==-999)
-			// 		memLeft= Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); 
-
-			// 	fprintf(f,"#  &  //\n");
-			// 	//These can for the most part be ignored. This instruction would just overwrite the value
-			// 	//inside a var with its own address...completely pointless
-			// 	// fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-			// 	// fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-			// 	fprintf(f,"#=====//\n");
-			// }
-
-			// //Arithmetics
-			// if((strcmp(currentNode->op,"+")==0) ||
-			//   (strcmp(currentNode->op,"*")==0) ||
-			//   (strcmp(currentNode->op,"/")==0) ||
-			//   (strcmp(currentNode->op,"-")==0) ||
-			//   (strcmp(currentNode->op,"||")==0) ||  
-			//   (strcmp(currentNode->op,"&&")==0) )
-			// {
-			// 	CreateArithRel_Statement(f,currentNode);
-			// }
-
-
-
-			// if(strcmp(currentNode->op,"call")==0)
-			// {
-			// 	if(strcmp(currentNode->leftValue,"puti")==0)
-			// 	{
-			// 		//we only need 1 param back. So lets grab it
-			// 		temp_Val* tmp=GetNode(currentNode->result);
-
-			// 		tmp= tmp->prev;
-			// 		fprintf(f,"#  SysCall Put_I //\n");
-			// 		fprintf(f,"\tli $v0,1 #\n");
-			// 		fprintf(f,"\tlw $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
-			// 		fprintf(f,"\tsyscall\n");
-			// 		fprintf(f,"#=====//\n");
-			// 	}
-			// 	if(strcmp(currentNode->leftValue,"putf")==0)
-			// 	{
-			// 		//we only need 1 param back. So lets grab it
-			// 		temp_Val* tmp=GetNode(currentNode->result);
-
-			// 		tmp= tmp->prev;
-			// 		fprintf(f,"#  SysCall Put_F //\n");
-			// 		fprintf(f,"\tli $v0,2 #\n");
-			// 		fprintf(f,"\tl.s $f12,%d($sp) #%s\n",tmp->memory,tmp->tag);
-			// 		fprintf(f,"\tsyscall\n");
-			// 		fprintf(f,"#=====//\n");
-			// 	}	
-			// 	if(strcmp(currentNode->leftValue,"putc")==0)
-			// 	{
-			// 		//we only need 1 param back. So lets grab it
-			// 		temp_Val* tmp=GetNode(currentNode->result);
-
-			// 		tmp= tmp->prev;
-			// 		fprintf(f,"#  SysCall Put_C //\n");
-			// 		fprintf(f,"\tli $v0,4 #\n");
-			// 		fprintf(f,"\tla $a0,%d($sp) #%s\n",tmp->memory,tmp->tag);
-			// 		fprintf(f,"\tsyscall\n");
-			// 		fprintf(f,"#=====//\n");
-			// 	}
-			// 	//Otherwise it's a real function call...golly	
-
-
-			// }		
+		
 
 
 		}
