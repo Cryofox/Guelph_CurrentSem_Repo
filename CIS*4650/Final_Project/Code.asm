@@ -130,6 +130,8 @@ arithmetic_Int:
 #  Arithmet / Relation  //
 	lw $t0,36($sp) #t51
 	lw $t1,40($sp) #t51
+	lw $t0, ($t0) #LEEEEFT
+	lw $t1, ($t1) #RIIIIIIGHT
 	mul $t0,$t0,$t1 #
 	sw $t0,44($sp) #t50
 #=====//
@@ -146,7 +148,6 @@ arithmetic_Int:
 #  Assignment //
 	lw $t0, 52($sp) #t49
 	lw $t1, 32($sp) #t48
-	lw $t0, ($t0) #
 	sw $t0, ($t1) #t48
 #=====//
 #  SysCall Put_I //
@@ -247,7 +248,7 @@ ModifyTestArr:
 #  Arithmet / Relation  //
 	lw $t0,12($sp) #t96
 	li $t1,4 #t96
-	mul $t0,$t0,$t1 #
+	add $t0,$t0,$t1 #
 	sw $t0,16($sp) #t97
 #=====//
 #  Arithmet / Relation  //
@@ -286,7 +287,7 @@ RecursiveFunction:
 #  Arithmet / Relation  //
 	lw $t0,8($sp) #t108
 	lw $t1,12($sp) #t108
-	lw $t0, ($t0) #
+	lw $t0, ($t0) #LEEEEFT
 	ble $t0, $t1, Label_t106
 	sw $t0,16($sp) #t107
 #=====//
@@ -314,13 +315,13 @@ RecursiveFunction:
 #  Arithmet / Relation  //
 	lw $t0,36($sp) #t121
 	lw $t1,40($sp) #t121
+	lw $t0, ($t0) #LEEEEFT
 	sub $t0,$t0,$t1 #
 	sw $t0,44($sp) #t120
 #=====//
 #  Assignment //
 	lw $t0, 44($sp) #t120
 	lw $t1, 32($sp) #t119
-	lw $t0, ($t0) #
 	sw $t0, ($t1) #t119
 #=====//
 #  Function Call:RecursiveFunction //
@@ -375,13 +376,13 @@ main:
 #  Arithmet / Relation  //
 	lw $t0,144($sp) #t139
 	lw $t1,148($sp) #t139
+	lw $t0, ($t0) #LEEEEFT
 	add $t0,$t0,$t1 #
 	sw $t0,152($sp) #t138
 #=====//
 #  Assignment //
 	lw $t0, 152($sp) #t138
 	lw $t1, 140($sp) #t137
-	lw $t0, ($t0) #
 	sw $t0, ($t1) #t137
 #=====//
 #  Function Call:RecursiveFunction //
@@ -493,7 +494,7 @@ main:
 #  Arithmet / Relation  //
 	lw $t0,244($sp) #t173
 	li $t1,4 #t173
-	mul $t0,$t0,$t1 #
+	add $t0,$t0,$t1 #
 	sw $t0,248($sp) #t174
 #=====//
 #  Arithmet / Relation  //
@@ -526,7 +527,7 @@ main:
 #  Arithmet / Relation  //
 	lw $t0,268($sp) #t181
 	li $t1,4 #t181
-	mul $t0,$t0,$t1 #
+	add $t0,$t0,$t1 #
 	sw $t0,272($sp) #t182
 #=====//
 #  Arithmet / Relation  //
@@ -562,7 +563,7 @@ main:
 #  Arithmet / Relation  //
 	lw $t0,300($sp) #t193
 	li $t1,4 #t193
-	mul $t0,$t0,$t1 #
+	add $t0,$t0,$t1 #
 	sw $t0,304($sp) #t194
 #=====//
 #  Arithmet / Relation  //
@@ -674,7 +675,7 @@ main:
 #  Arithmet / Relation  //
 	lw $t0,604($sp) #t217
 	li $t1,4 #t217
-	mul $t0,$t0,$t1 #
+	add $t0,$t0,$t1 #
 	sw $t0,608($sp) #t218
 #=====//
 #  Arithmet / Relation  //

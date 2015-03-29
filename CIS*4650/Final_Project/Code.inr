@@ -62,8 +62,8 @@
 	[t91]call Test_Global 0
 	t95 = & testArr
 	t96 = =i 5
-	t97 = t96 * 4
-	t94 = t95 + t97
+	t97 = t96 *_ 4
+	t94 = t95 +_ t97
 	t98 = =i 69
 	t94 = *= t98
 	t101 = =i 1
@@ -107,25 +107,25 @@
 	t155 = *= t156
 	t160 = & myTestStruct
 	t161 = =i 4
-	t159 = t161 + t160
+	t159 = t161 +_ t160
 	t162 = =i 21
 	t159 = *= t162
 	t166 = & myTestStruct
 	t167 = =i 8
-	t165 = t167 + t166
+	t165 = t167 +_ t166
 	t168 = =f 24.6539
 	t165 = *= t168
 	t172 = & array
 	t173 = =i 5
-	t174 = t173 * 4
-	t171 = t172 + t174
+	t174 = t173 *_ 4
+	t171 = t172 +_ t174
 	t175 = =i 65
 	t171 = *= t175
 	t178 = & x
 	t180 = & array
 	t181 = =i 5
-	t182 = t181 * 4
-	t179 = t180 + t182
+	t182 = t181 *_ 4
+	t179 = t180 +_ t182
 	t178 = *= t179
 	param x 
 	[t184]call puti 1
@@ -133,39 +133,39 @@
 	[t187]call puti 1
 	t192 = & array
 	t193 = =i 5
-	t194 = t193 * 4
-	t191 = t192 + t194
+	t194 = t193 *_ 4
+	t191 = t192 +_ t194
 	t191 = = t191
 	param t191 
 	[t190]call puti 0
 	t198 = & myTestStruct
 	t199 = =i 4
-	t197 = t199 + t198
+	t197 = t199 +_ t198
 	t197 = = t197
 	param t197 
 	[t196]call puti 0
 	t203 = & myTestStruct
 	t204 = =i 8
-	t202 = t204 + t203
+	t202 = t204 +_ t203
 	t202 = = t202
 	param t202 
 	[t201]call putf 0
 	t208 = & cyberSix
 	t209 = =i 0
-	t207 = t209 + t208
+	t207 = t209 +_ t208
 	t210 = =i 2224
 	t207 = *= t210
 	[t212]call ModifyTestArr 0
 	t216 = & testArr
 	t217 = =i 5
-	t218 = t217 * 4
-	t215 = t216 + t218
+	t218 = t217 *_ 4
+	t215 = t216 +_ t218
 	t215 = = t215
 	param t215 
 	[t214]call puti 0
 	t222 = & cyberSix
 	t223 = =i 0
-	t221 = t223 + t222
+	t221 = t223 +_ t222
 	t221 = = t221
 	param t221 
 	[t220]call puti 0

@@ -365,8 +365,8 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		char* temp2= malloc(sizeof(char)*20);
 		sprintf(temp2,"t%d",currentNode);
 		
-		Add_IR_Instruction(rightNode,"*", "4", temp2,NULL,scope);
-		Add_IR_Instruction(leftNode,"+", temp2, temp,NULL,scope);
+		Add_IR_Instruction(rightNode,"*_", "4", temp2,NULL,scope);
+		Add_IR_Instruction(leftNode,"+_", temp2, temp,NULL,scope);
 
 		if(paraminUse==1)
 		{
@@ -438,7 +438,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		//Current Node is now updated with what the right branch WOULD be
 		sprintf(rightNode,"t%d",(postLeft));
 
-		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
+		Add_IR_Instruction(rightNode,"+_", leftNode, temp,NULL,scope);
 
 		//This is our Param
 
