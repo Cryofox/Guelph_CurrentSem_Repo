@@ -66,7 +66,7 @@ void Add_Temp(ir_Node* curNode)
 	{
 		if(strcmp(currentNode->tag, curNode->result)==0)
 		{
-			printf("Found:%s\n",currentNode->tag);
+			// printf("Found:%s\n",currentNode->tag);
 			exists=1;
 			break;
 		}
@@ -107,7 +107,7 @@ void Add_Temp(ir_Node* curNode)
 		//Were assigning an address, look it up in SymbolTable
 		memory = LITERAL_USED+1; //Secret number
 		li= atoi(curNode->leftValue);
-		printf("Loading Address: %s Val=%d\n", curNode->result,li);
+		// printf("Loading Address: %s Val=%d\n", curNode->result,li);
 	}	
 	else if(strcmp(curNode->op,"=f")==0)
 	{		
@@ -121,7 +121,7 @@ void Add_Temp(ir_Node* curNode)
 
 	else if(strcmp(curNode->op,"param")==0)
 	{		
-		printf("PARAM Found\n");
+		// printf("PARAM Found\n");
 		memory = Get_Var_MemoryOffset(curNode->leftValue, curNode->scope);
 	}
 
@@ -150,7 +150,7 @@ void Add_Temp(ir_Node* curNode)
 		//We state the size of the frame + the temp number
 
 	}
-	printf("Added: %s %d \n", currentNode->tag, currentNode->literal_i);
+	// printf("Added: %s %d \n", currentNode->tag, currentNode->literal_i);
 	//printf("Added: %s-------------\n",currentNode->tag);
 }
 
@@ -177,7 +177,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	//This is due to us assuming typechecking would have caught float on non float operations
 	int isFloat=0;
 	char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
-	printf("Type1=%s\n",type);
+	// printf("Type1=%s\n",type);
 	if(type!=NULL)
 		if(strcmp(type,"float")==0)
 			isFloat=1;
@@ -185,7 +185,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 	if(currentNode->rightValue!=NULL)
 	{		
 		type= Get_Var_AssignedType(currentNode->rightValue,currentNode->scope);
-		printf("Type2=%s\n",type);		
+		// printf("Type2=%s\n",type);		
 		if(type!=NULL)
 			if(strcmp(type,"float")==0)
 				isFloat=1;
@@ -210,16 +210,46 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 
 		//Use the following commands for 
 		if(strcmp(currentNode->op,"+")==0)
+		{
 			fprintf(f,"\tadd.s $f1,$f1,$f2 #\n");
 
-		else if(strcmp(currentNode->op,"-")==0)
-			fprintf(f,"\tsub.s $f1,$f1,$f2 #\n");
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
 
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+		}
+
+		else if(strcmp(currentNode->op,"-")==0)
+		{	fprintf(f,"\tsub.s $f1,$f1,$f2 #\n");
+
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+		}
 		else if(strcmp(currentNode->op,"*")==0)
-			fprintf(f,"\tmul.s $f1,$f1,$f2 #\n");
+		{	fprintf(f,"\tmul.s $f1,$f1,$f2 #\n");
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+		}
 
 		else if(strcmp(currentNode->op,"/")==0)
-			fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
+		{	fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
+			//Here we check if our new temp is also addressed
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+				SetAddressed(currentNode->result, currentNode->scope);
+		}
 
 		fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
@@ -429,12 +459,31 @@ void CreateAssembly()
 	//Well we'll need the start of the IR list
 
 	//Lets calculate the Stack Frames...a little late, but better late then never.
-	printf("Starting the Assembly...\n");
-	printf("Calculating Offsets\n");
+	// printf("Starting the Assembly...\n");
+	// printf("Calculating Offsets\n");
 	Calculate_Offsets();
 	//Traverse IR instructions
-	printf("Converting to ASM\n");
+	// printf("Converting to ASM\n");
 	ir_Node* currentNode = root_Node;
+
+	//Before Processing the Functions, we have to layout the global memory
+	fprintf(f,".data\n");
+
+	entry_Node* varList = Get_Scope_Variables("Global");
+
+	while(varList!=NULL)
+	{
+		if(strcmp(varList->struct_Owner,"!")==0)
+			fprintf(f,"%s: .space %d\n", varList->identifier, (varList->memorySize));
+		varList=varList->next;
+	}
+
+
+
+	fprintf(f,".text\n");
+
+
+
 	while(currentNode->next!=NULL)
 	{
 		currentNode= currentNode->next;
@@ -450,7 +499,7 @@ void CreateAssembly()
 		if(currentNode->op!=NULL)
 		{
 
-			printf(" %s = %s %s %s\n", currentNode->result, currentNode->leftValue, currentNode->op, currentNode->rightValue);
+			// printf(" %s = %s %s %s\n", currentNode->result, currentNode->leftValue, currentNode->op, currentNode->rightValue);
 			//Since all  Temp Variables are stored, we don't need to do any dancing..just use the variables
 
 			//We don't actually want the address, we just want
@@ -474,39 +523,146 @@ void CreateAssembly()
 					if(strcmp(type,"float")==0)
 						isFloat=1;
 
-				if(isFloat==1)
+				//The Below Code only works on Localized Variables...Lets Add Globals
+				int isGlobal = isVar_Global(currentNode->leftValue,currentNode->scope);
+
+				if(isGlobal==0)
 				{
-					fprintf(f,"#  &  //\n");
-					//These can for the most part be ignored. This instruction would just overwrite the value
-					//inside a var with its own address...completely pointless
-					fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-					fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
-					fprintf(f,"#=====//\n");
-					//We load the value the address holds but WE make note of what variable that was
+					if(isFloat==1)
+					{
+						fprintf(f,"#  &  //\n");
+						//These can for the most part be ignored. This instruction would just overwrite the value
+						//inside a var with its own address...completely pointless
+						fprintf(f,"\tla  $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+						fprintf(f,"#=====//\n");
+						//We load the value the address holds but WE make note of what variable that was
 
 
-					//Set Left side Flag to True
-					 SetAddressed(currentNode->result, currentNode->scope);
+						//Set Left side Flag to True
+						 SetAddressed(currentNode->result, currentNode->scope);
+					}
+					else
+					{				
+						fprintf(f,"#  &  //\n");
+						//These can for the most part be ignored. This instruction would just overwrite the value
+						//inside a var with its own address...completely pointless
+						//Whenever we're loading an address zero out the value at it
+						fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
+						fprintf(f,"#=====//\n");
+						//We load the value the address holds but WE make note of what variable that was
+
+						//Set Left side Flag to True
+						 SetAddressed(currentNode->result, currentNode->scope);
+
+					}
 				}
 				else
-				{				
-					fprintf(f,"#  &  //\n");
-					//These can for the most part be ignored. This instruction would just overwrite the value
-					//inside a var with its own address...completely pointless
-					//Whenever we're loading an address zero out the value at it
-					fprintf(f,"\tla $t0,%d($sp) #%s\n",memLeft  ,currentNode->leftValue);
-					fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
-					fprintf(f,"#=====//\n");
-					//We load the value the address holds but WE make note of what variable that was
+				{
+					if(isFloat==1)
+					{
+						fprintf(f,"#  &  //\n");
+						//These can for the most part be ignored. This instruction would just overwrite the value
+						//inside a var with its own address...completely pointless
+						fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+						fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);//These are local Temp Registers
+						fprintf(f,"#=====//\n");
+						//We load the value the address holds but WE make note of what variable that was
 
-					//Set Left side Flag to True
-					 SetAddressed(currentNode->result, currentNode->scope);
 
+						//Set Left side Flag to True
+						 SetAddressed(currentNode->result, currentNode->scope);
+					}
+					else
+					{				
+						fprintf(f,"#  &  //\n");
+						//These can for the most part be ignored. This instruction would just overwrite the value
+						//inside a var with its own address...completely pointless
+						//Whenever we're loading an address zero out the value at it
+						fprintf(f,"\tla $t0,%s #%s\n",currentNode->leftValue  ,currentNode->leftValue);
+						fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);//These are local Temp Registers
+						fprintf(f,"#=====//\n");
+						//We load the value the address holds but WE make note of what variable that was
+
+						//Set Left side Flag to True
+						 SetAddressed(currentNode->result, currentNode->scope);
+
+					}
 				}
 
 			}
 			//Chars and Ints use Same register
 			if(strcmp(currentNode->op,"*=")==0)
+			{
+				//This is the memory location of this value
+				// int memLeft   = Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); //LookupMemory(currentNode->leftValue);
+				int memResult = Get_Var_MemoryOffset(currentNode->result, currentNode->scope); //LookupMemory(currentNode->result);
+				int memLeft   = Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); //LookupMemory(currentNode->leftValue);
+
+				fprintf(f,"#  Assignment //\n");
+
+				//First push the Address we are holding to t0
+				char* referenceVar =Get_ReferencedValue(currentNode->result,currentNode->scope);
+
+				int isFloat=0;
+				char * type= Get_Var_AssignedType(currentNode->leftValue,currentNode->scope);
+
+				if(type!=NULL)
+					if(strcmp(type,"float")==0)
+						isFloat=1;
+
+								if(type!=NULL)
+					if(strcmp(type,"float")==0)
+						isFloat=1;
+
+
+				//The Below Code only works on Localized Variables...Lets Add Globals
+				int isGlobal = isVar_Global(currentNode->leftValue,currentNode->scope);
+
+				if(isFloat==1)
+				{
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
+
+					//Now we store to both the Temp on the left, AND the reference link
+					fprintf(f,"\tl.s $f1, %d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					//fprintf(f,"\tlw $t0, ($t0) #Grab Word from Address\n");
+
+					fprintf(f,"\tlw $t1, %d($sp) #%s\n",memResult  ,currentNode->result);
+
+
+					if(GetAddressedFlag(currentNode->leftValue,currentNode->scope)==1)
+					{
+						fprintf(f,"\tl.s $f1, ($f1) #\n");
+					}
+					fprintf(f,"\ts.s $f1, ($t1) #%s\n",currentNode->result);
+					fprintf(f,"#=====//\n");
+				}
+				else
+				{
+					//These can for the most part be ignored. This instruction would just overwrite the value
+					//inside a var with its own address...completely pointless
+
+					//Now we store to both the Temp on the left, AND the reference link
+					fprintf(f,"\tlw $t0, %d($sp) #%s\n",memLeft  ,currentNode->leftValue);
+					//fprintf(f,"\tlw $t0, ($t0) #Grab Word from Address\n");
+
+					fprintf(f,"\tlw $t1, %d($sp) #%s\n",memResult  ,currentNode->result);
+
+
+					if(GetAddressedFlag(currentNode->leftValue,currentNode->scope)==1)
+					{
+						fprintf(f,"\tlw $t0, ($t0) #\n");
+					}
+					fprintf(f,"\tsw $t0, ($t1) #%s\n",currentNode->result);
+					fprintf(f,"#=====//\n");	
+				}
+
+
+			}	
+			//Used for Re-assigning values...printing array values instead of addresses
+			if(strcmp(currentNode->op,"=")==0)
 			{
 				//This is the memory location of this value
 				// int memLeft   = Get_Var_MemoryOffset(currentNode->leftValue, currentNode->scope); //LookupMemory(currentNode->leftValue);
@@ -542,7 +698,6 @@ void CreateAssembly()
 						int memRef= Get_Var_MemoryOffset(referenceVar, currentNode->scope);
 						fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memRef,referenceVar);					
 					}
-
 					fprintf(f,"#=====//\n");	
 				}
 				else
@@ -561,7 +716,8 @@ void CreateAssembly()
 					{
 						fprintf(f,"\tlw $t0, ($t0) #\n");
 					}
-					fprintf(f,"\tsw $t0, ($t1) #%s\n",currentNode->result);
+					//Re-Assignment
+					fprintf(f,"\tsw $t0, %d($sp) #%s\n",memResult  ,currentNode->result);
 					//fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 					// if(referenceVar!=NULL)
 					// {
@@ -628,18 +784,32 @@ void CreateAssembly()
 				fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 				fprintf(f,"#=====//\n");
 			}
+
+
+
 			if(strcmp(currentNode->op,"call")==0)
 			{
 				//Special Case Put_i
 				if(strcmp(currentNode->leftValue,"puti")==0)
 				{
+
+
 					ir_Node* tmp =currentNode;
 					tmp= tmp->prev;
+
+					//The Below Code only works on Localized Variables...Lets Add Globals
+					int isGlobal = isVar_Global(tmp->leftValue,tmp->scope);
 					// printf("%s %s %s \n", tmp->leftValue, tmp->rightValue, tmp->op);
 					int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
+
+
 					fprintf(f,"#  SysCall Put_I //\n");
 					fprintf(f,"\tli $v0,1 #\n");
-					fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+					if(isGlobal==1)
+						fprintf(f,"\tlw $a0,%s #%s\n",tmp->leftValue,tmp->leftValue);
+					else
+						fprintf(f,"\tlw $a0,%d($sp) #%s\n",memparam,tmp->leftValue);
+
 					fprintf(f,"\tsyscall\n");
 					fprintf(f,"#=====//\n");
 				}
@@ -683,7 +853,6 @@ void CreateAssembly()
 
 
 					//Save Return Address and Frame Pointer
-					//This needs tweeking as it tells the subroutine to jump to OUR return...thats a fault
 
 					//Copy our Address to the RA
 

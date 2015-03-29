@@ -1,6 +1,13 @@
-/*
-int test;
 
+int test;
+int testArr[10];
+struct dataType
+{
+ 	int dataY;
+};
+
+dataType cyberSix;
+/*
 int test_CharPrint()
 {
 	char c;
@@ -10,22 +17,12 @@ int test_CharPrint()
 	c='c';
 	a='a';
 	t='t';
-	nl='\n';
 	putc(c);
 	putc(a);
 	putc(t);
 
 return 1;
 }
-
-
-
-
-
-
-
-
-
 int arithmetic_Int()
 {
 	int x;
@@ -38,6 +35,7 @@ int arithmetic_Int()
 	puti(z);
 	return 1;
 }
+
 int arithmetic_Float()
 {
 	float x;
@@ -48,29 +46,63 @@ int arithmetic_Float()
 	putf(x);
 
 	return 0;
-}
+}*/
 
 int Test_Global()
 {
-
+	char nl;
+	float fifty;
+	fifty= 50.5;
+	nl='n';
 	test=67;
+	putf(fifty);
 	puti(test);
-
+	putc(nl);
 	return 0;
 }
-*/
+
+int ModifyTestArr()
+{
+  Test_Global();
+  testArr[5]=69;
+  return 1;
+}
+
+
 int main()
 {
+	struct someStruct{
+		int vart;
+		int varx;
+		float varf;
+	};
 	/*int x;	x=32;*/
 	int array[20];
 	int x;	
 	int y;
+	someStruct myTestStruct;
+
+	
+		
+
+	test= 54;
+	myTestStruct.varx=21;
+	myTestStruct.varf=24.654;
 	array[5]=65;
 
 	y=6;
 	x= array[5];
-	/*Glitch with arrays IR code*/
+
 	puti(x);
 	puti(y);
-	return 0;
+	puti(array[5]);
+	puti(myTestStruct.varx);
+	putf(myTestStruct.varf);
+
+	cyberSix.dataY=2224; 
+ 	ModifyTestArr();
+
+	puti(testArr[5]);
+	puti(cyberSix.dataY);
+	return 666;
 }

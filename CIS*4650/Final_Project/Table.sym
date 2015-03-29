@@ -22,30 +22,116 @@ Variable	Type		StructOwner
 Scope:[Global]
 Variable	Type		StructOwner
 --------------------------------
+test		int		None
+testArr		int_Ar[10]	None
+dataY		int		dataType
+dataType	struct		None
+cyberSix	dataType	None
+================================
+
+Scope:[Test_Global]
+Variable	Type		StructOwner
+--------------------------------
+nl		char		None
+fifty		float		None
+t6		float		None
+t7		float		None
+t10		char		None
+t11		char		None
+t14		int		None
+t15		int		None
+t18		float		None
+t17		int		None
+t21		int		None
+t20		int		None
+t24		char		None
+t23		int		None
+t27		int		None
+t26		int		None
+================================
+
+Scope:[ModifyTestArr]
+Variable	Type		StructOwner
+--------------------------------
+t32		int		None
+t36		int		None
+t37		int		None
+t38		int		None
+t35		int		None
+t39		int		None
+t42		int		None
+t41		int		None
 ================================
 
 Scope:[main]
 Variable	Type		StructOwner
 --------------------------------
+vart		int		someStruct
+varx		int		someStruct
+varf		float		someStruct
+someStruct	struct		None
 array		int_Ar[20]	None
 x		int		None
 y		int		None
-t6		int		None
-t7		int		None
-t8		int		None
-t5		int		None
-t9		int		None
-t12		int		None
-t13		int		None
-t16		int		None
-t18		int		None
-t19		int		None
-t20		int		None
-t17		int		None
-t23		int		None
-t22		int		None
-t26		int		None
-t25		int		None
-t29		int		None
-t28		int		None
+myTestStruct	someStruct	None
+t47		int		None
+t48		int		None
+t52		someStruct	None
+t53		int		None
+t51		int		None
+t54		int		None
+t58		someStruct	None
+t59		int		None
+t57		int		None
+t60		float		None
+t64		int		None
+t65		int		None
+t66		int		None
+t63		int		None
+t67		int		None
+t70		int		None
+t71		int		None
+t74		int		None
+t76		int		None
+t77		int		None
+t78		int		None
+t75		int		None
+t81		int		None
+t80		int		None
+t84		int		None
+t83		int		None
+t88		int		None
+t89		int		None
+t90		int		None
+t87		int		None
+t87		int		None
+t86		int		None
+t94		someStruct	None
+t95		int		None
+t93		int		None
+t93		int		None
+t92		int		None
+t99		someStruct	None
+t100		int		None
+t98		int		None
+t98		int		None
+t97		int		None
+t104		dataType	None
+t105		int		None
+t103		int		None
+t106		int		None
+t108		int		None
+t112		int		None
+t113		int		None
+t114		int		None
+t111		int		None
+t111		int		None
+t110		int		None
+t118		dataType	None
+t119		int		None
+t117		int		None
+t117		int		None
+t116		int		None
+t122		int		None
+t121		int		None
 ================================

@@ -1,22 +1,101 @@
+[Test_Global]:
+	t6 = & fifty
+	t7 = =f 50.5000
+	t6 = *= t7
+	t10 = & nl
+	t11 = =c 'n'
+	t10 = *= t11
+	t14 = & test
+	t15 = =i 67
+	t14 = *= t15
+	param fifty 
+	[t17]call putf 1
+	param test 
+	[t20]call puti 1
+	param nl 
+	[t23]call putc 1
+	t27 = =i 0
+	t26 = return t27
+[ModifyTestArr]:
+	[t32]call Test_Global 0
+	t36 = & testArr
+	t37 = =i 5
+	t38 = t37 * 4
+	t35 = t36 + t38
+	t39 = =i 69
+	t35 = *= t39
+	t42 = =i 1
+	t41 = return t42
 [main]:
-	t6 = & array
-	t7 = =i 5
-	t8 = t7 * 4
-	t5 = t6 + t8
-	t9 = =i 65
-	t5 = *= t9
-	t12 = & y
-	t13 = =i 6
-	t12 = *= t13
-	t16 = & x
-	t18 = & array
-	t19 = =i 5
-	t20 = t19 * 4
-	t17 = t18 + t20
-	t16 = *= t17
+	t47 = & test
+	t48 = =i 54
+	t47 = *= t48
+	t52 = & myTestStruct
+	t53 = =i 4
+	t51 = t53 + t52
+	t54 = =i 21
+	t51 = *= t54
+	t58 = & myTestStruct
+	t59 = =i 8
+	t57 = t59 + t58
+	t60 = =f 24.6539
+	t57 = *= t60
+	t64 = & array
+	t65 = =i 5
+	t66 = t65 * 4
+	t63 = t64 + t66
+	t67 = =i 65
+	t63 = *= t67
+	t70 = & y
+	t71 = =i 6
+	t70 = *= t71
+	t74 = & x
+	t76 = & array
+	t77 = =i 5
+	t78 = t77 * 4
+	t75 = t76 + t78
+	t74 = *= t75
 	param x 
-	[t22]call puti 1
+	[t80]call puti 1
 	param y 
-	[t25]call puti 1
-	t29 = =i 0
-	t28 = return t29
+	[t83]call puti 1
+	t88 = & array
+	t89 = =i 5
+	t90 = t89 * 4
+	t87 = t88 + t90
+	t87 = = t87
+	param t87 
+	[t86]call puti 0
+	t94 = & myTestStruct
+	t95 = =i 4
+	t93 = t95 + t94
+	t93 = = t93
+	param t93 
+	[t92]call puti 0
+	t99 = & myTestStruct
+	t100 = =i 8
+	t98 = t100 + t99
+	t98 = = t98
+	param t98 
+	[t97]call putf 0
+	t104 = & cyberSix
+	t105 = =i 0
+	t103 = t105 + t104
+	t106 = =i 2224
+	t103 = *= t106
+	[t108]call ModifyTestArr 0
+	t112 = & testArr
+	t113 = =i 5
+	t114 = t113 * 4
+	t111 = t112 + t114
+	t111 = = t111
+	param t111 
+	[t110]call puti 0
+	t118 = & cyberSix
+	t119 = =i 0
+	t117 = t119 + t118
+	t117 = = t117
+	param t117 
+	[t116]call puti 0
+	t122 = =i 666
+	t121 = return t122

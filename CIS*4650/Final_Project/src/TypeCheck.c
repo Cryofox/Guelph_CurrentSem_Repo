@@ -121,6 +121,7 @@ void Print_Error_Arithmetic(char* expectedType, char* leftValue, char* rightValu
 int param=FALSE;
 int paramCount=0;
 int accessFromStruct=0;
+int dotAccess=FALSE;
 char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scope)
 {
 	//Traverse all Branches
@@ -295,6 +296,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 	//Need to traverse left branch incase of dot accessors
 	else if(strcmp(node->tokenName,"=")==0)
 	{
+
 		char* temp= malloc(sizeof(char)*20);
 		sprintf(temp,"t%d",currentNode);
 
@@ -332,6 +334,11 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 	else if(strcmp(node->tokenName,"Arr[]")==0)
 	{
+		int paraminUse= param;
+
+		if(paraminUse==1)
+			param=0;
+
 		char* temp= malloc(sizeof(char)*20);
 		sprintf(temp,"t%d",currentNode);
 		int preLeft=currentNode;
@@ -361,28 +368,47 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		Add_IR_Instruction(rightNode,"*", "4", temp2,NULL,scope);
 		Add_IR_Instruction(leftNode,"+", temp2, temp,NULL,scope);
 
+		if(paraminUse==1)
+		{
+			//Add 2 Extra Instructions. 1 for *= and 1 for param
+			Add_IR_Instruction(temp,"=", NULL, temp,NULL,scope);
+			Add_IR_Instruction(temp,"param", NULL, temp,NULL,scope);	
+			param=1;//Reset Param			
+		}
+
+
+
 		free(temp2);
 		free(temp);
 		free(leftNode);
 		free(rightNode);
+
+
 
 		return leftValue;
 		// //Arrays are typed the same as if they weren't arrays. The difference is the node will have a size >0
 	}
 	else if(strcmp(node->tokenName,"dot:")==0)
 	{
+		int paraminUse= param;
+
+		if(paraminUse==1)
+			param=0;
+
 		char* temp= malloc(sizeof(char)*20);
 		sprintf(temp,"t%d",currentNode);
 
 		//For Dot things MIGHT get a bit weird.
 
 		//Since structs are typed to "themselves", all that is needed is to check if the variable on the Right
+
 		//belongs to the struct
 		char* leftNode= malloc(sizeof(char)*20);
 		sprintf(leftNode,"t%d",(currentNode+1));
 
-		accessFromStruct=1;
+		
 		char* leftValue		= evaluateExpr(node->u.oper.left,  expectedType, value,scope);
+		accessFromStruct=1;
 		char* varName 		= node->u.oper.right->tokenName;
 		char * rightValue;
 
@@ -414,7 +440,17 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 		Add_IR_Instruction(rightNode,"+", leftNode, temp,NULL,scope);
 
+		//This is our Param
+
+
 		accessFromStruct=0;
+		if(paraminUse==1)
+		{
+			//Add 2 Extra Instructions. 1 for *= and 1 for param
+			Add_IR_Instruction(temp,"=", NULL, temp,NULL,scope);
+			Add_IR_Instruction(temp,"param", NULL, temp,NULL,scope);	
+			param=1;//Reset Param			
+		}
 
 		free(leftNode);
 		free(rightNode);
@@ -726,7 +762,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 
 	else if(strcmp(node->tokenName,"Return:")==0)
 	{
-		printf("RETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
+		// printf("RETTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
 				char* temp= malloc(sizeof(char)*20);
 		sprintf(temp,"t%d",(currentNode));
 
@@ -1009,11 +1045,10 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 	else if(strcmp(node->tokenName,"Call:")==0)
 	{
 
-
 		//Go Right first to get params then go Left
 		//char* leftValue		= 	evaluateExpr(node->u.oper.left,  expectedType, value,scope);
 
-		if( strcmp(getScopeType(node->u.oper.left->tokenName),"None")==0)
+		if( does_ScopeExist(node->u.oper.left->tokenName)==0)
 		{
 			fprintf(stderr, "Type Error: Line[%d] No such Function exists:%s\n",node->lineCreated, node->u.oper.left->tokenName);
 			errorCount++;
@@ -1126,19 +1161,42 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 				}
 
 				// printf("VarType=%s\n",variableType);
-				if( strcmp(variableType,"None")==0)
+				else if( strcmp(variableType,"None")==0)
 				{	
 					fprintf(stderr, "Variable Error: Variable [%s] was not initialized.\n",node->tokenName);	
 					errorCount++;
-					return NULL;
+
+					//This should be replaced with return null, but i am running out of time.
+					exit(1);
 				}
 				else
 				{	
+
 					char* temp= malloc(sizeof(char)*20);
 					sprintf(temp,"t%d",currentNode);
 
-					if(param==FALSE)
+					if(param==FALSE && accessFromStruct==0)
 						Add_IR_Instruction(node->tokenName,"&", NULL, temp,NULL,scope);
+
+					else if(param==FALSE && accessFromStruct==1)
+					{
+						//Kludge 1- Force Offset calculation as we go
+						Calculate_Offsets();
+
+						//Calc Offset of THIS var
+						//This guys offset SHOULD be from the reference of the struct parent
+						int varOff= Get_Var_MemoryOffset_FromStruct(node->tokenName,scope);
+
+						char* temp2= malloc(sizeof(char)*20);
+						sprintf(temp2,"%d",varOff);
+
+						Add_IR_Instruction(temp2,"=i", NULL, temp,NULL,scope);
+						free(temp2);
+					}
+
+
+
+
 					else
 					{		
 						Add_IR_Instruction(node->tokenName,"param", NULL, temp,NULL,scope);	
