@@ -20,132 +20,154 @@
 	[t27]call putc 1
 	param nl 
 	[t30]call putc 1
-	t34 = =c 't'
-	[t33]call putc 0
-	t37 = =i 1
-	t36 = return t37
+	t34 = =i 1
+	t33 = return t34
 [arithmetic_Int]:
-	t43 = & x
-	t44 = =i 2
-	t43 = *= t44
-	t47 = & y
-	t48 = =i 4
-	t47 = *= t48
-	t51 = & z
-	t54 = & y
-	t55 = & x
-	t53 = t54 * t55
-	t56 = =i 2
-	t52 = t53 + t56
-	t51 = *= t52
+	t40 = & x
+	t41 = =i 2
+	t40 = *= t41
+	t44 = & y
+	t45 = =i 4
+	t44 = *= t45
+	t48 = & z
+	t51 = & y
+	t52 = & x
+	t50 = t51 * t52
+	t53 = =i 2
+	t49 = t50 + t53
+	t48 = *= t49
 	param z 
-	[t58]call puti 1
-	t62 = =i 1
-	t61 = return t62
+	[t55]call puti 1
+	t59 = =i 1
+	t58 = return t59
 [Test_Global]:
-	t68 = & fifty
-	t69 = =f 50.5000
-	t68 = *= t69
-	t72 = & nl
-	t73 = =c 'n'
-	t72 = *= t73
-	t76 = & test
-	t77 = =i 67
-	t76 = *= t77
+	t65 = & fifty
+	t66 = =f 50.5000
+	t65 = *= t66
+	t69 = & nl
+	t70 = =c 'n'
+	t69 = *= t70
+	t73 = & test
+	t74 = =i 67
+	t73 = *= t74
 	param fifty 
-	[t79]call putf 1
+	[t76]call putf 1
 	param test 
-	[t82]call puti 1
+	[t79]call puti 1
 	param nl 
-	[t85]call putc 1
-	t89 = =i 0
-	t88 = return t89
+	[t82]call putc 1
+	t86 = =i 0
+	t85 = return t86
 [ModifyTestArr]:
-	[t94]call Test_Global 0
-	t98 = & testArr
-	t99 = =i 5
-	t100 = t99 * 4
-	t97 = t98 + t100
-	t101 = =i 69
-	t97 = *= t101
-	t104 = =i 1
-	t103 = return t104
+	[t91]call Test_Global 0
+	t95 = & testArr
+	t96 = =i 5
+	t97 = t96 * 4
+	t94 = t95 + t97
+	t98 = =i 69
+	t94 = *= t98
+	t101 = =i 1
+	t100 = return t101
+[RecursiveFunction]:
+	t108 = & i
+	t109 = =i 0
+	if t108 <= t109 goto Label_t106
+	param i 
+	[t112]call puti 1
+	t115 = & i
+	t119 = & i
+	t121 = & i
+	t122 = =i 1
+	t120 = t121 - t122
+	t119 = *= t120
+	param i 
+	[t124]call RecursiveFunction 1
+[Label_t106]:
+	t128 = =i 1
+	t127 = return t128
 [main]:
-	[t108]call test_CharPrint 0
-	t111 = & floatTest
-	t112 = =f 999.900
-	t111 = *= t112
-	param floatTest 
-	[t114]call putf 1
-	t118 = & test
-	t119 = =i 54
-	t118 = *= t119
-	t123 = & myTestStruct
-	t124 = =i 4
-	t122 = t124 + t123
-	t125 = =i 21
-	t122 = *= t125
-	t129 = & myTestStruct
-	t130 = =i 8
-	t128 = t130 + t129
-	t131 = =f 24.6539
-	t128 = *= t131
-	t135 = & array
-	t136 = =i 5
-	t137 = t136 * 4
-	t134 = t135 + t137
-	t138 = =i 65
-	t134 = *= t138
-	t141 = & y
-	t142 = =i 6
-	t141 = *= t142
-	t145 = & x
-	t147 = & array
-	t148 = =i 5
-	t149 = t148 * 4
-	t146 = t147 + t149
-	t145 = *= t146
-	param x 
-	[t151]call puti 1
+	t133 = & y
+	t134 = =i 6
+	t133 = *= t134
+	t137 = & y
+	t139 = & y
+	t140 = =i 1
+	t138 = t139 + t140
+	t137 = *= t138
 	param y 
-	[t154]call puti 1
-	t159 = & array
-	t160 = =i 5
-	t161 = t160 * 4
-	t158 = t159 + t161
-	t158 = = t158
-	param t158 
-	[t157]call puti 0
-	t165 = & myTestStruct
-	t166 = =i 4
-	t164 = t166 + t165
-	t164 = = t164
-	param t164 
-	[t163]call puti 0
-	t170 = & myTestStruct
-	t171 = =i 8
-	t169 = t171 + t170
-	t169 = = t169
-	param t169 
-	[t168]call putf 0
-	t175 = & cyberSix
-	t176 = =i 0
-	t174 = t176 + t175
-	t177 = =i 2224
-	t174 = *= t177
-	[t179]call ModifyTestArr 0
-	t183 = & testArr
-	t184 = =i 5
-	t185 = t184 * 4
-	t182 = t183 + t185
-	t182 = = t182
-	param t182 
-	[t181]call puti 0
-	t189 = & cyberSix
-	t190 = =i 0
-	t188 = t190 + t189
-	t188 = = t188
-	param t188 
-	[t187]call puti 0
-	t193 = =i 666
-	t192 = return t193
+	[t142]call RecursiveFunction 1
+	[t145]call test_CharPrint 0
+	t148 = & floatTest
+	t149 = =f 999.900
+	t148 = *= t149
+	param floatTest 
+	[t151]call putf 1
+	t155 = & test
+	t156 = =i 54
+	t155 = *= t156
+	t160 = & myTestStruct
+	t161 = =i 4
+	t159 = t161 + t160
+	t162 = =i 21
+	t159 = *= t162
+	t166 = & myTestStruct
+	t167 = =i 8
+	t165 = t167 + t166
+	t168 = =f 24.6539
+	t165 = *= t168
+	t172 = & array
+	t173 = =i 5
+	t174 = t173 * 4
+	t171 = t172 + t174
+	t175 = =i 65
+	t171 = *= t175
+	t178 = & x
+	t180 = & array
+	t181 = =i 5
+	t182 = t181 * 4
+	t179 = t180 + t182
+	t178 = *= t179
+	param x 
+	[t184]call puti 1
+	param y 
+	[t187]call puti 1
+	t192 = & array
+	t193 = =i 5
+	t194 = t193 * 4
+	t191 = t192 + t194
+	t191 = = t191
+	param t191 
+	[t190]call puti 0
+	t198 = & myTestStruct
+	t199 = =i 4
+	t197 = t199 + t198
+	t197 = = t197
+	param t197 
+	[t196]call puti 0
+	t203 = & myTestStruct
+	t204 = =i 8
+	t202 = t204 + t203
+	t202 = = t202
+	param t202 
+	[t201]call putf 0
+	t208 = & cyberSix
+	t209 = =i 0
+	t207 = t209 + t208
+	t210 = =i 2224
+	t207 = *= t210
+	[t212]call ModifyTestArr 0
+	t216 = & testArr
+	t217 = =i 5
+	t218 = t217 * 4
+	t215 = t216 + t218
+	t215 = = t215
+	param t215 
+	[t214]call puti 0
+	t222 = & cyberSix
+	t223 = =i 0
+	t221 = t223 + t222
+	t221 = = t221
+	param t221 
+	[t220]call puti 0
+	t226 = =i 666
+	t225 = return t226

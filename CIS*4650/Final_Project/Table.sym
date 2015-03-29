@@ -26,6 +26,7 @@ test		int		None
 testArr		int_Ar[10]	None
 floatTest	float		None
 dataY		int		dataType
+dataAr		int_Ar[50]	dataType
 dataType	struct		None
 cyberSix	dataType	None
 ================================
@@ -34,6 +35,7 @@ Scope:[test_CharPrint]
 Variable	Type		StructOwner
 --------------------------------
 c		char		None
+dt		dataType	None
 a		char		None
 t		char		None
 nl		char		None
@@ -53,10 +55,8 @@ t28		char		None
 t27		int		None
 t31		char		None
 t30		int		None
-t34		char		None
+t34		int		None
 t33		int		None
-t37		int		None
-t36		int		None
 ================================
 
 Scope:[arithmetic_Int]
@@ -65,20 +65,20 @@ Variable	Type		StructOwner
 x		int		None
 y		int		None
 z		int		None
-t43		int		None
+t40		int		None
+t41		int		None
 t44		int		None
-t47		int		None
+t45		int		None
 t48		int		None
 t51		int		None
-t54		int		None
-t55		int		None
-t53		int		None
-t56		int		None
 t52		int		None
+t50		int		None
+t53		int		None
+t49		int		None
+t56		int		None
+t55		int		None
 t59		int		None
 t58		int		None
-t62		int		None
-t61		int		None
 ================================
 
 Scope:[Test_Global]
@@ -86,33 +86,53 @@ Variable	Type		StructOwner
 --------------------------------
 nl		char		None
 fifty		float		None
-t68		float		None
-t69		float		None
-t72		char		None
-t73		char		None
+t65		float		None
+t66		float		None
+t69		char		None
+t70		char		None
+t73		int		None
+t74		int		None
+t77		float		None
 t76		int		None
-t77		int		None
-t80		float		None
+t80		int		None
 t79		int		None
-t83		int		None
+t83		char		None
 t82		int		None
-t86		char		None
+t86		int		None
 t85		int		None
-t89		int		None
-t88		int		None
 ================================
 
 Scope:[ModifyTestArr]
 Variable	Type		StructOwner
 --------------------------------
+t91		int		None
+t95		int		None
+t96		int		None
+t97		int		None
 t94		int		None
 t98		int		None
-t99		int		None
-t100		int		None
-t97		int		None
 t101		int		None
-t104		int		None
-t103		int		None
+t100		int		None
+================================
+
+Scope:[RecursiveFunction]
+Variable	Type		StructOwner
+--------------------------------
+i		int		None
+t108		int		None
+t109		int		None
+t107		int		None
+t113		int		None
+t112		int		None
+t115		int		None
+t119		int		None
+t121		int		None
+t122		int		None
+t120		int		None
+t125		int		None
+t124		int		None
+t128		int		None
+t127		int		None
 ================================
 
 Scope:[main]
@@ -126,69 +146,75 @@ array		int_Ar[20]	None
 x		int		None
 y		int		None
 myTestStruct	someStruct	None
-t108		int		None
-t111		float		None
-t112		float		None
-t115		float		None
-t114		int		None
-t118		int		None
-t119		int		None
-t123		someStruct	None
-t124		int		None
-t122		int		None
-t125		int		None
-t129		someStruct	None
-t130		int		None
-t128		int		None
-t131		float		None
-t135		int		None
-t136		int		None
-t137		int		None
+t133		int		None
 t134		int		None
+t137		int		None
+t139		int		None
+t140		int		None
 t138		int		None
-t141		int		None
+t143		int		None
 t142		int		None
 t145		int		None
-t147		int		None
-t148		int		None
-t149		int		None
-t146		int		None
-t152		int		None
+t148		float		None
+t149		float		None
+t152		float		None
 t151		int		None
 t155		int		None
-t154		int		None
-t159		int		None
-t160		int		None
+t156		int		None
+t160		someStruct	None
 t161		int		None
-t158		int		None
-t158		int		None
-t157		int		None
-t165		someStruct	None
-t166		int		None
-t164		int		None
-t164		int		None
-t163		int		None
-t170		someStruct	None
-t171		int		None
-t169		int		None
-t169		int		None
-t168		int		None
-t175		dataType	None
-t176		int		None
+t159		int		None
+t162		int		None
+t166		someStruct	None
+t167		int		None
+t165		int		None
+t168		float		None
+t172		int		None
+t173		int		None
 t174		int		None
-t177		int		None
-t179		int		None
-t183		int		None
-t184		int		None
-t185		int		None
-t182		int		None
-t182		int		None
+t171		int		None
+t175		int		None
+t178		int		None
+t180		int		None
 t181		int		None
-t189		dataType	None
-t190		int		None
-t188		int		None
+t182		int		None
+t179		int		None
+t185		int		None
+t184		int		None
 t188		int		None
 t187		int		None
-t193		int		None
 t192		int		None
+t193		int		None
+t194		int		None
+t191		int		None
+t191		int		None
+t190		int		None
+t198		someStruct	None
+t199		int		None
+t197		int		None
+t197		int		None
+t196		int		None
+t203		someStruct	None
+t204		int		None
+t202		int		None
+t202		int		None
+t201		int		None
+t208		dataType	None
+t209		int		None
+t207		int		None
+t210		int		None
+t212		int		None
+t216		int		None
+t217		int		None
+t218		int		None
+t215		int		None
+t215		int		None
+t214		int		None
+t222		dataType	None
+t223		int		None
+t221		int		None
+t221		int		None
+t220		int		None
+t226		int		None
+t225		int		None
 ================================

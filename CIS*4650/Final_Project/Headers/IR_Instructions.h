@@ -19,6 +19,7 @@ typedef struct irn
 
 	struct irn* next;
 	struct irn* prev;
+	int state_Addressed;
 }ir_Node;
 
 void InitializeIR_Node();

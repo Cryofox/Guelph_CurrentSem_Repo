@@ -5,6 +5,7 @@ float floatTest;
 struct dataType
 {
  	int dataY;
+	int dataAr[50];
 };
 
 dataType cyberSix;
@@ -12,6 +13,7 @@ dataType cyberSix;
 int test_CharPrint()
 {
 	char c;
+	dataType dt;
 	char a;
 	char t;
 	char nl;
@@ -71,6 +73,21 @@ int ModifyTestArr()
 }
 
 
+int RecursiveFunction(int i)
+{
+	if(i>0)
+	{
+	  puti(i);
+	  i--;
+	  RecursiveFunction(i);
+	}
+
+
+	return 1;
+}
+
+
+
 int main()
 {
 	struct someStruct{
@@ -78,11 +95,17 @@ int main()
 		int varx;
 		float varf;
 	};
-	/*int x;	x=32;*/
+
 	int array[20];
 	int x;	
 	int y;
 	someStruct myTestStruct;
+
+	y=6;
+	y= y+1;
+	/* Y=6, Lets Call Rec Function */
+	RecursiveFunction(y);
+
 	test_CharPrint();
 	
 	floatTest=999.9;
@@ -94,7 +117,9 @@ int main()
 	myTestStruct.varf=24.654;
 	array[5]=65;
 
-	y=6;
+
+
+
 	x= array[5];
 
 	puti(x);

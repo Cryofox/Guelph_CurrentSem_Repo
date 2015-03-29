@@ -337,105 +337,120 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		else if(strcmp(currentNode->op,"||")==0)
 			fprintf(f,"\tor $t0,$t0,$t1 #\n");
 		//Lets Add More Relational Logic
+		else
+		{
+			//By addressed we mean the register is currently holding an address as opposed to
+			//the intended value
+			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
+			{
+				fprintf(f,"\tlw $t0, ($t0) #\n");				
+			}
+
+			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
+			{
+				fprintf(f,"\tlw $t1, ($t1) #\n");				
+			}			
 
 
-		//Here we check the Ifs
-		else if(strcmp(currentNode->op,">=")==0)
-		{
-			if(currentNode->isIF==1)
+			//Here we check the If Relation logics
+			if(strcmp(currentNode->op,">=")==0)
 			{
-				fprintf(f,"\tbge $t0, $t1, %s\n",currentNode->gotoLabel);
-			}
-			else
-			{
-				//We only have SetLess than, whic fkin sucks...but w.e
-				// Perform Set Less than, then Not it
-				fprintf(f,"\tslt $t0, $t0, $t1#\n");
-				fprintf(f,"\tnot $t0, $t0\n"); 
-				//We Just performed >=
-			}
-		}
-		else if(strcmp(currentNode->op,">")==0)
-		{
-			if(currentNode->isIF==1)
-			{
-				fprintf(f,"\tbgt $t0, $t1, %s\n",currentNode->gotoLabel);
-			}
-			else
-			{
-				//We only have SetLess than, whic fkin sucks...but w.e
-				// Perform Set Less than, then Not it
-				fprintf(f,"\tsgt $t0, $t0, $t1\n");
-				//Check if t1<t0  ..IE if t0>t1 :)
-			}
-		}
-		else if(strcmp(currentNode->op,"<=")==0)
-		{
-			if(currentNode->isIF==1)
-			{
-				fprintf(f,"\tble $t0, $t1, %s\n",currentNode->gotoLabel);
-			}
-			else
-			{
-				//We only have SetLess than, which fkin sucks...but w.e
-				// Perform Set Less than in reverse (greater than), then Not it
-				fprintf(f,"\tsgt $t0, $t0, $t1\n");
-				fprintf(f,"\tnot $t0, $t0\n"); 
-			}
-		}
-		else if(strcmp(currentNode->op,"<")==0)
-		{
-			if(currentNode->isIF==1)
-			{
-				fprintf(f,"\tblt $t0, $t1, %s\n",currentNode->gotoLabel);
-			}
-			else
-			{
-				//We only have SetLess than, which fkin sucks...but w.e
-				fprintf(f,"\tslt $t0, $t0, $t1\n");
-			}
-		}
 
-		else if(strcmp(currentNode->op,"==")==0)
-		{
-			if(currentNode->isIF==1)
-			{
-				fprintf(f,"\tbeq $t0, $t1, %s\n",currentNode->gotoLabel);
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tbge $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, whic fkin sucks...but w.e
+					// Perform Set Less than, then Not it
+					fprintf(f,"\tslt $t0, $t0, $t1#\n");
+					fprintf(f,"\tnot $t0, $t0\n"); 
+					//We Just performed >=
+				}
 			}
-			else
+			else if(strcmp(currentNode->op,">")==0)
+			{
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tbgt $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, whic fkin sucks...but w.e
+					// Perform Set Less than, then Not it
+					fprintf(f,"\tsgt $t0, $t0, $t1\n");
+					//Check if t1<t0  ..IE if t0>t1 :)
+				}
+			}
+			else if(strcmp(currentNode->op,"<=")==0)
+			{
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tble $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, which fkin sucks...but w.e
+					// Perform Set Less than in reverse (greater than), then Not it
+					fprintf(f,"\tsgt $t0, $t0, $t1\n");
+					fprintf(f,"\tnot $t0, $t0\n"); 
+				}
+			}
+			else if(strcmp(currentNode->op,"<")==0)
+			{
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tblt $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, which fkin sucks...but w.e
+					fprintf(f,"\tslt $t0, $t0, $t1\n");
+				}
+			}
+
+			else if(strcmp(currentNode->op,"==")==0)
+			{
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tbeq $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, which fkin sucks...but w.e
+					fprintf(f,"\tseq $t0, $t0, $t1\n"); 
+					// fprintf(f,"\tslt $t3, $t1, $t0");
+					// //Not both Registers
+					// fprintf(f,"\tnot $t2, $t2");
+					// fprintf(f,"\tnot $t3, $t3");
+					// //AND in t0, for == check
+					// fprintf(f,"\t")
+				}
+			}		
+			else if(strcmp(currentNode->op,"!=")==0)
+			{
+				if(currentNode->isIF==1)
+				{
+					fprintf(f,"\tbne $t0, $t1, %s\n",currentNode->gotoLabel);
+				}
+				else
+				{
+					//We only have SetLess than, which fkin sucks...but w.e
+					fprintf(f,"\tsne $t0, $t0, $t1\n"); 
+					// fprintf(f,"\tslt $t3, $t1, $t0");
+					// //Not both Registers
+					// fprintf(f,"\tnot $t2, $t2");
+					// fprintf(f,"\tnot $t3, $t3");
+					// //AND in t0, for == check
+					// fprintf(f,"\t")
+				}
+			}
+			else if(strcmp(currentNode->op,"!")==0)
 			{
 				//We only have SetLess than, which fkin sucks...but w.e
-				fprintf(f,"\tseq $t0, $t0, $t1\n"); 
-				// fprintf(f,"\tslt $t3, $t1, $t0");
-				// //Not both Registers
-				// fprintf(f,"\tnot $t2, $t2");
-				// fprintf(f,"\tnot $t3, $t3");
-				// //AND in t0, for == check
-				// fprintf(f,"\t")
+				fprintf(f,"\tnot $t0, $t0\n");				
 			}
-		}		
-		else if(strcmp(currentNode->op,"!=")==0)
-		{
-			if(currentNode->isIF==1)
-			{
-				fprintf(f,"\tbne $t0, $t1, %s\n",currentNode->gotoLabel);
-			}
-			else
-			{
-				//We only have SetLess than, which fkin sucks...but w.e
-				fprintf(f,"\tsne $t0, $t0, $t1\n"); 
-				// fprintf(f,"\tslt $t3, $t1, $t0");
-				// //Not both Registers
-				// fprintf(f,"\tnot $t2, $t2");
-				// fprintf(f,"\tnot $t3, $t3");
-				// //AND in t0, for == check
-				// fprintf(f,"\t")
-			}
-		}
-		else if(strcmp(currentNode->op,"!")==0)
-		{
-			//We only have SetLess than, which fkin sucks...but w.e
-			fprintf(f,"\tnot $t0, $t0\n");				
 		}
 		fprintf(f,"\tsw $t0,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
@@ -854,19 +869,44 @@ void CreateAssembly()
 					int funcMem = Get_Scope_Memory(currentNode->leftValue);
 					int myFuncMem=Get_Scope_Memory(currentNode->scope);
 					fprintf(f,"#  Function Call:%s //\n", currentNode->leftValue);
+					int paramCount=0;
+					//We BASICALLY need to reverse travel,
+					// and set the next functions parameters before jumping
+					ir_Node* tmp =currentNode;
+					tmp= tmp->prev;
 
 
-
-
-
+					paramCount= atoi(currentNode->rightValue);
+					printf("ParamCount=%d\n",paramCount);
 					//Save Return Address and Frame Pointer
 
 					//Copy our Address to the RA
 
 					//Store the current Ret Address here for us.
 					fprintf(f,"\tsw $ra, %d($sp)\n",(myFuncMem+8));				
-					
+					int counter=4; //Starts with a 4 offset...dont ask why i do what i do...
+					//Sometimes I don't even know. I chose 4, because somewhere earlier i offset by 4...*shrug*
 
+					//We'll need a counter
+					while ((tmp->op!=NULL)&&(strcmp(tmp->op,"param")==0)&&paramCount>0)
+					{
+						//If Not Global
+						int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
+						int memSize= Get_Var_MemorySize(tmp->leftValue,tmp->scope);
+
+						fprintf(f,"\tlw $t0, %d($sp)\n",(memparam));
+
+						fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
+						fprintf(f,"\tla $t1, %d($sp)\n",(counter));		
+						fprintf(f,"\tadd $sp, $sp, %d\n",(funcMem+16) );
+						
+						fprintf(f,"\tsw $t0, ($t1)\n");						
+						tmp=tmp->prev;
+						paramCount--;
+						counter+=memSize; //Need to ensure we are offsetting by correct amounts
+					}
+
+					//Below here, we have modified SP, so Funcmem offsets are tech funcmem*2 offsets
 					//Offset SP
 					fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
 					//Store FP, for restoring
