@@ -193,26 +193,40 @@ int MutualRecursion_Two(int i)
 int main()
 {
 	dataBase db;
-	
 	struct someStruct{
 		int vart;
 		int varx;
 		float varf;
 	};
-
+	someStruct myTestStruct;
 	int array[20];
 	int x;	
 	int y;
 	char nl;
 	char c;
 	char q;
-	someStruct myTestStruct;
 	
+	
+
 	
 	nl='\n';
-/*
 	q='q';
+	db.someValue = 1337;
+	puti(db.someValue);
+	putc(nl);
 	Pass_StructRef(q,db);
+
+
+
+ 	db.entry.dataAr[35]= 2014;
+	db.entry.dataAr[35]= db.entry.dataAr[35]*2;
+	puti(db.entry.dataAr[35]);
+	
+
+
+	putc(nl);
+
+
 
 	floatTest= 7.9 + 5.4;
 
@@ -235,9 +249,8 @@ int main()
 	puti(array[5]);
 	putc(nl);
 
-*/
 	myTestStruct.varf = 4.567;
-/*	
+	
 	putc(nl);
 	putc(nl);
  	ModifyTestArr();
@@ -247,17 +260,11 @@ int main()
 	putc(nl);
 	putc(nl);
 	arithmetic_Int();
-*/
+
 	cyberSix.dataY=2224; 
 
 	putf(myTestStruct.varf);
- 	db.entry.dataAr[35]= 2014;
 
-/*
-	db.entry.dataAr[35]= db.entry.dataAr[35]*2;
-
-
-	puti(db.entry.dataAr[35]);
 	putc(nl);
 	y=6;
 	y= y+1;
@@ -266,9 +273,7 @@ int main()
 	MutualRecursion_One(y);
 	myTestStruct.varx=21;
 
-	db.someValue = 1337;
-	puti(db.someValue);
-	putc(nl);
+
 
 	y=1;
 	y=y+y+y+y+y+1;
@@ -286,7 +291,7 @@ int main()
 	puti(db.entry.dataAr[21]);
 	putc(nl);
 	puti(cyberSix.dataY);	
-*/
+
 	putc(nl);
 	putf(myTestStruct.varf);
 	putc(nl);

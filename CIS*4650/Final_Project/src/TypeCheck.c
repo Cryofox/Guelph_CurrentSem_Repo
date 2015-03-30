@@ -1200,7 +1200,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 						int memOff= Get_Var_MemoryOffset(node->tokenName,scope);
 						char* temp2= malloc(sizeof(char)*20);
 						sprintf(temp2,"%d",varOff);
-						printf("Temp=%s RelOffset=%d TotalOffset=%d\n",node->tokenName, varOff, memOff);
+						// printf("Temp=%s RelOffset=%d TotalOffset=%d\n",node->tokenName, varOff, memOff);
 
 
 						Add_IR_Instruction(temp2,"=i", NULL, temp,NULL,scope);
@@ -1214,8 +1214,7 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 					{		
 						Add_IR_Instruction(node->tokenName,"param", NULL, temp,NULL,scope);	
 						paramCount+=1;
-						//Check the Parameters of the callee Function here.
-						//Basically just check if types match...We support parameter overwriting? cool			
+			
 
 					}
 					free(temp);

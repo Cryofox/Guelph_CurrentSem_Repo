@@ -747,24 +747,45 @@ void CreateAssembly()
 
 					//Store the current Ret Address here for us.
 					fprintf(f,"\tsw $ra, %d($sp)\n",(myFuncMem+8));				
-					int counter=4; //Starts with a 4 offset...dont ask why i do what i do...
+					int counter=0; //Starts with a 4 offset...dont ask why i do what i do...
 					//Sometimes I don't even know. I chose 4, because somewhere earlier i offset by 4...*shrug*
 
 					//We'll need a counter
+
+					//We need to start at the last param and work to the function, as thats the correct order
+
+					while(tmp->op!=NULL && strcmp(tmp->prev->op,"param")==0)
+						{tmp=tmp->prev;}
+
+					/*For Structs & Anything bigger than 4 bytes we need to copy all Addresses within the size*/
 					while ((tmp->op!=NULL)&&(strcmp(tmp->op,"param")==0)&&paramCount>0)
 					{
 						//If Not Global
 						int memparam = Get_Var_MemoryOffset(tmp->leftValue,tmp->scope);
 						int memSize= Get_Var_MemorySize(tmp->leftValue,tmp->scope);
 
-						fprintf(f,"\tlw $t0, %d($sp)\n",(memparam));
+						/*This only works for a single value*/
+						for(int i=0; i< memSize; i+=4)
+						{
+							fprintf(f,"\tla $t0, %d($sp)\n",(memparam)); //memparam
+							/*Add the Offset i*/
+							fprintf(f,"\tli  $t2,  %d\n",(i) );
+							fprintf(f,"\tadd $t0, $t0, $t2\n");
 
-						fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
-						fprintf(f,"\tla $t1, %d($sp)\n",(counter));		
-						fprintf(f,"\tadd $sp, $sp, %d\n",(funcMem+16) );
+							fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
+							fprintf(f,"\tla $t1, %d($sp)\n",(counter));		 //counter
+							/*Add the Offset i*/
+							fprintf(f,"\tli  $t2,  %d\n",(i) );
+							fprintf(f,"\tadd $t1, $t1, $t2\n");
 
-						fprintf(f,"\tsw $t0, ($t1)\n");						
-						tmp=tmp->prev;
+
+							fprintf(f,"\tadd $sp, $sp, %d\n",(funcMem+16) );
+							fprintf(f,"\tlw $t0, ($t0)\n");
+							fprintf(f,"\tsw $t0, ($t1)\n");		
+						}
+						// printf("%s From:%d To:%d FCall:%s ParamCount:%d\n", tmp->leftValue, memparam, counter,currentNode->leftValue, paramCount);
+
+						tmp=tmp->next;
 						paramCount--;
 						counter+=memSize; //Need to ensure we are offsetting by correct amounts
 					}

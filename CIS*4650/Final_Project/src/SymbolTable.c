@@ -751,10 +751,11 @@ void Calculate_Offsets()
 					referenceTable[hash(traveller->identifier)]->memoryOffset=scopeSize+varSize;	
 				}
 
-				scopeSize+=varSize;
+
 				traveller->memoryOffset=scopeSize;
+				scopeSize+=varSize;
 				traveller->memorySize=varSize;
-				// printf("%s[%s]=%d\n", traveller->identifier,traveller->type, varSize);
+				// printf("%s[%s]=%d @ &: %d\n", traveller->identifier,traveller->type, varSize,traveller->memoryOffset);
 
 				traveller=traveller->next;
 			}
