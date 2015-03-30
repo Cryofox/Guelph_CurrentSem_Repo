@@ -3,160 +3,6 @@
 #include <stdio.h>
 extern ir_Node* root_Node;
 #define LITERAL_USED -9435331
-typedef struct temp
-{
-	char* 	tag; //Every Instruction has a Label Number
-	int 	memory;
-	int 	literal_i;
-	float 	literal_f;
-	char 	literal_c;
-	struct temp* next;
-	struct temp* prev;
-}temp_Val;
-
-temp_Val* root_Temp;
-
-//As Instructions get Parsed, a Lookup function will be needed to replace
-//temps with actual addresses....
-//List is inefficient, but im losing the will to live, so forget
-//optimizations right now.
-
-temp_Val* GetNode(char* var)
-{
-	temp_Val* currentNode = root_Temp;
-	while(currentNode!=NULL)
-	{
-		if(strcmp(currentNode->tag, var)==0)
-		{
-			// printf("\n\nLookingUpMemory:%s  Value=%d\n", currentNode->tag, currentNode->memory);
-			return currentNode;
-		}
-		//printf("Checking [%s] with [%s]\n", currentNode->tag, var);
-		currentNode= currentNode->next;
-	}
-	return NULL;	
-}
-
-int LookupMemory(char* var)
-{
-	temp_Val* currentNode = root_Temp;
-	while(currentNode!=NULL)
-	{
-		if(strcmp(currentNode->tag, var)==0)
-		{
-			// printf("\n\nLookingUpMemory:%s  Value=%d\n", currentNode->tag, currentNode->memory);
-			return currentNode->memory;
-		}
-		//printf("Checking [%s] with [%s]\n", currentNode->tag, var);
-		currentNode= currentNode->next;
-	}
-	// printf("Could not Find:%s  Value=%d\n", var);
-	return -999;
-}
-
-
-
-//Add the Temporary values, and associate them with a memory/value
-void Add_Temp(ir_Node* curNode)
-{
-	int exists=0;
-	//Check if the variable exists
-	temp_Val* currentNode = root_Temp;
-	while(currentNode!=NULL)
-	{
-		if(strcmp(currentNode->tag, curNode->result)==0)
-		{
-			// printf("Found:%s\n",currentNode->tag);
-			exists=1;
-			break;
-		}
-		if(currentNode->next==NULL)
-			break;
-
-
-		currentNode= currentNode->next;
-	}
-	//We are now at the index of target node.
-	//What sucks? Well, we have to basically do the operation here...AND in spim =_=;...
-	int memory=-101; //Default memory value, must get replaced
-
-	if(exists==1)
-		memory=currentNode->memory;
-
-	char lC='_';
-	int li=-1;
-	float lf=-1.0f;
-
-	if(strcmp(curNode->op,"&")==0)
-	{		
-		//Were assigning an address, look it up in SymbolTable
-		memory = Get_Var_MemoryOffset(curNode->leftValue, curNode->scope);
-		// printf("Loading Address: %s Val=%d\n", curNode->result,memory);
-	}
-	else if(strcmp(curNode->op,"=c")==0)
-	{		
-
-		//Were assigning an address, look it up in SymbolTable
-		memory = LITERAL_USED; //Secret number
-		lC=curNode->leftValue[1];
-		// printf("Loading Address: %s Val=%d\n", curNode->result,memory);
-	}
-	else if(strcmp(curNode->op,"=i")==0)
-	{		
-
-		//Were assigning an address, look it up in SymbolTable
-		memory = LITERAL_USED+1; //Secret number
-		li= atoi(curNode->leftValue);
-		// printf("Loading Address: %s Val=%d\n", curNode->result,li);
-	}	
-	else if(strcmp(curNode->op,"=f")==0)
-	{		
-		//Were assigning an address, look it up in SymbolTable
-		memory = LITERAL_USED+2; //Secret number
-		lf= atof(curNode->leftValue);
-		// printf("Loading Address: %s Val=%d\n", curNode->result,memory);
-	}	
-
-
-
-	else if(strcmp(curNode->op,"param")==0)
-	{		
-		// printf("PARAM Found\n");
-		memory = Get_Var_MemoryOffset(curNode->leftValue, curNode->scope);
-	}
-
-	if(exists==1)
-	{	
-		currentNode->memory=memory;	
-	}
-	else
-	{
-		currentNode->next=malloc(sizeof(temp_Val));
-
-		currentNode->next->memory=memory;
-
-
-		//Only used if LITERAL is given for Memory
-		currentNode->next->literal_c=lC;
-		currentNode->next->literal_f=lf;		
-		currentNode->next->literal_i=li;				
-		
-		currentNode->next->prev = currentNode;
-		currentNode->next->tag=curNode->result;
-		currentNode->next->next=NULL;
-		currentNode= currentNode->next;
-
-		//Here we alter the memory offset of our var.
-		//We state the size of the frame + the temp number
-
-	}
-	// printf("Added: %s %d \n", currentNode->tag, currentNode->literal_i);
-	//printf("Added: %s-------------\n",currentNode->tag);
-}
-
-
-
-
 
 
 void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
@@ -245,65 +91,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 		{
 			fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
 		}
-		
-		/*
-		if(memLeft==-666) //if -666, means no var exists, meaning it must be a number or something...
-			fprintf(f,"\tl.s $f1,%s #%s\n",currentNode->leftValue ,currentNode->leftValue);
-		else
-			fprintf(f,"\tl.s $f1,%d($sp) #%s\n",memLeft ,currentNode->leftValue);
-		if(currentNode->rightValue!=NULL)
-		{
-			if(memRight==-666) //if -666, means no var exists, meaning it must be a number or something...
-				fprintf(f,"\tl.s $f2,%s #%s\n",currentNode->rightValue ,currentNode->leftValue);
-			else
-				fprintf(f,"\tl.s $f2,%d($sp) #%s\n",memRight ,currentNode->leftValue);
-		}
 
-		//Possible its an int
-
-		//Use the following commands for 
-		if(strcmp(currentNode->op,"+")==0)
-		{
-			fprintf(f,"\tadd.s $f1,$f1,$f2 #\n");
-
-			//Here we check if our new temp is also addressed
-			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-
-			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-		}
-
-		else if(strcmp(currentNode->op,"-")==0)
-		{	fprintf(f,"\tsub.s $f1,$f1,$f2 #\n");
-
-			//Here we check if our new temp is also addressed
-			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-
-			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-		}
-		else if(strcmp(currentNode->op,"*")==0)
-		{	fprintf(f,"\tmul.s $f1,$f1,$f2 #\n");
-			//Here we check if our new temp is also addressed
-			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-
-			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-		}
-
-		else if(strcmp(currentNode->op,"/")==0)
-		{	fprintf(f,"\tdiv.s $f1,$f1,$f2 #\n");
-			//Here we check if our new temp is also addressed
-			if( GetAddressedFlag(currentNode->leftValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-
-			if( GetAddressedFlag(currentNode->rightValue, currentNode->scope)==1)
-				SetAddressed(currentNode->result, currentNode->scope);
-		}
-*/
 		fprintf(f,"\ts.s $f1,%d($sp) #%s\n",memResult,currentNode->result);
 		fprintf(f,"#=====//\n");	
 	}
@@ -513,11 +301,7 @@ void CreateArithRel_Statement(FILE* f, ir_Node* currentNode)
 
 void CreateAssembly()
 {
-	root_Temp= malloc(sizeof(temp_Val)); //Just to have a start
-	root_Temp->tag="$";
-	root_Temp->memory=-1;
-	root_Temp->next=NULL;
-	root_Temp->prev=NULL;
+
  	FILE *f = fopen("Code.asm", "w");
 	//Well we'll need the start of the IR list
 
@@ -545,8 +329,6 @@ void CreateAssembly()
 
 	fprintf(f,".text\n");
 
-
-
 	while(currentNode->next!=NULL)
 	{
 		currentNode= currentNode->next;
@@ -554,7 +336,39 @@ void CreateAssembly()
 		//Print all Labels
 		if(currentNode->op == NULL)
 			if(currentNode->label!=NULL)
-				fprintf(f,"%s:\n", currentNode->label);
+				{
+					fprintf(f,"%s:\n", currentNode->label);
+
+					//Stack Setup Code, copied from Function Call portion. Because SPIM doesn't
+					//do this for you when you first main jump.
+
+					//Need to instrument Main because Spim auto Jumps to main for us >.>
+
+					if(strcmp(currentNode->label,"main")==0)
+					{
+						int funcMem = Get_Scope_Memory("main");
+						fprintf(f,"#  Stack Setup:main //\n");
+
+
+
+						//Below here, we have modified SP, so Funcmem offsets are tech funcmem*2 offsets
+						//Offset SP
+						fprintf(f,"\tsub $sp, $sp, %d\n",(funcMem+16) );
+						//Store FP, for restoring
+						fprintf(f,"\tsw $fp, %d($sp)\n",(funcMem+4));
+
+						//Offset FP
+						fprintf(f,"\tadd $fp,$sp, %d\n",(funcMem+16));
+
+						// //Jump to Address
+						// fprintf(f,"\tjal %s\n",currentNode->leftValue);
+
+						// //Restore the RA
+						// fprintf(f,"\tlw $ra, %d($sp)\n",(myFuncMem+8));
+
+						fprintf(f,"#=====//\n");
+					}
+				}
 
 		//If its the load address
 
@@ -926,7 +740,7 @@ void CreateAssembly()
 
 
 					paramCount= atoi(currentNode->rightValue);
-					printf("ParamCount=%d\n",paramCount);
+					// printf("ParamCount=%d\n",paramCount);
 					//Save Return Address and Frame Pointer
 
 					//Copy our Address to the RA

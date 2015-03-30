@@ -1,183 +1,294 @@
-[test_CharPrint]:
-	t6 = & c
-	t7 = =c 'c'
+[Pass_StructRef]:
+	t6 = & eq
+	t7 = =c '='
 	t6 = *= t7
-	t10 = & a
-	t11 = =c 'a'
+	t10 = & nl
+	t11 = =c '
+'
 	t10 = *= t11
-	t14 = & t
-	t15 = =c 't'
+	t14 = & db
+	t15 = =c 'd'
 	t14 = *= t15
-	t18 = & nl
-	t19 = =c '
+	param nl 
+	[t17]call putc 1
+	param db 
+	[t20]call putc 1
+	param eq 
+	[t23]call putc 1
+	t28 = & db2
+	t29 = =i 212
+	t27 = t29 +_ t28
+	t27 = = t27
+	param t27 
+	[t26]call puti 0
+	param nl 
+	[t31]call putc 1
+	param q 
+	[t34]call putc 1
+	param nl 
+	[t37]call putc 1
+	t41 = =i 1
+	t40 = return t41
+[test_CharPrint]:
+	t47 = & c
+	t48 = =c 'c'
+	t47 = *= t48
+	t51 = & a
+	t52 = =c 'a'
+	t51 = *= t52
+	t55 = & t
+	t56 = =c 't'
+	t55 = *= t56
+	t59 = & nl
+	t60 = =c '
 '
-	t18 = *= t19
+	t59 = *= t60
 	param c 
-	[t21]call putc 1
+	[t62]call putc 1
 	param a 
-	[t24]call putc 1
+	[t65]call putc 1
 	param t 
-	[t27]call putc 1
+	[t68]call putc 1
 	param nl 
-	[t30]call putc 1
-	t34 = =i 1
-	t33 = return t34
+	[t71]call putc 1
+	t75 = =i 1
+	t74 = return t75
 [arithmetic_Int]:
-	t40 = & x
-	t41 = =i 2
-	t40 = *= t41
-	t44 = & y
-	t45 = =i 4
-	t44 = *= t45
-	t48 = & z
-	t51 = & y
-	t52 = & x
-	t50 = t51 * t52
-	t53 = =i 2
-	t49 = t50 + t53
-	t48 = *= t49
-	param z 
-	[t55]call puti 1
-	t59 = =i 1
-	t58 = return t59
-[Test_Global]:
-	t65 = & fifty
-	t66 = =f 50.5000
-	t65 = *= t66
-	t69 = & nl
-	t70 = =c 'n'
-	t69 = *= t70
-	t73 = & test
-	t74 = =i 67
-	t73 = *= t74
-	param fifty 
-	[t76]call putf 1
-	param nl 
-	[t79]call putc 1
-	param test 
-	[t82]call puti 1
-	param nl 
-	[t85]call putc 1
-	t89 = =i 0
-	t88 = return t89
-[ModifyTestArr]:
-	[t94]call Test_Global 0
-	t98 = & testArr
-	t99 = =i 5
-	t100 = t99 *_ 4
-	t97 = t98 +_ t100
-	t101 = =i 69
-	t97 = *= t101
-	t104 = =i 1
-	t103 = return t104
-[RecursiveFunction]:
-	t111 = & i
-	t112 = =i 0
-	if t111 <= t112 goto Label_t109
-	param i 
-	[t115]call puti 1
-	t118 = & i
-	t122 = & i
-	t124 = & i
-	t125 = =i 1
-	t123 = t124 - t125
-	t122 = *= t123
-	param i 
-	[t127]call RecursiveFunction 1
-[Label_t109]:
-	t131 = =i 1
-	t130 = return t131
-[main]:
-	t136 = & nl
-	t137 = =c '
+	t81 = & eq
+	t82 = =c '='
+	t81 = *= t82
+	t85 = & cz
+	t86 = =c 'z'
+	t85 = *= t86
+	t89 = & nl
+	t90 = =c '
 '
-	t136 = *= t137
-	t140 = & floatTest
-	t141 = =f 999.900
-	t140 = *= t141
-	t144 = & floatTest
-	t146 = & floatTest
-	t147 = =f 5.40000
-	t145 = t146 + t147
-	t144 = *= t145
-	param floatTest 
-	[t149]call putf 1
-	t153 = & test
-	t154 = =i 54
-	t153 = *= t154
-	t158 = & myTestStruct
-	t159 = =i 4
-	t157 = t159 +_ t158
-	t160 = =i 21
-	t157 = *= t160
-	t164 = & myTestStruct
-	t165 = =i 8
-	t163 = t165 +_ t164
-	t166 = =f 24.6539
-	t163 = *= t166
-	t170 = & array
-	t171 = =i 5
-	t172 = t171 *_ 4
-	t169 = t170 +_ t172
-	t173 = =i 65
-	t169 = *= t173
-	t176 = & x
-	t178 = & array
-	t179 = =i 5
-	t180 = t179 *_ 4
-	t177 = t178 +_ t180
-	t176 = *= t177
+	t89 = *= t90
+	[t92]call arithmetic_Float 0
+	t95 = & x
+	t96 = =i 2
+	t95 = *= t96
+	t99 = & y
+	t100 = =i 4
+	t99 = *= t100
+	t103 = & z
+	t106 = & y
+	t107 = & x
+	t105 = t106 * t107
+	t108 = =i 2
+	t104 = t105 + t108
+	t103 = *= t104
+	param cz 
+	[t110]call putc 1
+	param eq 
+	[t113]call putc 1
+	param z 
+	[t116]call puti 1
+	param nl 
+	[t119]call putc 1
+	t123 = =i 1
+	t122 = return t123
+[arithmetic_Float]:
+	t129 = & nl
+	t130 = =c '
+'
+	t129 = *= t130
+	t133 = & x
+	t134 = =f 4.50000
+	t133 = *= t134
+	t137 = & x
+	t139 = & x
+	t140 = =f 1.00000
+	t138 = t139 + t140
+	t137 = *= t138
+	param nl 
+	[t142]call putc 1
 	param x 
-	[t182]call puti 1
+	[t145]call putf 1
 	param nl 
-	[t185]call putc 1
-	param y 
-	[t188]call puti 1
+	[t148]call putc 1
+	t152 = =i 0
+	t151 = return t152
+[Test_Global]:
+	t158 = & fifty
+	t159 = =f 50.5000
+	t158 = *= t159
+	t162 = & nl
+	t163 = =c '
+'
+	t162 = *= t163
+	t166 = & test
+	t167 = =i 67
+	t166 = *= t167
+	param fifty 
+	[t169]call putf 1
 	param nl 
-	[t191]call putc 1
-	t196 = & array
-	t197 = =i 5
-	t198 = t197 *_ 4
-	t195 = t196 +_ t198
-	t195 = = t195
-	param t195 
-	[t194]call puti 0
+	[t172]call putc 1
+	param test 
+	[t175]call puti 1
 	param nl 
-	[t200]call putc 1
-	t205 = & myTestStruct
-	t206 = =i 4
-	t204 = t206 +_ t205
-	t204 = = t204
-	param t204 
-	[t203]call puti 0
+	[t178]call putc 1
+	t182 = =i 0
+	t181 = return t182
+[ModifyTestArr]:
+	[t187]call Test_Global 0
+	t191 = & testArr
+	t192 = =i 5
+	t193 = t192 *_ 4
+	t190 = t191 +_ t193
+	t194 = =i 69
+	t190 = *= t194
+	t197 = =i 1
+	t196 = return t197
+[RecursiveFunction]:
+	t203 = & nl
+	t204 = =c '
+'
+	t203 = *= t204
+	t208 = & i
+	t209 = =i 0
+	if t208 <= t209 goto Label_t206
+	param i 
+	[t212]call puti 1
+	t215 = & i
+	t219 = & i
+	t221 = & i
+	t222 = =i 1
+	t220 = t221 - t222
+	t219 = *= t220
+	param i 
+	[t224]call RecursiveFunction 1
+[Label_t206]:
 	param nl 
-	[t208]call putc 1
-	t213 = & myTestStruct
-	t214 = =i 8
-	t212 = t214 +_ t213
-	t212 = = t212
-	param t212 
-	[t211]call putf 0
+	[t227]call putc 1
+	t231 = =i 1
+	t230 = return t231
+[MutualRecursion_One]:
+	t237 = & m
+	t238 = =c 'm'
+	t237 = *= t238
+	t241 = & r
+	t242 = =c 'r'
+	t241 = *= t242
+	t245 = & v
+	t246 = =c '1'
+	t245 = *= t246
+	t249 = & nl
+	t250 = =c '
+'
+	t249 = *= t250
+	t253 = & space
+	t254 = =c ' '
+	t253 = *= t254
+	t258 = & i
+	t259 = =i 0
+	if t258 <= t259 goto Label_t256
+	param m 
+	[t262]call putc 1
+	param r 
+	[t265]call putc 1
+	param v 
+	[t268]call putc 1
+	param space 
+	[t271]call putc 1
+	param i 
+	[t274]call puti 1
 	param nl 
-	[t216]call putc 1
-	t221 = & cyberSix
-	t222 = =i 0
-	t220 = t222 +_ t221
-	t223 = =i 2224
-	t220 = *= t223
-	[t225]call ModifyTestArr 0
-	t229 = & testArr
-	t230 = =i 5
-	t231 = t230 *_ 4
-	t228 = t229 +_ t231
-	t228 = = t228
-	param t228 
-	[t227]call puti 0
-	t235 = & cyberSix
-	t236 = =i 0
-	t234 = t236 +_ t235
-	t234 = = t234
-	param t234 
-	[t233]call puti 0
-	t239 = =i 666
-	t238 = return t239
+	[t277]call putc 1
+	t280 = & i
+	t284 = & i
+	t286 = & i
+	t287 = =i 1
+	t285 = t286 - t287
+	t284 = *= t285
+	param i 
+	[t289]call MutualRecursion_Two 1
+[Label_t256]:
+	t293 = =i 1
+	t292 = return t293
+[MutualRecursion_Two]:
+	t299 = & m
+	t300 = =c 'm'
+	t299 = *= t300
+	t303 = & r
+	t304 = =c 'r'
+	t303 = *= t304
+	t307 = & v
+	t308 = =c '2'
+	t307 = *= t308
+	t311 = & nl
+	t312 = =c '
+'
+	t311 = *= t312
+	t315 = & space
+	t316 = =c ' '
+	t315 = *= t316
+	t320 = & i
+	t321 = =i 0
+	if t320 <= t321 goto Label_t318
+	param m 
+	[t324]call putc 1
+	param r 
+	[t327]call putc 1
+	param v 
+	[t330]call putc 1
+	param space 
+	[t333]call putc 1
+	param i 
+	[t336]call puti 1
+	param nl 
+	[t339]call putc 1
+	t342 = & i
+	t346 = & i
+	t348 = & i
+	t349 = =i 1
+	t347 = t348 - t349
+	t346 = *= t347
+	param i 
+	[t351]call MutualRecursion_One 1
+[Label_t318]:
+	t355 = =i 1
+	t354 = return t355
+[main]:
+	t360 = & nl
+	t361 = =c '
+'
+	t360 = *= t361
+	t365 = & myTestStruct
+	t366 = =i 8
+	t364 = t366 +_ t365
+	t367 = =f 4.56700
+	t364 = *= t367
+	t371 = & cyberSix
+	t372 = =i 4
+	t370 = t372 +_ t371
+	t373 = =i 2224
+	t370 = *= t373
+	t377 = & myTestStruct
+	t378 = =i 8
+	t376 = t378 +_ t377
+	t376 = = t376
+	param t376 
+	[t375]call putf 0
+	t382 = & db
+	t384 = =i 0
+	t386 = =i 8
+	t387 = =i 35
+	t388 = t387 *_ 4
+	t385 = t386 +_ t388
+	t383 = t385 +_ t384
+	t381 = t383 +_ t382
+	t389 = =i 2014
+	t381 = *= t389
+	param nl 
+	[t391]call putc 1
+	t396 = & myTestStruct
+	t397 = =i 8
+	t395 = t397 +_ t396
+	t395 = = t395
+	param t395 
+	[t394]call putf 0
+	param nl 
+	[t399]call putc 1
+	t403 = =i 0
+	t402 = return t403

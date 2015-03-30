@@ -189,7 +189,8 @@ void Add_Array(char* token_Name, char* type, int size)
 		//printf("So far so peachy...\n");
 		//printf("Str Peachy:%s\n",type);
 		char* nt = Get_VarType(type);
-traveller->isAddress=0;
+		traveller->structOffset=0;
+		traveller->isAddress=0;
 		// printf("NT=%s\n",nt);
 		traveller->type=nt;
 		traveller->next=NULL;
@@ -243,6 +244,7 @@ void Add_Variable(char* token_Name, char* type)
 		traveller->next=NULL;
 		traveller->referencedValue=NULL;
 		traveller->isAddress=0;
+			traveller->structOffset=0;
 		if(nt== nt_NONE)
 		{
 			fprintf(stderr, "\nError: Unknown Variable:%s\n", token_Name);			
@@ -492,6 +494,7 @@ void Add_TempSym(char * tag,char* type, char*scope)
 	traveller->next=NULL;
 	traveller->referencedValue=NULL;
 	traveller->memorySize=4;
+	traveller->structOffset=0;
 }
 
 int isInScope(char* variable, char* currentscope)
@@ -628,7 +631,6 @@ char* Get_Var_Owner(char* variable, char* currentscope)
 
 
 void SetAddressed(char* variable, char* currentscope)
-
 {
 	int hashValue = hash(currentscope);
 	//Check if variable is in current scope
@@ -689,7 +691,8 @@ void Calculate_Offsets()
 				//Grab the variables size and the pass the scope.
 				//varSize= Get_Var_MemorySize(traveller->identifier,symbolTable[scope_Index]->identifier);
 				varSize=referenceTable[hash(traveller->type)]->memorySize;
-
+						// printf("Scope Index=%d\n",scope_Index);
+						// printf("Current Traveller:%s\n", traveller->identifier);
 				//If the variable was already created, varSize >0, otherwise we give it a value
 				if(varSize==0)
 				{
@@ -699,6 +702,8 @@ void Calculate_Offsets()
 					{
 					//For Structs, check all children up to struct
 						entry_Node* struct_traveller = symbolTable[scope_Index]->next;
+						// printf("Scope Index=%d\n",scope_Index);
+						// printf("Current Struct Travel:%s\n", struct_traveller->identifier);
 						int counter_InnerOffset=0;
 						while(struct_traveller!= traveller)
 						{
@@ -718,11 +723,18 @@ void Calculate_Offsets()
 	
 								varSize+=temp;
 								
+								struct_traveller->structOffset=counter_InnerOffset;
 							}
-							struct_traveller->structOffset=counter_InnerOffset;
 
-							struct_traveller=struct_traveller->next;	
+						
+							//Weird Values are occuring
+
+							// printf("CALCOFFSET:Var:%s RelOffset=%d\n",struct_traveller->identifier, struct_traveller->structOffset);
+							// printf("CALCOFFSET[NEXT]:Var:%s RelOffset=%d\n",struct_traveller->next->identifier, struct_traveller->next->structOffset);		
+							//printf("Did it change? CALCOFFSET:Var:%s RelOffset=%d\n",struct_traveller->identifier, struct_traveller->structOffset);
 							counter_InnerOffset+=temp;
+							struct_traveller=struct_traveller->next;	
+							
 						}
 
 					}
@@ -731,7 +743,7 @@ void Calculate_Offsets()
 						varSize=4+ traveller->size*4;
 					}
 				//This only works for basic types
-					
+					// traveller=struct_traveller;
 				}
 				if(strcmp(traveller->type,"struct")==0)
 				{
@@ -851,28 +863,47 @@ int Get_Var_MemoryOffset(char* variable, char* currentscope)
 //Call this to get a Variable assigned Type
 int Get_Var_MemoryOffset_FromStruct(char* variable, char* currentscope)
 {
+	// printf("\n\nCALLING FROM MEMORY GET!\n\n");
+	//Just to be safe....
+	Calculate_Offsets();
+
 
 	int hashValue = hash(currentscope);
 	//Check if variable is in current scope
 	entry_Node* traveller = symbolTable[hashValue];
-
-	traveller=traveller->next;
-	// 
+	// printf("Hash Index=%d\n",hashValue);
+	// printf("Hash KW=%s\n", currentscope);
+	// printf("Var =%s\n", variable);
+	traveller=traveller;
+	
 	//Check Current Scope
 	while(traveller!=NULL)
 	{
 		if( strcmp(traveller->identifier,variable)==0)
+		{
+			// printf("FOUND Travel->%s StructOffset->%d\n", traveller->identifier, traveller->structOffset);
+			// printf("SECON Travel->%s StructOffset->%d\n", traveller->next->identifier, traveller->next->structOffset);			
 			return traveller->structOffset;
+		}
 		traveller=traveller->next;
 	}	
 	hashValue = hash("Global");
 	traveller = symbolTable[hashValue];
-	traveller=traveller->next;
+	traveller=traveller;
 	//Check Global Scope
+	// printf("Hash Index=%d\n",hashValue);
+	// printf("Hash KW=Global\n");
+	// printf("Var =%s\n", variable);	
+
 	while(traveller!=NULL)
 	{
 		if( strcmp(traveller->identifier,variable)==0)
+		{
+			// printf("FOUND Travel->%s StructOffset->%d\n", traveller->identifier, traveller->structOffset);
+			// printf("SECON Travel->%s StructOffset->%d\n", traveller->next->identifier, traveller->next->structOffset);
 			return traveller->structOffset;
+		}
+			
 		traveller=traveller->next;
 	}
 

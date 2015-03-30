@@ -104,6 +104,9 @@ int main ()
 	int z;
 	int x;
 
+	/*Call a nonexistant Function */
+	function_IJustMadeUp();
+
 	return 1;
 }
 

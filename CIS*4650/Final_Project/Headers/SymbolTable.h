@@ -57,6 +57,10 @@ typedef struct s
 	char* scope_Name;
 	struct s* next;
 }node_Scopes;
+
+entry_Node* Get_Scope_Variables(char* currentscope);
+int Get_Var_MemoryOffset_FromStruct(char* variable, char* currentscope);
+
 void Print_SymbolTable(FILE* fptr);
 
 void Set_Type(char* type);
@@ -86,12 +90,12 @@ void Add_TempSym(char * tag,char* type, char*scope);
 char* Get_ReferencedValue(char* temp,char* currentscope );
 int Get_Scope_Memory(char* currentscope);
 
-entry_Node* Get_Scope_Variables(char* currentscope);
 
 void SetAddressed(char* variable, char* current);
 
 int GetAddressedFlag(char* variable, char* current);
-int Get_Var_MemoryOffset_FromStruct(char* variable, char* currentscope);
+
 int isVar_Global(char* variable, char* currentscope);
 int does_ScopeExist(char* scope);
+
 #endif

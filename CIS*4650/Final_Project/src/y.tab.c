@@ -1710,7 +1710,7 @@ yyreduce:
 
   case 25:
 #line 151 "src/Parser.y" /* yacc.c:1646  */
-    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; (yyval.xprT)= NULL;}
+    {globalCalled=1; (yyval.xprT)= NULL;}
 #line 1715 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1818,7 +1818,7 @@ yyreduce:
 
   case 43:
 #line 198 "src/Parser.y" /* yacc.c:1646  */
-    { (yyval.xprT) = NULL;}
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1;  (yyval.xprT) = NULL;}
 #line 1823 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1842,31 +1842,31 @@ yyreduce:
 
   case 47:
 #line 206 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Variable((yyvsp[0].s),"int"); (yyval.xprT) = NULL;	 	 }
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable((yyvsp[0].s),"int"); (yyval.xprT) = NULL;	 	 }
 #line 1847 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
 #line 207 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Variable((yyvsp[0].s),"float");(yyval.xprT) = NULL;    	 }
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable((yyvsp[0].s),"float");(yyval.xprT) = NULL;    	 }
 #line 1853 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
 #line 208 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Variable((yyvsp[0].s),"char");(yyval.xprT) = NULL;    	 }
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable((yyvsp[0].s),"char");(yyval.xprT) = NULL;    	 }
 #line 1859 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
 #line 209 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Variable((yyvsp[0].s),(yyvsp[-1].s));(yyval.xprT)=NULL; }
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable((yyvsp[0].s),(yyvsp[-1].s));(yyval.xprT)=NULL; }
 #line 1865 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
 #line 210 "src/Parser.y" /* yacc.c:1646  */
-    {Add_Variable((yyvsp[0].s),(yyvsp[-1].s));(yyval.xprT) = NULL;   	 }
+    {if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable((yyvsp[0].s),(yyvsp[-1].s));(yyval.xprT) = NULL;   	 }
 #line 1871 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2550,24 +2550,37 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[1],"-a")==0)
 		{
-		PrintABS();
-		printf("ABS file created.\n");
+				if(errorCount==0)
+				{
+					PrintABS();
+					printf("ABS file created.\n");
+				}
+				else
+				{
+					printf("The file contains errors,please fix in order to continue.\n");
+				}
 		}
-
 		else if(strcmp(argv[1],"-s")==0)
 		{
 			if(errorCount==0)
 			{	
 
-				printf("Symbol Table File Created.\n");
-
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
 				//Perform TypeChecking on Tree
-				PerformTypeCheck(0,root,NULL);
-
-
-				//Print AFTER our Code
-				PrintSYM();
-
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);
+				}
+				if(errorCount==0)
+				{
+					printf("Outputting SymbolTable\n");
+					PrintSYM();
+				}
 			}
 			else
 			{
@@ -2580,16 +2593,23 @@ int main(int argc, char* argv[])
 			if(errorCount==0)
 			{	
 
-				//Initialize our IR_Node
-				InitializeIR_Node();
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
 				//Perform TypeChecking on Tree
-				PerformTypeCheck(0,root,NULL);
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);
+				}
+				if(errorCount==0)
+				{
+					printf("Outputting IR_Instructionset\n");
+					PrintIR();
+				}
 
-
-				//Print AFTER our Code
-
-				//Print IR_Instructions
-				PrintIR();
 
 				Free_IR_Instructions();
 			}
@@ -2598,10 +2618,40 @@ int main(int argc, char* argv[])
 				printf("The file contains errors,please fix in order to continue.\n");
 			}
 		}
-
-
-
 		else if(strcmp(argv[1],"-c")==0)
+		{
+			if(errorCount==0)
+			{	
+
+				//Initialize our IR_Node
+
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
+				//Perform TypeChecking on Tree
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);}
+
+				if(errorCount==0)
+					{
+					printf("Creating Assembly!\n");
+					CreateAssembly();}
+				else
+					printf("The file contains errors,please fix in order to continue.\n");
+				Free_IR_Instructions();
+			}
+			else
+			{
+				printf("The file contains errors,please fix in order to continue.\n");
+			}
+		}
+
+		//Print Everything!
+		else if(strcmp(argv[1],"-q")==0)
 		{
 			if(errorCount==0)
 			{	

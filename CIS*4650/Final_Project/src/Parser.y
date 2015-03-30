@@ -148,7 +148,7 @@ Cont_TDecl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_TDecl
 
 
 //Trick Yacc into Right Recursion by using the SEMICOLON for reducing
-Declerations:%empty 									{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; $$= NULL;}
+Declerations:%empty 									{globalCalled=1; $$= NULL;}
 			|Declerations Decleration					{$$ = NULL;}
 			;
 
@@ -195,7 +195,7 @@ Cont_Decl	: IDENTIFIER L_SQBRACE INT R_SQBRACE COMA Cont_Decl	{Add_Array	 ($1, "
 
 
 
-Arguments  : %empty		{ $$ = NULL;}
+Arguments  : %empty		{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1;  $$ = NULL;}
 		   | ArgumentIn { $$ = NULL;}
 		   ;
 
@@ -203,11 +203,11 @@ ArgumentIn  : Argument COMA ArgumentIn				{ $$ = NULL;}
 			| Argument 								{ $$ = NULL;}
 			;
 //Same as Declerations
-Argument	: KW_INT 	 IDENTIFIER  							{Add_Variable($2,"int"); $$ = NULL;	 	 }
-			| KW_FLOAT 	 IDENTIFIER  							{Add_Variable($2,"float");$$ = NULL;    	 }
-			| KW_CHAR 	 IDENTIFIER  							{Add_Variable($2,"char");$$ = NULL;    	 }
-			| KW_STRUCT IDENTIFIER IDENTIFIER					{Add_Variable($3,$2);$$=NULL; }
-			| IDENTIFIER IDENTIFIER  							{Add_Variable($2,$1);$$ = NULL;   	 }
+Argument	: KW_INT 	 IDENTIFIER  							{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable($2,"int"); $$ = NULL;	 	 }
+			| KW_FLOAT 	 IDENTIFIER  							{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable($2,"float");$$ = NULL;    	 }
+			| KW_CHAR 	 IDENTIFIER  							{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable($2,"char");$$ = NULL;    	 }
+			| KW_STRUCT IDENTIFIER IDENTIFIER					{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable($3,$2);$$=NULL; }
+			| IDENTIFIER IDENTIFIER  							{if(globalCalled==0)Add_Scope("Global","void");  globalCalled=1; Add_Variable($2,$1);$$ = NULL;   	 }
 			;
 //Functions
 
@@ -431,24 +431,37 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[1],"-a")==0)
 		{
-		PrintABS();
-		printf("ABS file created.\n");
+				if(errorCount==0)
+				{
+					PrintABS();
+					printf("ABS file created.\n");
+				}
+				else
+				{
+					printf("The file contains errors,please fix in order to continue.\n");
+				}
 		}
-
 		else if(strcmp(argv[1],"-s")==0)
 		{
 			if(errorCount==0)
 			{	
 
-				printf("Symbol Table File Created.\n");
-
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
 				//Perform TypeChecking on Tree
-				PerformTypeCheck(0,root,NULL);
-
-
-				//Print AFTER our Code
-				PrintSYM();
-
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);
+				}
+				if(errorCount==0)
+				{
+					printf("Outputting SymbolTable\n");
+					PrintSYM();
+				}
 			}
 			else
 			{
@@ -461,16 +474,23 @@ int main(int argc, char* argv[])
 			if(errorCount==0)
 			{	
 
-				//Initialize our IR_Node
-				InitializeIR_Node();
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
 				//Perform TypeChecking on Tree
-				PerformTypeCheck(0,root,NULL);
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);
+				}
+				if(errorCount==0)
+				{
+					printf("Outputting IR_Instructionset\n");
+					PrintIR();
+				}
 
-
-				//Print AFTER our Code
-
-				//Print IR_Instructions
-				PrintIR();
 
 				Free_IR_Instructions();
 			}
@@ -479,10 +499,40 @@ int main(int argc, char* argv[])
 				printf("The file contains errors,please fix in order to continue.\n");
 			}
 		}
-
-
-
 		else if(strcmp(argv[1],"-c")==0)
+		{
+			if(errorCount==0)
+			{	
+
+				//Initialize our IR_Node
+
+				if(errorCount==0)
+				{
+					printf("Initializing IR Node\n");
+					InitializeIR_Node();
+				}
+				//Perform TypeChecking on Tree
+				if(errorCount==0)
+				{
+					printf("Performing Type Checking\n");
+					PerformTypeCheck(0,root,NULL);}
+
+				if(errorCount==0)
+					{
+					printf("Creating Assembly!\n");
+					CreateAssembly();}
+				else
+					printf("The file contains errors,please fix in order to continue.\n");
+				Free_IR_Instructions();
+			}
+			else
+			{
+				printf("The file contains errors,please fix in order to continue.\n");
+			}
+		}
+
+		//Print Everything!
+		else if(strcmp(argv[1],"-q")==0)
 		{
 			if(errorCount==0)
 			{	

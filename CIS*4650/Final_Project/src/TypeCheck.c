@@ -412,11 +412,20 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 		char* varName 		= node->u.oper.right->tokenName;
 		char * rightValue;
 
+		char* rightNode= malloc(sizeof(char)*20);
+		int postLeft=currentNode+1;
 
+		//Current Node is now updated with what the right branch WOULD be
+		sprintf(rightNode,"t%d",(postLeft));
 		//The Right token is a dot, meaning we need to check if the left variable
 		// of the dot belongs to our struct
 		if( strcmp(varName,"dot:")==0)
 		{
+			varName = node->u.oper.right->u.oper.left->tokenName;
+		}
+		else if(strcmp("Arr[]",varName)==0)
+		{
+			//Special Case for Array, similar to Struct
 			varName = node->u.oper.right->u.oper.left->tokenName;
 		}
 
@@ -426,17 +435,19 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 			//Var is part of same Struct.
 			rightValue= evaluateExpr(node->u.oper.right,  expectedType, value,scope);
 		}
+
 		else
 		{
+
 			//This var is not inside the struct
 			fprintf(stderr,"Type Error: Line[%d] Could not find [%s] inside struct:%s\n",node->lineCreated,varName, leftValue);
 			errorCount++;
 			return NULL;
+		
 		}
-		char* rightNode= malloc(sizeof(char)*20);
-		int postLeft=currentNode;
-		//Current Node is now updated with what the right branch WOULD be
-		sprintf(rightNode,"t%d",(postLeft));
+
+
+		/*Kawai Face */
 
 		Add_IR_Instruction(rightNode,"+_", leftNode, temp,NULL,scope);
 
@@ -1186,9 +1197,11 @@ char* evaluateExpr(expressionTree node, char* expectedType, int value, char*scop
 						//Calc Offset of THIS var
 						//This guys offset SHOULD be from the reference of the struct parent
 						int varOff= Get_Var_MemoryOffset_FromStruct(node->tokenName,scope);
-
+						int memOff= Get_Var_MemoryOffset(node->tokenName,scope);
 						char* temp2= malloc(sizeof(char)*20);
 						sprintf(temp2,"%d",varOff);
+						printf("Temp=%s RelOffset=%d TotalOffset=%d\n",node->tokenName, varOff, memOff);
+
 
 						Add_IR_Instruction(temp2,"=i", NULL, temp,NULL,scope);
 						free(temp2);
