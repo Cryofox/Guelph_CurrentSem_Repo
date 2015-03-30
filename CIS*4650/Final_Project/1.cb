@@ -188,7 +188,61 @@ int MutualRecursion_Two(int i)
 
 	return 1;
 }
+int Loops()
+{
+	char nl;
+	char space;
+	char ascii_1;
+	char ascii_2;
+	char ascii_3;
+	char ascii_4;
+	char f;
+	char w;
+	char eq;
+	int i;
 
+	eq='=';
+	f='F';
+	w='W';
+	nl='\n';
+	ascii_1='(';
+	ascii_2='^';
+	ascii_3='_';
+	ascii_4=')';
+	space =' ';
+
+	putc(f);
+	putc(eq);
+	for(i=0;i<3;i++)
+	{
+		putc(ascii_1);
+		putc(ascii_2);
+		putc(ascii_3);
+		putc(ascii_2);
+		putc(ascii_4);
+		putc(space);
+	}
+	putc(nl);
+
+	putc(w);
+	putc(eq);
+	i=0;
+	while(i<5)
+	{
+		putc(ascii_1);
+		putc(ascii_2);
+		putc(ascii_3);
+		putc(ascii_2);
+		putc(ascii_4);
+		putc(space);
+		i++;
+	}
+	putc(nl);
+
+
+
+	return 1;
+}
 
 int main()
 {
@@ -208,7 +262,7 @@ int main()
 	
 	
 
-	
+	Loops();
 	nl='\n';
 	q='q';
 	db.someValue = 1337;

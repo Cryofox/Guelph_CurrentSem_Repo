@@ -3,10 +3,12 @@ To Comp & run: make run
 To Clean: make clean
 
 To Draw Graph:
-dot -Tps ./Tree.abs -o Test.ps 
+1)./cflatc -a <1.cb
+2)dot -Tps ./Tree.abs -o Test.ps 
+Doing only step 1 results in code for Graphviz to parse, 
+pretty much useless to a human.
 
-Everything works as needed. Most of the effort is in converting IR code
-and figuring how to convert that to Assembly.
+
 
 
 
@@ -19,13 +21,24 @@ The program consists of:
 	-a .c/h file for the Symbol Table.
 	-a .c/h file for the TypeChecking.
 	-a .c/h file for the IR code generation.   
+	-a .c/h file for converting IR code Assembly
 
-
-
-1 = Error Free Beautiful tree
+1.cb=
+	Error Free Beautiful tree
 ./cflatc -a < 1.cb
+	A Lovely Symbol Table with variables in Scopes
+	Note: Since IR generation works at same time, all temp values are also
+	present in symbol table.
 ./cflatc -s < 1.cb
+	The IR Instruction code
+./cflatc -i < 1.cb
+
+	The Assembly, the one to rule them all
+	and in the darkness Guide Them
 ./cflatc -c < 1.cb
+
+	Create ALL the files!
+./cflatc -q < 1.cb
 
 2-4 = About 3 Errors
 
