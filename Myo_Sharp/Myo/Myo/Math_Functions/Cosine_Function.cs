@@ -6,9 +6,7 @@ namespace Myo
 	{
 		//What Percent of the SCREEN (Pixel Accuracy)
 
-		float paramModifier = 0.05f;
-		int minX=-1;
-		int maxX=1;
+
 		public Cosine_Function ()
 		{}
 		//Y Values
@@ -20,6 +18,7 @@ namespace Myo
 			//Offset by Paramodif
 
 			float val =y- screenHeight*paramModifier;
+
 
 			return val;
 		}
@@ -44,14 +43,24 @@ namespace Myo
 		{
 			float y = 0;
 			x = x / (float)screenWidth;
-			x *=( Math.Abs (minX) + Math.Abs (maxX));
+			x *=( Math.Abs (minX) + Math.Abs (maxX)); //Range
 			x += minX;
 			y = Calc_Y (x);
 
 			//This will generate the Y on the screen
-			y = screenHeight-(y * screenHeight);
-			//Console.WriteLine ("X=" + ((x / (float)screenWidth)));
+
+			int newMinY = Math.Abs (minY);
+
+			//y *=( Math.Abs (minY) + Math.Abs (maxY)); //Range
+			y += newMinY; //Shift
+
+			float percentage = y / (Math.Abs (minY) + Math.Abs (maxY));
+
+			//Console.WriteLine ("X=" + (x));
 			//Console.WriteLine ("Y=" + (y));
+			//Console.WriteLine ("%=" + percentage);
+			y = (screenHeight)-((percentage * (screenHeight)));
+
 
 			return y;
 		}

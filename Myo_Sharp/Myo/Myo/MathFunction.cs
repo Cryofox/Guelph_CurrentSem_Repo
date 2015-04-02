@@ -4,6 +4,16 @@ namespace Myo
 {
 	public class MathFunction
 	{
+		public float paramModifier = 0.05f;
+		public int minX=-1;
+		public int maxX= 1;
+		public int minY=-1;
+		public int maxY=1;
+
+		public float modifier {
+			get{ return paramModifier; }
+		}
+
 		//The Math Function BaseClass
 		public MathFunction ()
 		{
@@ -14,6 +24,63 @@ namespace Myo
 		{return 0;}
 		public virtual float Get_MaxModif(float x, int screenWidth, int screenHeight)
 		{return 0;}
+
+		//Check if Y is within Modif Range at 0
+		public int Get_StartPosition(float y)
+		{
+			float min = Get_MinModif (0f, 500, 500);
+			float max = Get_MaxModif (0f, 500, 500);
+
+
+			Console.WriteLine ("Value Y="+y);
+			Console.WriteLine ("Min = " + min);
+			Console.WriteLine ("Max = " + max);
+			if (y < min) {
+				return 1;
+			} else if (y > max)
+				return -1;
+			else
+				return 0;
+		}
+
+		public bool isWithinModif(float x, float y)
+		{
+			float min = Get_MinModif (0f, 500, 500);
+			float max = Get_MaxModif (0f, 500, 500);
+
+
+			//Console.WriteLine ("Value Y="+y);
+			//Console.WriteLine ("Min = " + min);
+			//Console.WriteLine ("Max = " + max);
+			float deviation= Calculate_Deviation(x,y);
+			if (deviation <= paramModifier) {
+				return true;
+			} 
+			else
+				return false;		
+		}
+
+		public float Calculate_Deviation(float x, float y)
+		{
+			float min = Get_MinModif (x, 500, 500);
+			float max = Get_MaxModif (x, 500, 500);
+
+			float exactLocation = GetY (x, 500, 500);
+
+			//Here we check how we do
+
+			float deviation = y - exactLocation;
+
+			//Absolute
+			deviation= Math.Abs(deviation);
+
+			//Rescale to get exact percentage
+			deviation /= 500;
+
+		Console.WriteLine ("Deviation:" + deviation);
+
+			return deviation;
+		}
 
 		public virtual float Calc_Y(float x)
 		{

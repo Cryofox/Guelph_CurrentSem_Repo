@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,6 +54,10 @@
     <Reference Include="System.AddIn.Contract" />
     <Reference Include="Microsoft.DirectX.Diagnostics, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Microsoft.VisualStudio.Tools.Applications.Contract, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="NAudio.WindowsMediaFormat">
+      <HintPath>..\NAudio-Release\NAudio.WindowsMediaFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Speech" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -69,10 +73,13 @@
     <Compile Include="MathFunction.cs" />
     <Compile Include="Temp_Tester.cs" />
     <Compile Include="Paint.cs" />
-    <Compile Include="Cosine_Function.cs" />
     <Compile Include="Myo_Wrapper.cs" />
     <Compile Include="Properties\ConsoleHelper.cs" />
     <Compile Include="Internal\ConsoleHelper.cs" />
+    <Compile Include="Math_Functions\Cosine_Function.cs" />
+    <Compile Include="Audio_Curve.cs" />
+    <Compile Include="Custom_FunctionProvider.cs" />
+    <Compile Include="Properties\WaveProvider32.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -80,8 +87,13 @@
       <Project>{B075C7E9-FE48-4508-B44C-1A259BCC8B22}</Project>
       <Name>MyoSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NAudio\NAudio.csproj">
+      <Project>{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}</Project>
+      <Name>NAudio</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Internal\" />
+    <Folder Include="Math_Functions\" />
   </ItemGroup>
 </Project>

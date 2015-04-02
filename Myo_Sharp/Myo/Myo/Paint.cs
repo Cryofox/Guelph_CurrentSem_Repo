@@ -8,16 +8,18 @@ namespace Myo
 
 		//How much degree freedom to allow user to be within
 
-
-
 		//Setup Graphing Parameters
-		float param_Max_x	= 1;
-		float param_Min_x	=-1;
-		float param_Max_y	= 1;
-		float param_Min_y	=-1;
+		public int param_Max_x	=  1;
+		public int param_Min_x	= -1;
+
+		public int param_Max_y	=  1;
+		public int param_Min_y	= -1;
 
 	
 		float divisions = 8;
+
+		//The Color Code
+		float R=1,  G=1, B=1, A=1;
 
 
 
@@ -125,16 +127,16 @@ namespace Myo
 
 			lbl_MyoPose = new Label ("ll");//("MyoPose:_______");
 			lbl_MyoPosition = new Label ("Myo[x][Y]: { , } ");
-			line = new Button("Line");
-			pen = new Button("Pen");
+			//line = new Button("Line");
+			//pen = new Button("Pen");
 
 
-			hbox.Add (lbl_MyoPose);
-			hbox.Add(lbl_MyoPosition);
+			//hbox.Add (lbl_MyoPose);
+			//hbox.Add(lbl_MyoPosition);
 
 
-			hbox.Add(line);
-			hbox.Add(pen);
+			//hbox.Add(line);
+			//hbox.Add(pen);
 
 
 			Alignment halign = new Alignment  (1, 0, 0.25f, 0);
@@ -146,8 +148,8 @@ namespace Myo
 
 			vbox.PackStart(halign, false, false, 5);
 
-			line.Clicked += LineClicked;
-			pen.Clicked += PenClicked;
+			//line.Clicked += LineClicked;
+			//pen.Clicked += PenClicked;
 
 			Add(vbox);
 			Add(area);
@@ -316,7 +318,10 @@ namespace Myo
 		}
 
 
-		float R=1,  G=1, B=1, A=1;
+
+
+
+
 		void DrawLine(Cairo.Context ctx, PointD start, PointD end)
 		{
 			ctx.SetSourceRGBA(R,G,B,A);
@@ -334,6 +339,8 @@ namespace Myo
 		}
 
 
+
+
 		public void DrawPoint(PointD start, PointD end)
 		{
 			R = 1;
@@ -345,6 +352,9 @@ namespace Myo
 			area.QueueDraw();
 		}
 
+
+
+
 		public void DrawPoint_User(PointD start, PointD end)
 		{
 			R = 0;
@@ -353,6 +363,20 @@ namespace Myo
 			Cairo.Context ctx = new Context (surface);
 			DrawPoint (ctx, start, end);
 			area.QueueDraw();
+		}
+
+		public void DrawPoint_User_DontSave(PointD start, PointD end)
+		{
+			R = 0;
+			G = 0;
+			B = 1;
+			Cairo.Context ctx = new Context (surface);
+			Cairo.Context ctx2 = new Context (surface);
+
+			//Cache Surface
+			DrawPoint (ctx, start, end);
+
+
 		}
 
 		public void DrawLine(PointD start, PointD end)

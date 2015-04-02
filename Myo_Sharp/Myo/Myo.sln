@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyoSharp", "Repo_Myo#\MyoSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyoSharp.ConsoleSample", "Repo_Myo#\MyoSharp.ConsoleSample\MyoSharp.ConsoleSample.csproj", "{27DA6BB8-8526-437E-9293-A877FC175653}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sanford.Multimedia.Midi", "Sanford.Multimedia.Midi-master\Sanford.Multimedia.Midi-master\Midi\Sanford.Multimedia.Midi.csproj", "{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAudio", "NAudio\NAudio.csproj", "{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -21,9 +25,17 @@ Global
 		{27DA6BB8-8526-437E-9293-A877FC175653}.Debug|x86.Build.0 = Debug|Any CPU
 		{27DA6BB8-8526-437E-9293-A877FC175653}.Release|x86.ActiveCfg = Release|Any CPU
 		{27DA6BB8-8526-437E-9293-A877FC175653}.Release|x86.Build.0 = Release|Any CPU
+		{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}.Debug|x86.Build.0 = Debug|Any CPU
+		{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}.Release|x86.ActiveCfg = Release|Any CPU
+		{4269C72A-8D3A-4737-8F89-72EAA33EA9E1}.Release|x86.Build.0 = Release|Any CPU
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Debug|x86.Build.0 = Debug|Any CPU
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Release|x86.ActiveCfg = Release|Any CPU
 		{B075C7E9-FE48-4508-B44C-1A259BCC8B22}.Release|x86.Build.0 = Release|Any CPU
+		{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

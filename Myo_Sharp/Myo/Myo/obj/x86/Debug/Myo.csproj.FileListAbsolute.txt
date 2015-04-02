@@ -13,3 +13,7 @@ C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Deb
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\MyoSharp.pdb
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.exe
 C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\obj\x86\Debug\Myo.pdb
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\NAudio.dll
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\NAudio.WindowsMediaFormat.dll
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\NAudio.xml
+C:\Users\Horia\Documents\GitHub\Guelph_CurrentSem_Repo\Myo_Sharp\Myo\Myo\bin\Debug\NAudio.pdb
