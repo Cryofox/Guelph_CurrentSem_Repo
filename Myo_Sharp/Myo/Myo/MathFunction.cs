@@ -20,10 +20,27 @@ namespace Myo
 		
 		}
 		//Y Values
-		public virtual float Get_MinModif(float x, int screenWidth, int screenHeight)
-		{return 0;}
-		public virtual float Get_MaxModif(float x, int screenWidth, int screenHeight)
-		{return 0;}
+		public float Get_MinModif(float x, int screenWidth, int screenHeight)
+		{
+			//Get the Exact Y value's Pixel Location
+			float y = GetY (x, screenWidth, screenHeight);
+
+			//Offset by Paramodif
+
+			float val =y- screenHeight*paramModifier;
+
+
+			return val;
+		}
+		public float Get_MaxModif(float x, int screenWidth, int screenHeight)
+		{
+			//Get the Exact Y value's Pixel Location
+			float y = GetY (x, screenWidth, screenHeight);
+
+			float val =y+ screenHeight*paramModifier;
+			return val;
+		}
+
 
 		//Check if Y is within Modif Range at 0
 		public int Get_StartPosition(float y)
@@ -92,9 +109,29 @@ namespace Myo
 		//Given the ScreenHeight, and screenWidth
 		//we will take the pixel we are at and convert to where in the function we are
 		//Then return the Y value PIXEL is.
-		public virtual float GetY(float x, int screenWidth, int screenHeight)
+		public float GetY(float x, int screenWidth, int screenHeight)
 		{
 			float y = 0;
+			x = x / (float)screenWidth;
+			x *=( Math.Abs (minX) + Math.Abs (maxX)); //Range
+			x += minX;
+			y = Calc_Y (x);
+
+			//This will generate the Y on the screen
+
+			int newMinY = Math.Abs (minY);
+
+			//y *=( Math.Abs (minY) + Math.Abs (maxY)); //Range
+			y += newMinY; //Shift
+
+			float percentage = y / (Math.Abs (minY) + Math.Abs (maxY));
+
+			//Console.WriteLine ("X=" + (x));
+			//Console.WriteLine ("Y=" + (y));
+			//Console.WriteLine ("%=" + percentage);
+			y = (screenHeight)-((percentage * (screenHeight)));
+
+
 			return y;
 		}
 

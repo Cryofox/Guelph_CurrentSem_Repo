@@ -9,11 +9,11 @@ namespace Myo
 		//How much degree freedom to allow user to be within
 
 		//Setup Graphing Parameters
-		public int param_Max_x	=  1;
-		public int param_Min_x	= -1;
+		public int param_Max_x	=  6;
+		public int param_Min_x	= -6;
 
-		public int param_Max_y	=  1;
-		public int param_Min_y	= -1;
+		public int param_Max_y	=  10;
+		public int param_Min_y	= -10;
 
 	
 		float divisions = 8;

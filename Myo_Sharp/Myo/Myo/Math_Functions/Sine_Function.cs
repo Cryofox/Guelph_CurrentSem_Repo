@@ -2,12 +2,12 @@
 
 namespace Myo
 {
-	public class Cosine_Function : MathFunction
+	public class Sine_Function : MathFunction
 	{
 		//What Percent of the SCREEN (Pixel Accuracy)
 
 
-		public Cosine_Function ()
+		public Sine_Function ()
 		{}
 		//Y Values
 
@@ -18,7 +18,7 @@ namespace Myo
 			//Convert to Radians from degrees
 			//x *= (float)(Math.PI / 180);
 
-			float y = (float)(Math.Cos ( (double)(x)));
+			float y = (float)(Math.Sin ( (double)(x)));
 			return y;
 		}
 

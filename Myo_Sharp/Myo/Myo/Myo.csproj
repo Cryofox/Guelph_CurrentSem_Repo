@@ -80,6 +80,9 @@
     <Compile Include="Audio_Curve.cs" />
     <Compile Include="Custom_FunctionProvider.cs" />
     <Compile Include="Properties\WaveProvider32.cs" />
+    <Compile Include="Math_Functions\Sine_Function.cs" />
+    <Compile Include="Math_Functions\ETo_X.cs" />
+    <Compile Include="Math_Functions\Linear_Function.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -3,13 +3,16 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Myo\Temp_Tester.cs">
     <Files>
       <File FileName="Myo\Program.cs" Line="11" Column="22" />
-      <File FileName="Myo\Paint.cs" Line="18" Column="2" />
-      <File FileName="Myo\Temp_Tester.cs" Line="114" Column="20" />
-      <File FileName="Myo\MathFunction.cs" Line="7" Column="35" />
-      <File FileName="Myo\Math_Functions\Cosine_Function.cs" Line="59" Column="6" />
+      <File FileName="Myo\Paint.cs" Line="22" Column="29" />
+      <File FileName="Myo\Temp_Tester.cs" Line="15" Column="3" />
+      <File FileName="Myo\Math_Functions\Sine_Function.cs" Line="10" Column="11" />
+      <File FileName="Myo\MathFunction.cs" Line="18" Column="18" />
+      <File FileName="Myo\Math_Functions\Cosine_Function.cs" Line="12" Column="11" />
       <File FileName="Myo\Audio_Curve.cs" Line="27" Column="27" />
-      <File FileName="Myo\Myo_Wrapper.cs" Line="131" Column="3" />
-      <File FileName="Myo\Custom_FunctionProvider.cs" Line="35" Column="7" />
+      <File FileName="Myo\Myo_Wrapper.cs" Line="1" Column="1" />
+      <File FileName="Myo\Custom_FunctionProvider.cs" Line="1" Column="1" />
+      <File FileName="Myo\Math_Functions\ETo_X.cs" Line="19" Column="41" />
+      <File FileName="Myo\Math_Functions\Linear_Function.cs" Line="10" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

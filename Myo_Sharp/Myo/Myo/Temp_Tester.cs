@@ -20,7 +20,9 @@ namespace Myo
 		public Temp_Tester (Paint paint)
 		{
 			//Cosine Function
-			lineToDraw = new Cosine_Function ();
+			lineToDraw = new Linear_Function ();
+
+
 
 			lineToDraw.minX = paint.param_Min_x;
 			lineToDraw.maxX = paint.param_Max_x;
