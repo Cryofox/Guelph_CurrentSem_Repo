@@ -353,7 +353,8 @@ class WildaBeastSolver:
 			llen = len(self.list_Children_Strings)
 
 			index =15# random.randrange(llen-17, llen,1)
-
+			if(index> len( self.list_Children_Strings[index])):
+				index=0
 			#print("Index="+str(index))
 			
 			self.chosen_NextMove= self.list_Children_Strings[index]
@@ -368,6 +369,8 @@ class WildaBeastSolver:
 			#black has diff index for some reason
 			else:
 				index =20
+				if(index> len(self.list_Children_Strings)):
+					index=0
 			#print("Index="+str(index))
 			
 			self.chosen_NextMove= self.list_Children_Strings[index]
@@ -378,6 +381,8 @@ class WildaBeastSolver:
 			llen = len(self.list_Children_Strings)
 
 			index =25
+			if(index> len( self.list_Children_Strings )):
+				index=0
 			# random.randrange(llen-17, llen,1)
 
 			self.chosen_NextMove= self.list_Children_Strings[index]

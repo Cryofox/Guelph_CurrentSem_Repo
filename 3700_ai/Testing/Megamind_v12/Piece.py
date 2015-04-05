@@ -46,14 +46,15 @@ class Piece:
 			for y in range(0,8):
 				if(board[x][y]!=None):
 					char_Piece= board[x][y].Get_Piece()
+					#Kremer doesn't kill pawns in pawn
 					if(y==0 and char_Piece =='p'):
-						killWhiteJoey=True
+						# killWhiteJoey=True
 						pawnList.append((x,y))
 					#This can be an else, because joeys dead anyways
 					elif(y==1 and char_Piece =='p'):
 						killWhiteJoey=True				
 					if(y==7 and char_Piece =='P'):
-						killBlackJoey=True
+						# killBlackJoey=True
 						pawnList.append((x,y))
 					#This can be an else, because joeys dead anyways
 					elif(y==6 and char_Piece =='P'):
@@ -72,12 +73,14 @@ class Piece:
 						wjy = y
 
 		#kill joey
-		if(bjx >-1):
+		if(wjx >-1):
 			if(killWhiteJoey):
 				board[wjx][wjy]=None
-		if(wjx >-1):
+				# print("KILL JOEY")
+		if(bjx >-1):
 			if(killBlackJoey):
-				board[bjx][bjy]=None			
+				board[bjx][bjy]=None
+				# print("KILL JOEY")			
 
 
 

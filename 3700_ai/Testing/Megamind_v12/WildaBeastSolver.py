@@ -47,7 +47,6 @@ class WildaBeastSolver:
 
 	string_Representation="_";
 
-
 	chosen_NextMove="";
 
 
@@ -72,7 +71,7 @@ class WildaBeastSolver:
 	'w':10,
 	'c':10,
 	'e':20,
-	'g':0,
+	'g':15,
 	'h':0,
 	'k':1000
 	}
@@ -352,8 +351,10 @@ class WildaBeastSolver:
 			#moves don't equate to anything.
 			llen = len(self.list_Children_Strings)
 
-			index =15# random.randrange(llen-17, llen,1)
 
+			index =15# random.randrange(llen-17, llen,1)
+			if( index >= llen):
+				index=(llen-1)
 			#print("Index="+str(index))
 			
 			self.chosen_NextMove= self.list_Children_Strings[index]
@@ -368,6 +369,10 @@ class WildaBeastSolver:
 			#black has diff index for some reason
 			else:
 				index =20
+
+
+			if( index >= llen):
+				index=(llen-1)
 			#print("Index="+str(index))
 			
 			self.chosen_NextMove= self.list_Children_Strings[index]
@@ -379,6 +384,8 @@ class WildaBeastSolver:
 
 			index =25
 			# random.randrange(llen-17, llen,1)
+			if( index >=llen):
+				index=(llen-1)
 
 			self.chosen_NextMove= self.list_Children_Strings[index]
 			return
@@ -456,6 +463,7 @@ class WildaBeastSolver:
 			#MinNode Cares about smallest Beta Value
 			if(isMinNode):
 				wdb= WildaBeastSolver(self.list_Children_Strings[i], (depth), self.alphaValue, self.betaValue)
+				#Minus depending on depth
 				#self.Debug(wdb,i);
 
 				if(self.betaValue==None):
@@ -590,7 +598,7 @@ class WildaBeastSolver:
 					self.evaluationScore	= 	self.alphaValue;
 					#return
 
-			#self.Debug(wdb,i);
+			# self.Debug(wdb,i);
 
 
 
