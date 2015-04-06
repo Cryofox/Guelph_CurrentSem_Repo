@@ -19,6 +19,111 @@ from pytesser import *
 from matplotlib import pyplot as plt
 import cv2.cv as cv                 
 
+
+
+class Sudoku:
+	cells=[]
+	idTag=0;
+	timesCalled=0
+	def __init__(self, cell_Arr, myid=0):
+		self.cells=[]
+		self.cells=cell_Arr;
+		self.idTag=myid;
+
+		return
+
+
+
+	def Solve(self, row, col):
+		self.timesCalled+=1;
+		print("Row="+str(row))
+		print("Col="+str(col))
+		print("--------------")
+		# If it has passed through all cells, start quitting
+		if (row == 9):
+			return True;
+	 
+		# If this cell is already set(fixed), skip to the next cell
+		if (self.cells[row][col] != 0): 
+			# if (solve(col == 8? (row + 1): row, (col + 1) % 9)):	
+			if (col == 8):
+				if(self.Solve((row+1),((col+1)%9))):
+					# print(self.cells)
+					# print("The puzzle is solved!")
+					return True
+			else: # Initialize the cell when backtracking (case when the value in the next cell was not valid)
+				if(self.Solve((row),((col+1)%9))):
+					# print(self.cells)
+					# print("The puzzle is solved!")
+					return True
+		else:
+			# Random numbers 1 - 9
+			for i in range (1,10):
+				# If no duplicates in this row, column, 3x3, assign the value and go to the next
+				if (not self.containedInRowCol(row, col, i) and (not self.containedIn3x3Box(row, col, i))):
+					self.cells[row][col] = i
+					# fields[row][col].setText(String.valueOf(randoms[i]));
+
+					# Move to the next cell left-to-right and top-to-bottom
+					# if (solve(col == 8? (row + 1) : row, (col + 1) % 9)):
+						# return true;
+					if (col == 8):
+						if(self.Solve((row+1),((col+1)%9))):
+							# print(self.cells)
+							# print("The puzzle is solved!")
+							return True
+						else:
+							self.cells[row][col] = 0;
+					else: # Initialize the cell when backtracking (case when the value in the next cell was not valid)
+						if(self.Solve((row),((col+1)%9))):
+							# print(self.cells)
+							# print("The puzzle is solved!")
+							return True
+						else:
+							self.cells[row][col] = 0;
+
+		return False;
+
+
+	def containedInRowCol(self,row,col,value): 
+		for i in range(0,9):
+			#Don't check the same cell
+			if (i != col):
+				if (self.cells[row][i] == value):
+					return True
+
+			if (i != row):
+				if (self.cells[i][col] == value):
+					return True
+
+		return False;
+
+ 	def containedIn3x3Box(self,row,col,value):
+		# Find the top left of its 3x3 box to start validating from
+		startRow = row / 3 * 3;
+		startCol = col / 3 * 3;
+	 
+		# Check within its 3x3 box except its cell
+		for i in range(startRow, (startRow+3)):
+			for j in range(startCol, (startCol+3)):
+				if (not(i == row and j == col)): 
+					if (self.cells[i][j] == value):
+						return True;
+	 
+		return False;
+
+	def isValidToStart(self):
+		for i in range(0,9):
+			for j in range(0,9):
+				if (self.cells[i][j] != 0):
+					if (self.containedIn3x3Box(i, j, self.cells[i][j]) or
+							self.containedInRowCol(i, j, self.cells[i][j])):
+						return False;
+		
+		return True;
+
+
+
 #opencv
 
 def Prepare_DataSet():
@@ -135,6 +240,7 @@ def OCR_Image(imageName, imageExt):
 
 def Compute_Image(imageName, imageExt):
 
+	sudokuGrid= [[0 for x in range(9)] for x in range(9)] 
 	#Step1: Image PreProcessing (Closing Operation)
 	imgLocation = (imageName+imageExt)
 	print (imgLocation)
@@ -286,9 +392,10 @@ def Compute_Image(imageName, imageExt):
 
 	model = cv2.KNearest()
 	model.train(samples,responses)
+
+
 	final_Output = np.zeros((450,450,3),np.uint8)
 
-	
 
 
 
@@ -337,6 +444,8 @@ def Compute_Image(imageName, imageExt):
 			contours,hierarchy = cv2.findContours(morph,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 			thresh = thresh_copy
 
+
+
 			# puzzle.current = np.zeros((9,9),np.uint8)
 
 			# testing section
@@ -362,6 +471,8 @@ def Compute_Image(imageName, imageExt):
 						#Apply Correction
 						if(int_Val==0):
 							int_Val=6;
+
+						sudokuGrid[ci][ri]=int_Val;
 						string = str(int_Val)
 
 						cv2.putText(final_Output,string,(x,y+h),0,1.4,(255,0,0),3)
@@ -460,12 +571,27 @@ def Compute_Image(imageName, imageExt):
 			# 			# saveImg=Image.fromarray(out)
 			# 			# saveImg.save("Sudoku_Steps/"+(imageName)+"_Output_"+str(ci)+str(ri)+imageExt); 
 
+	#At this point we should have a sudoku grid which is ready for Solving
+
+
+
+	# print( sudokuGrid)
 	saveImg=Image.fromarray(final_Output)
-	saveImg.save((imageName)+"_Output_"+str(ci)+str(ri)+imageExt); 
+	saveImg.save((imageName)+"_Extracted_Numbers_"+str(ci)+str(ri)+imageExt); 
 	
+	puzzle = Sudoku(sudokuGrid)
+	isSolved=puzzle.Solve(0,0);
+	print("Puzzle Valid Start Config="+str(puzzle.isValidToStart()))
+	print("Puzzle Solved="+str(isSolved))
+	print("Times Called="+ str(puzzle.timesCalled))
 
 
-
+	#now Place numbers in cell
+	final_Output = output.copy()
+	for x in range(0,9):
+		for y in range(0,9):
+			string = str(puzzle.cells[x][y])
+			cv2.putText(final_Output,string,(x*50+10,y*50+40),0,1.4,(0,255,0),3)	
 
 	cv2.imshow('final_out',final_Output)
 	# cv2.imshow('out',out)
