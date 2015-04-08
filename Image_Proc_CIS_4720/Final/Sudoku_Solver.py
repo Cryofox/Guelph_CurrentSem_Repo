@@ -15,30 +15,299 @@ import pymeanshift as pms
 import sys
 import cv2
 import numpy as np
-from pytesser import *
+
 from matplotlib import pyplot as plt
 import cv2.cv as cv                 
 
+import Image
+import numpy
+#import matplotlib.pyplot as plt
+import scipy.ndimage.filters as nd
+import colorsys
+import cv2
+import os
+import scipy
 
+# Gets the filename from the user
+def getFilename():
+    filename = raw_input('Enter a file name: ')
+    return filename
+
+# Reads in the file
+def imread(fname):
+    imgIN = Image.open(fname) 
+    if imgIN.mode == 'RGB': #colour
+        img = numpy.asarray(imgIN)
+    else: #grayscale
+        img = numpy.asarray(imgIN)
+    return (img)
+    
+# Function to write an image from a 8-bit 2D array
+def imwrite(fname,img,scaleF=1):
+    if img.ndim == 3:
+        rgbimg = numpy.zeros((img.shape[0],img.shape[1],3), 'uint8')
+        rgbimg[..., 0] = img[..., 0]*scaleF
+        rgbimg[..., 1] = img[..., 1]*scaleF
+        rgbimg[..., 2] = img[..., 2]*scaleF
+        imgSv = Image.fromarray(rgbimg)
+        imgSv.save(fname)
+    else:
+        img_uint8 = numpy.uint8(img)
+        imgSv = Image.fromarray(img_uint8,'L')
+        imgSv.save(fname)
+        
+def compute_feature(array):
+    """
+    Resizes a cropped cell to feature_size and removes a border
+    """
+    feature_size = 30
+    feature_size_no_border = feature_size - 6
+    norm_im = scipy.misc.imresize(array, (feature_size,feature_size))
+    # Border is 3 pixels wide all around - To eliminate any grid remains
+    norm_im = norm_im[3:-3, 3:-3]
+    # norm_im = norm_im.reshape((1, feature_size_no_border * feature_size_no_border))
+    return numpy.float32(norm_im)
+
+def loadOCRdata(path):
+    """
+    Loads all of the OCR classification data in order to train the
+    digit recognizer.
+    """
+    feature_size = 30
+    feature_size_no_border = feature_size - 6
+    
+    imlist = []
+    # Look through all sub directories for pngs as well
+    for dirlist in os.walk(path):
+        base_dir = dirlist[0]
+        for file_list in dirlist[1:]:
+            for im in file_list:
+                if im.endswith('.png'):
+                    imlist.append(os.path.join(base_dir, im))
+
+    # The first character of the file name is the digit label
+    labels = [int(imfile.split('/')[-1][0]) for imfile in imlist]
+
+    features = numpy.empty((0, feature_size_no_border * feature_size_no_border))
+    for i, imname in enumerate(imlist):
+        im = Image.open(imname).convert('L')
+        im = compute_feature(im)
+        im = im.reshape((1, feature_size_no_border * feature_size_no_border))
+        im = numpy.float32(im)
+        features = numpy.append(features, im, 0)
+
+    labels = numpy.array(labels, numpy.float32)
+    labels = labels.reshape((labels.size, 1))
+
+    return numpy.float32(features), numpy.float32(labels)
 
 class Sudoku:
 	cells=[]
+	origCells=[]
 	idTag=0;
 	timesCalled=0
 	def __init__(self, cell_Arr, myid=0):
 		self.cells=[]
 		self.cells=cell_Arr;
+		self.origCells=self.DuplicateBoard(cell_Arr);
 		self.idTag=myid;
-
 		return
+	#Returns a new Board with the same contents as the board passed in
+	def DuplicateBoard(self, board):
+		#
+		dupBoard= [ [ None for i in range(9) ] for j in range(9) ]
+
+		for x in range (0,9):
+			for y in range(0,9):
+				dupBoard[x][y] = board[x][y]
+
+		return dupBoard
+
+		#Prints OG Contents
+	def PrintContents(self, row, col):
+
+		print("================================")
+		print("Times Called:"+ str(self.timesCalled))
+
+		for j in range(0,9):
+			string = ""
+
+			for i in range(0,9):
+				if(i%3==0):
+					string+="|"
+				if(i==col and j == row):
+					string+="["
+
+				if (self.origCells[i][j]==0):
+					string+=" . "
+				else:
+					string+=" "+str(self.origCells[i][j])+" "
+				if(i==col and j == row):
+					string+="]"
+
+			if(i%3==0):
+				string+="|"
+
+			print(string)
+			if(j==2 or j==5):
+				print("________________________________")	
+		print("================================")
+		print("Times Called:"+ str(self.timesCalled))
+
+	#Structure is ALMOST similar. The difference is the values used
+	def AttemptSolve(self,row,col):
+		# self.timesCalled+=1;
+		# print("Row="+str(row))
+		# print("Col="+str(col))
+		# print("--------------")
+		#Here we do something similar to solve only we alternate
+		self.PrintContents(row,col);
+		if (row == 9):
+			return False;
+
+		# if(not self.isValidToStart_Check(row,col)):
+			# return False
+		#Common confusions
+		solution = False
+		if (self.origCells[row][col] == 5 or self.origCells[row][col] == 6 or self.origCells[row][col] == 8):
+			i = self.origCells[row][col]
+
+			#######  i ################
+			self.origCells[row][col] =i;
+
+			if(col==8):
+				solution =	self.AttemptSolve(row+1,(0))
+			else:
+				solution =	self.AttemptSolve((row),(col+1))
+
+			if(solution):
+				return True
+
+			solution = (self.isValidToStart(row,col))
+			if(solution):
+				return True
+
+			#######  3 ################
+			# self.origCells[row][col] =3;
+
+			# if(row==8):
+			# 	solution =	self.AttemptSolve(0,(col+1))
+			# else:
+			# 	solution =	self.AttemptSolve((row+1),(col))
+
+			# if(solution):
+			# 	return True
+
+			# solution = (self.Solve(0,0))
+			# if(solution):
+			# 	return True
+
+			#######  5 ################
+			self.origCells[row][col] =5;
+			if(5!=i):
+				if(col==8):
+					solution =	self.AttemptSolve(row+1,(0))
+				else:
+					solution =	self.AttemptSolve((row),(col+1))
+
+				if(solution):
+					return True
+
+				solution = (self.isValidToStart(row,col))
+				if(solution):
+					return True
+
+			#######  6 ################
+			self.origCells[row][col] =6;
+			if(6!=i):
+				if(col==8):
+					solution =	self.AttemptSolve(row+1,(0))
+				else:
+					solution =	self.AttemptSolve((row),(col+1))
+
+				if(solution):
+					return True
+
+				solution = (self.isValidToStart(row,col))
+				if(solution):
+					return True
+
+			#######  8 ################
+			self.origCells[row][col] =8;
+			if(8!=i):
+				if(col==8):
+					solution =	self.AttemptSolve(row+1,(0))
+				else:
+					solution =	self.AttemptSolve((row),(col+1))
+
+				if(solution):
+					return True
+
+				solution = (self.isValidToStart(row,col))
+				if(solution):
+					return True
+
+			# #######  9 ################
+			# self.origCells[row][col] =9;
+
+			# if(row==8):
+			# 	solution =	self.AttemptSolve(0,(col+1))
+			# else:
+			# 	solution =	self.AttemptSolve((row+1),(col))
+
+			# if(solution):
+			# 	return True
+
+			# solution = (self.Solve(0,0))
+			# if(solution):
+			# 	return True
+
+			self.origCells[row][col]= i;
+
+
+		else:
+
+			#Skip to next Character of interest
+			exitLoop=False
+			while (not exitLoop):
+
+				if(row==9):
+					return False;
+
+				if(self.origCells[row][col]==5 or self.origCells[row][col]==6 or self.origCells[row][col]==8):
+					exitLoop=True
+					break
+				col+=1;
+				if(col==9):
+					row+=1;
+					col=0
+
+			if(not exitLoop):
+				return False
+			else:
+				print("Entering Attempt")
+				solution=self.AttemptSolve(row,col)
+		 # 	if(row==8):
+		 # 		solution=self.AttemptSolve(0,(col+1))
+		 # 	else:
+		 # 		solution=self.AttemptSolve((row+1),(col))		
+
+		 # 	if(solution):
+		 # 		return True
+
+			# solution = (self.isValidToStart(row,col))
+		 		return solution;
+
+		return False;
+
 
 
 
 	def Solve(self, row, col):
 		self.timesCalled+=1;
-		print("Row="+str(row))
-		print("Col="+str(col))
-		print("--------------")
+		# print("Row="+str(row))
+		# print("Col="+str(col))
+		# print("--------------")
 		# If it has passed through all cells, start quitting
 		if (row == 9):
 			return True;
@@ -112,18 +381,40 @@ class Sudoku:
 	 
 		return False;
 
-	def isValidToStart(self):
+	def isValidToStart_Check(self, row, col):
+		#This only checks up to the row and col. Since everything beyond can be modified
+		for i in range(0,row):
+			for j in range(0,col):
+				if (self.cells[i][j] != 0):
+					if (self.containedIn3x3Box(i, j, self.cells[i][j]) or
+							self.containedInRowCol(i, j, self.cells[i][j])):
+						return False;
+		#If Valid, just start
+		return True;
+
+
+	def isValidToStart(self, row, col):
+		#This only checks up to the row and col. Since everything beyond can be modified
 		for i in range(0,9):
 			for j in range(0,9):
 				if (self.cells[i][j] != 0):
 					if (self.containedIn3x3Box(i, j, self.cells[i][j]) or
 							self.containedInRowCol(i, j, self.cells[i][j])):
 						return False;
-		
-		return True;
+		#If Valid, just start
+		return self.Solve(0,0);
 
 
-
+		#This function checks the entire board
+	def isValidToStart_Global(self):
+		for i in range(0,9):
+			for j in range(0,9):
+				if (self.cells[i][j] != 0):
+					if (self.containedIn3x3Box(i, j, self.cells[i][j]) or
+							self.containedInRowCol(i, j, self.cells[i][j])):
+						return False;
+		#If Valid, just start
+		return self.Solve(0,0);
 #opencv
 
 def Prepare_DataSet():
@@ -206,6 +497,9 @@ def OCR_Image(imageName, imageExt):
 	responses = np.loadtxt('generalresponses.data',np.float32)
 	responses = responses.reshape((responses.size,1))
 
+
+
+
 	model = cv2.KNearest()
 	model.train(samples,responses)
 
@@ -240,17 +534,33 @@ def OCR_Image(imageName, imageExt):
 
 def Compute_Image(imageName, imageExt):
 
+	# try:
 	sudokuGrid= [[0 for x in range(9)] for x in range(9)] 
 	#Step1: Image PreProcessing (Closing Operation)
-	imgLocation = (imageName+imageExt)
+	imgLocation = ("Sudoku_Puzzles/"+imageName+imageExt)
 	print (imgLocation)
 	print("")
+
 	img = cv2.imread( imgLocation  )
 
 
-
 	img = cv2.GaussianBlur(img,(5,5),0)
+	# img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\cv2.THRESH_BINARY,11,2)
+	# img = cv2.bilateralFilter(img,9,75,75)
+	# img = cv2.medianBlur(img,5)
+
+	# img = otsu
+	#Otsu to increase sharpness!
+	# ret, otsu = cv2.threshold(img, cv2.THRESH_OTSU)
+
+	# img =otsu
+
+	
 	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+	# ret, otsu = cv2.threshold(gray,220,255,cv2.THRESH_BINARY)
+	# gray = otsu
+
 	mask = np.zeros((gray.shape),np.uint8)
 	kernel1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(11,11))
 
@@ -259,6 +569,9 @@ def Compute_Image(imageName, imageExt):
 	res = np.uint8(cv2.normalize(div,div,0,255,cv2.NORM_MINMAX))
 	res2 = cv2.cvtColor(res,cv2.COLOR_GRAY2BGR)
 
+	# saveImg=Image.fromarray(otsu)
+	# # saveImg=img.convert("RGBA")
+	# saveImg.save("Sudoku_Steps/"+(imageName)+"_DarkenLines"+imageExt);
 
 	saveImg=Image.fromarray(img)
 	# saveImg=img.convert("RGBA")
@@ -271,11 +584,11 @@ def Compute_Image(imageName, imageExt):
 	max_area = 0
 	best_cnt = None
 	for cnt in contour:
-	    area = cv2.contourArea(cnt)
-	    if area > 1000:
-	        if area > max_area:
-	            max_area = area
-	            best_cnt = cnt
+		area = cv2.contourArea(cnt)
+		if area > 1000:
+			if area > max_area:
+				max_area = area
+				best_cnt = cnt
 
 	cv2.drawContours(mask,[best_cnt],0,255,-1)
 	cv2.drawContours(mask,[best_cnt],0,0,2)
@@ -296,13 +609,18 @@ def Compute_Image(imageName, imageExt):
 	ret,close = cv2.threshold(dx,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 	close = cv2.morphologyEx(close,cv2.MORPH_DILATE,kernelx,iterations = 1)
 
+	saveImg=Image.fromarray(close)
+	# saveImg=img.convert("RGBA")
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step3p1"+imageExt);
+
 	contour, hier = cv2.findContours(close,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	for cnt in contour:
-	    x,y,w,h = cv2.boundingRect(cnt)
-	    if h/w > 5:
-	        cv2.drawContours(close,[cnt],0,255,-1)
-	    else:
-	        cv2.drawContours(close,[cnt],0,0,-1)
+		x,y,w,h = cv2.boundingRect(cnt)
+		if h/w > 6:
+			cv2.drawContours(close,[cnt],0,255,-1)
+		else:
+			cv2.drawContours(close,[cnt],0,0,-1)
+
 	close = cv2.morphologyEx(close,cv2.MORPH_CLOSE,None,iterations = 2)
 	closex = close.copy()
 
@@ -316,12 +634,16 @@ def Compute_Image(imageName, imageExt):
 	dy = cv2.convertScaleAbs(dy)
 	cv2.normalize(dy,dy,0,255,cv2.NORM_MINMAX)
 	ret,close = cv2.threshold(dy,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-	close = cv2.morphologyEx(close,cv2.MORPH_DILATE,kernely)
+	close = cv2.morphologyEx(close,cv2.MORPH_DILATE,kernely, iterations = 1)
+
+	saveImg=Image.fromarray(close)
+	# saveImg=img.convert("RGBA")
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step4p1"+imageExt);
 
 	contour, hier = cv2.findContours(close,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 	for cnt in contour:
 	    x,y,w,h = cv2.boundingRect(cnt)
-	    if w/h > 5:
+	    if w/h > 6:
 	        cv2.drawContours(close,[cnt],0,255,-1)
 	    else:
 	        cv2.drawContours(close,[cnt],0,0,-1)
@@ -333,13 +655,16 @@ def Compute_Image(imageName, imageExt):
 	# saveImg=img.convert("RGBA")
 	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step4"+imageExt);
 
+
+
+
 	#Step5: Acquiring Grid Points
 	res = cv2.bitwise_and(closex,closey)
 
 	saveImg=Image.fromarray(res)
 	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step5"+imageExt);
 
-	#Step6: Correcting Defects
+	#Step6: Correcting Defects and draw gridpoints
 	contour, hier = cv2.findContours(res,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 	centroids = []
 	for cnt in contour:
@@ -348,6 +673,8 @@ def Compute_Image(imageName, imageExt):
 	    cv2.circle(img,(x,y),4,(0,255,0),-1)
 	    centroids.append((x,y))
 
+	saveImg=Image.fromarray(img)
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step6"+imageExt);	   
 	#Sort Centroids Left->Right, Top to Bottom
 	centroids = np.array(centroids,dtype = np.float32)
 	c = centroids.reshape((100,2))
@@ -369,33 +696,29 @@ def Compute_Image(imageName, imageExt):
 	        output[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1] = warp[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1].copy()
 
 
-
-
 	# newG = cv2.GaussianBlur(cv2.cvtColor(output,cv2.COLOR_BGR2GRAY),(5,5),0)
 	# output= cv2.adaptiveThreshold(newG,255,1,1,11,2)
 	# output= cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
 	saveImg=Image.fromarray(output)
-	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step6"+imageExt);
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Step7"+imageExt);
 
 
 
-
-
+# try:
 
 	samples = np.loadtxt('mikes_samples.data',np.float32)
 	responses = np.loadtxt('mikes_responses.data',np.float32)
 	responses = responses.reshape((responses.size,1))
-
-
+	#Wirths Samples
+	# features, labels = loadOCRdata('ocr_test_data/')
 
 
 
 	model = cv2.KNearest()
 	model.train(samples,responses)
-
+	# model.train(features, labels) #Wirth code
 
 	final_Output = np.zeros((450,450,3),np.uint8)
-
 
 
 
@@ -426,13 +749,14 @@ def Compute_Image(imageName, imageExt):
 
 			invert = (255- invert)
 
-			saveImg=Image.fromarray(invert)
-			saveImg.save("Sudoku_Steps/"+(imageName)+"__"+str(ci)+str(ri)+imageExt);
+			#saveImg=Image.fromarray(invert)
+			#saveImg.save("Sudoku_Steps/"+(imageName)+"__"+str(ci)+str(ri)+imageExt);
 			gray = 	 cv2.cvtColor(invert,cv2.COLOR_BGR2GRAY)
 
 			crop_img = invert[ri*50  :(ri+1)*50-1 , ci*50 :(ci+1)*50-1 ]
 
 			thresh = cv2.adaptiveThreshold(gray,255,1,1,7,2)
+		# ret, otsu = cv2.threshold(img, cv2.THRESH_OTSU)
 			# if self.lvl >= 0:
 			# 	morph = cv2.morphologyEx(thresh,cv2.MORPH_ERODE,None,iterations = self.lvl)
 			# elif self.lvl == -1:
@@ -452,21 +776,32 @@ def Compute_Image(imageName, imageExt):
 			for cnt in contours:
 				if cv2.contourArea(cnt)>20:
 					[x,y,w,h] = cv2.boundingRect(cnt)
-					if  h>20 and h<40 and w>8 and w<40:
-						if w<20:
-							diff = 20-w
-							x -= diff/2
-							w += diff
-						sudox = x/50
-						sudoy = y/50
-						cv2.rectangle(invert,(x,y),(x+w,y+h),(0,0,255),2)
+					locX = x % 50;
+					# x-=1
+					# w+=1
+					# y-=1
+					# h+=1
+					if  h>10 and h<40 and w>8 and w<40:
+						# if w<20:
+							# diff = 20-w
+							# x -= diff/2
+							# w += diff
+
+						
 						#prepare region of interest for OCR kNearest model
 						roi = thresh[y:y+h,x:x+w]
 						roismall = cv2.resize(roi,(25,35))
 						roismall = roismall.reshape((1,875))
 						roismall = np.float32(roismall)
-						#find result
+						# find result
 						retval, results, neigh_resp, dists = model.find_nearest(roismall, k = 1)
+
+						# feature_size = 30
+						# feature_size_no_border = feature_size - 6
+						# imFea = compute_feature(roi)
+						# imJ = imFea.reshape((1, feature_size_no_border * feature_size_no_border))
+						# retval, results, neigh_resp, _ = model.find_nearest(numpy.float32(imJ), k=1)
+
 						int_Val= (int((results[0][0])))
 						#Apply Correction
 						if(int_Val==0):
@@ -474,114 +809,36 @@ def Compute_Image(imageName, imageExt):
 
 						sudokuGrid[ci][ri]=int_Val;
 						string = str(int_Val)
+						final_Output[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1] = output[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1].copy()
 
+						cv2.rectangle(final_Output,(x,y),(x+w,y+h),(0,0,255),2)
 						cv2.putText(final_Output,string,(x,y+h),0,1.4,(255,0,0),3)
-
-						# #check for read errors
-						# if results[0][0]!=0:
-						# 	string = str(int((results[0][0])))
-						# 	if puzzle.current[sudoy,sudox]==0:
-						# 		puzzle.current[sudoy,sudox] = int(string)
-						# 	else:
-						# 		self.errors[self.lvl+1]=-2 #double read error
-						# 	self.success[self.lvl+1]+=1
-						# 	cv2.putText(image.output,string,(x,y+h),0,1.4,(255,0,0),3)
-						# else:
-						# 	self.errors[self.lvl+1]=-3 #read zero error
-
-
-
-			# crop_img_Padding=
-			# cv2.imshow('final_out',crop_img)
-			# cv2.imshow('out',out)
-			# cv2.waitKey(0)
-				# ##Tesseract Magic
-			################
-			# print((imageName)+"_Tesserect_"+str(ci)+str(ri)+imageExt)
-			# saveImg=Image.fromarray(crop_img)
-			# saveImg.save("Sudoku_Steps/"+(imageName)+"_Tess_In_"+str(ci)+str(ri)+imageExt); 
-			# image = Image.open("Sudoku_Steps/"+(imageName)+"_Tess_In_"+str(ci)+str(ri)+imageExt)
-			# text = image_to_string(image,6)
-			# newText= singledigit(image)
-			# print("Text"+str(ci)+str(ri)+"="+text)
-			# print("NewText="+ str(newText))
-
-			#Tesseract Magic
-			#################
-			# print("Sudoku_Steps/"+(imageName)+"_Step7_"+str(ci)+str(ri)+imageExt)
-			# image = Image.open("Sudoku_Steps/"+(imageName)+"__"+str(ci)+str(ri)+imageExt)
-			# text= None
-			# text = image_to_string(image)
-			# print("Text"+str(ci)+str(ri)+"="+text+"_")
-			# if(not text == ""):
-				# sys.exit()
-
-	# saveImg=Image.fromarray(temp)
-	# saveImg.save((imageName)+"_BeforeAnalysis_"+str(ci)+str(ri)+imageExt);
-
-			# # im = temp
-			# im = invert
-			# out = 	 np.zeros(im.shape,np.uint8)
-			# gray = 	 cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-			# thresh = cv2.adaptiveThreshold(gray,255,1,1,11,2)
-
-			# #For the Cell we'll try and process the number inside.
-			# #Problem is, if the cell is empty, the algorithm will guess a number...which is bad.
-			# contours,hierarchy = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-
-			# for cnt in contours:
-			# 	if cv2.contourArea(cnt)>100:
-			# 		[x,y,w,h] = cv2.boundingRect(cnt)
-			# 		x+=-1
-			# 		# w += 1
-			# 		# y -= 2
-			# 		# h += 1
-			# 		# if  h>28 and w<40:
-			# 		if h >28:
-
-			# 			cv2.rectangle(im,(x,y),(x+w,y+h),(0,255,0),2)
-			# 			final_Output[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1] = invert[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1].copy()						
-			# 			cv2.rectangle(final_Output,(x,y),(x+w,y+h),(0,0,255),2)
-			# 			roi = thresh[y:y+h,x:x+w]
-			# 			roismall = cv2.resize(roi,(10,10))
-			# 			roismall = roismall.reshape((1,100))
-			# 			roismall = np.float32(roismall)
-			# 			retval, results, neigh_resp, dists = model.find_nearest(roismall, k = 1)
-
-			# 			print("RawString ["+str(ci)+"]["+str(ri)+"]="+ str(results[0][0]))
-			# 			string = str(int((results[0][0])))
-			# 			out[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1] = invert[ri*50:(ri+1)*50-1 , ci*50:(ci+1)*50-1].copy()
-
-			# 			crop_img = invert[ri*50  :(ri+1)*50-1 , ci*50 :(ci+1)*50-1 ]
-			# 			# crop_img_Padding=
-			# 			# cv2.imshow('final_out',crop_img)
-			# 			# cv2.imshow('out',out)
-			# 			# cv2.waitKey(0)
-			# 				# ##Tesseract Magic
-			# 			################
-			# 			# print((imageName)+"_Tesserect_"+str(ci)+str(ri)+imageExt)
-			# 			# saveImg=Image.fromarray(crop_img)
-			# 			# saveImg.save("Sudoku_Steps/"+(imageName)+"_Tess_In_"+str(ci)+str(ri)+imageExt); 
-			# 			# image = Image.open("Sudoku_Steps/"+(imageName)+"_Tess_In_"+str(ci)+str(ri)+imageExt)
-			# 			# text = image_to_string(image,6)
-			# 			# print("Text"+str(ci)+str(ri)+"="+text)
-
-			# 			cv2.putText(final_Output,string,(x,y+h),0,1,(0,255,0))
-			# 			# cv2.putText(out,string,(x,y+h),0,1,(0,255,0))
-			# 			# saveImg=Image.fromarray(out)
-			# 			# saveImg.save("Sudoku_Steps/"+(imageName)+"_Output_"+str(ci)+str(ri)+imageExt); 
-
-	#At this point we should have a sudoku grid which is ready for Solving
-
 
 
 	# print( sudokuGrid)
 	saveImg=Image.fromarray(final_Output)
-	saveImg.save((imageName)+"_Extracted_Numbers_"+str(ci)+str(ri)+imageExt); 
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Extracted_Numbers_"+str(ci)+str(ri)+imageExt); 
 	
 	puzzle = Sudoku(sudokuGrid)
 	isSolved=puzzle.Solve(0,0);
-	print("Puzzle Valid Start Config="+str(puzzle.isValidToStart()))
+	if(not isSolved):
+		isSolved=puzzle.AttemptSolve(0,0); # Could've been a misread. Alter through combinations of 5-6-8
+	#if its not solved cycle through all 6 values converting to 5's
+	#and retry
+
+	# curY=0;
+	# while (not isSolved and curY!=8):
+	# 	#Scan for a 6
+	# 	for i in range(0,9):
+	# 		if(puzzle.cells[i][curY]==6):
+	# 			puzzle.cells[i][curY]=5
+	# 			isSolved=puzzle.Solve(0,0)
+	# 			if(not isSolved):
+	# 				puzzle.cells[i][curY]=6 #revert
+	# 			else:
+	# 				break #It's Solved!
+	# 	curY+=1
+
 	print("Puzzle Solved="+str(isSolved))
 	print("Times Called="+ str(puzzle.timesCalled))
 
@@ -591,31 +848,40 @@ def Compute_Image(imageName, imageExt):
 	for x in range(0,9):
 		for y in range(0,9):
 			string = str(puzzle.cells[x][y])
-			cv2.putText(final_Output,string,(x*50+10,y*50+40),0,1.4,(0,255,0),3)	
+			if(puzzle.origCells[x][y]==0):
+				cv2.putText(final_Output,string,(x*50+10,y*50+40),0,1.4,(0,255,0),3)	
 
-	cv2.imshow('final_out',final_Output)
+	#cv2.imshow('final_out',final_Output)
 	# cv2.imshow('out',out)
-	cv2.waitKey(0)
+	#cv2.waitKey(0)
+	saveImg=Image.fromarray(final_Output)
+	saveImg.save("Sudoku_Steps/"+(imageName)+"_Solved"+str(ci)+str(ri)+imageExt)
 
+	# except Exception as e:
+	# 	print("There was an Error Attempting to Solve:"+imageName)
+	# except ValueError:
+	# 	print("There was an Error Attempting to Solve:"+imageName)		
+	# 	raise
 
 
 
 # Prepare_DataSet()
-Compute_Image("DLMIA",".png")
+#Compute_Image("DLMIA",".png")
 # Compute_Image("sudoku15",".JPG")
 #Compute_Image("Sudoku1",".jpg")
 #OCR_Image("DLMIA",".png")
 
 # #Get All Image Files in Noisy_Images
-# imageList=os.listdir("Fire_Original")
+imageList=os.listdir("Sudoku_Puzzles")
 
 # #Create the Masks
-# for filename in imageList:
-# 	if(filename!=".DS_Store"):
-# 		basename  = os.path.splitext(filename)[0]
-# 		extension = os.path.splitext(filename)[1]	
-# 		#Create the Masks
-# 		Method_2(basename,extension)
+for filename in imageList:
+	if(filename!=".DS_Store"):
+		basename  = os.path.splitext(filename)[0]
+		extension = os.path.splitext(filename)[1]	
+		#Create the Masks
+		print("BN:"+basename+" Ext:"+extension)
+		Compute_Image(basename,extension)
 
 # imageList=os.listdir("Fire_Original")
 # for filename in imageList:
