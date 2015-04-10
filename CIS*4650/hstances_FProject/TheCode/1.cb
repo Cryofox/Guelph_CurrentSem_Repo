@@ -1,0 +1,383 @@
+typedef int someInt;
+typedef someInt myInt;
+int test;
+int testArr[10];
+float floatTest;
+
+struct dataType
+{
+	int dataX;
+ 	int dataY;
+	int dataAr[50];
+};
+
+struct dataBase
+{
+	dataType entry;
+	int someValue;
+};
+
+dataType cyberSix;
+
+
+
+int Pass_StructRef(char q, dataBase db2)
+{
+	char nl;
+	char db;
+	char eq;
+	eq= '=';
+	nl='\n';
+	db= 'd';
+
+	putc(nl);
+	putc(db);
+	putc(eq);
+	puti(db2.someValue);
+	putc(nl);
+	putc(q);
+	putc(nl);
+	return 1;
+}
+
+
+int test_CharPrint(int qwer)
+{
+	char c;
+	dataType dt;
+	char a;
+	char t;
+	char nl;
+	c='c';
+	a='a';
+	t='t';
+	nl='\n';
+	putc(c);
+	putc(a);
+	putc(t);
+	putc(nl);
+
+	return 1;
+}
+int arithmetic_Int()
+{
+	int x;
+	int y;
+	int z;
+	char nl;
+	char cz;
+	char eq;
+
+	eq='=';
+	cz='z';
+	nl= '\n';
+	
+	arithmetic_Float();
+	x=2;
+	y=4;
+	z= y*x +2;
+	putc(cz);
+	putc(eq);
+	puti(z);
+	putc(nl);
+	return 1;
+}
+
+int arithmetic_Float()
+{
+	float x;
+	char nl;
+	nl='\n';
+	x=4.5;
+	x= x+1.0;
+	putc(nl);
+	putf(x);
+	putc(nl);
+	return 0;
+}
+
+int Test_Global()
+{
+	char nl;
+	float fifty;
+	fifty= 50.5;
+	nl='\n';
+	test=67;
+	putf(fifty);
+	putc(nl);
+	puti(test);
+	putc(nl);
+	return 0;
+}
+
+int ModifyTestArr()
+{
+  Test_Global();
+  testArr[5]=69;
+  return 1;
+}
+
+
+int RecursiveFunction(int i)
+{
+	char nl;
+	nl='\n';
+	if(i>0)
+	{
+	  puti(i);
+	  
+	  i--;
+	  RecursiveFunction(i);
+	}
+	putc(nl);
+
+	return 1;
+}
+
+int MutualRecursion_One(int i)
+{
+	char m;
+	char r;
+	char v;
+	char space;
+	char nl;
+	m='m';
+	r='r';
+	v='1';
+	nl='\n';
+	space =' ';
+	if(i>0)
+	{
+	  putc(m);
+	  putc(r);
+	  putc(v);
+	  putc(space);
+	  puti(i);
+	  putc(nl);
+	  i--;
+	  MutualRecursion_Two(i);
+	}
+
+
+	return 1;
+}
+int MutualRecursion_Two(int i)
+{
+	char m;
+	char r;
+	char v;
+	char space;
+	char nl;
+	m='m';
+	r='r';
+	v='2';
+	nl='\n';
+	space =' ';
+
+	if(i>0)
+	{
+	  putc(m);
+	  putc(r);
+	  putc(v);
+	  putc(space);
+	  puti(i);
+	  putc(nl);
+	  i--;
+	  MutualRecursion_One(i);
+	}
+
+
+	return 1;
+}
+int Loops()
+{
+	char nl;
+	char space;
+	char ascii_1;
+	char ascii_2;
+	char ascii_3;
+	char ascii_4;
+	char f;
+	char w;
+	char eq;
+	int i;
+
+	eq='=';
+	f='F';
+	w='W';
+	nl='\n';
+	ascii_1='(';
+	ascii_2='^';
+	ascii_3='_';
+	ascii_4=')';
+	space =' ';
+
+	putc(f);
+	putc(eq);
+	for(i=0;i<3;i++)
+	{
+		putc(ascii_1);
+		putc(ascii_2);
+		putc(ascii_3);
+		putc(ascii_2);
+		putc(ascii_4);
+		putc(space);
+	}
+	putc(nl);
+
+	putc(w);
+	putc(eq);
+	i=0;
+	while(i<5)
+	{
+		putc(ascii_1);
+		putc(ascii_2);
+		putc(ascii_3);
+		putc(ascii_2);
+		putc(ascii_4);
+		putc(space);
+		i++;
+	}
+	putc(nl);
+
+
+
+	return 1;
+}
+int Return5()
+{
+	return 5;
+}
+int Return6()
+{
+	int x;
+	x=6;
+	return x;
+}
+
+
+int main()
+{
+	dataBase db;
+	struct someStruct{
+		int vart;
+		int varx;
+		float varf;
+	};
+	someStruct myTestStruct;
+	int array[20];
+	int x;	
+	int y;
+	char nl;
+	char c;
+	char q;
+	myInt retX;
+	
+
+	nl='\n';
+
+	retX=Return5();
+	puti(retX);
+	putc(nl);
+	retX=Return6();
+	puti(retX);
+	putc(nl);
+
+	Loops();
+
+
+
+
+
+
+	q='q';
+	db.someValue = 1337;
+	puti(db.someValue);
+	putc(nl);
+	Pass_StructRef(q,db);
+
+
+
+ 	db.entry.dataAr[35]= 2014;
+	db.entry.dataAr[35]= db.entry.dataAr[35]*2;
+	puti(db.entry.dataAr[35]);
+	
+
+
+	putc(nl);
+
+
+
+	floatTest= 7.9 + 5.4;
+
+
+	cyberSix.dataY=2224;
+
+
+
+	nl='\n';
+
+	test= 54;
+
+	array[5]=65;
+	test_CharPrint();
+	x= array[5];
+	puti(x);
+	putc(nl);
+	puti(y); 
+	putc(nl);
+	puti(array[5]);
+	putc(nl);
+
+	myTestStruct.varf = 4.567;
+	
+	putc(nl);
+	putc(nl);
+ 	ModifyTestArr();
+	puti(testArr[5]);
+	putc(nl);
+	putc(nl);
+	putc(nl);
+	putc(nl);
+	arithmetic_Int();
+
+	cyberSix.dataY=2224; 
+
+	putf(myTestStruct.varf);
+
+	putc(nl);
+	y=6;
+	y= y+1;
+	y++;
+	RecursiveFunction(y);
+	MutualRecursion_One(y);
+	myTestStruct.varx=21;
+
+
+
+	y=1;
+	y=y+y+y+y+y+1;
+	puti(y);
+
+
+	cyberSix.dataAr[34]=77;
+	floatTest=999.9;
+	cyberSix.dataAr[35]= 2014 +1;
+	db.entry.dataAr[21]=cyberSix.dataAr[35];
+	puti(cyberSix.dataAr[35]);
+	putc(nl);
+	putf(floatTest);
+	putc(nl);
+	puti(db.entry.dataAr[21]);
+	putc(nl);
+	puti(cyberSix.dataY);	
+
+	putc(nl);
+	putf(myTestStruct.varf);
+	putc(nl);
+
+
+
+
+	return 0;
+}

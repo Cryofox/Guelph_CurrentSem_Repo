@@ -1,0 +1,651 @@
+[Pass_StructRef]:
+	t6 = & eq
+	t7 = =c '='
+	t6 = *= t7
+	t10 = & nl
+	t11 = =c '
+'
+	t10 = *= t11
+	t14 = & db
+	t15 = =c 'd'
+	t14 = *= t15
+	param nl 
+	[t17]call putc 1
+	param db 
+	[t20]call putc 1
+	param eq 
+	[t23]call putc 1
+	t28 = & db2
+	t29 = =i 212
+	t27 = t29 +_ t28
+	t27 = = t27
+	param t27 
+	[t26]call puti 0
+	param nl 
+	[t31]call putc 1
+	param q 
+	[t34]call putc 1
+	param nl 
+	[t37]call putc 1
+	t41 = =i 1
+	t40 = return t41
+[test_CharPrint]:
+	t47 = & c
+	t48 = =c 'c'
+	t47 = *= t48
+	t51 = & a
+	t52 = =c 'a'
+	t51 = *= t52
+	t55 = & t
+	t56 = =c 't'
+	t55 = *= t56
+	t59 = & nl
+	t60 = =c '
+'
+	t59 = *= t60
+	param c 
+	[t62]call putc 1
+	param a 
+	[t65]call putc 1
+	param t 
+	[t68]call putc 1
+	param nl 
+	[t71]call putc 1
+	t75 = =i 1
+	t74 = return t75
+[arithmetic_Int]:
+	t81 = & eq
+	t82 = =c '='
+	t81 = *= t82
+	t85 = & cz
+	t86 = =c 'z'
+	t85 = *= t86
+	t89 = & nl
+	t90 = =c '
+'
+	t89 = *= t90
+	[t92]call arithmetic_Float 0
+	t95 = & x
+	t96 = =i 2
+	t95 = *= t96
+	t99 = & y
+	t100 = =i 4
+	t99 = *= t100
+	t103 = & z
+	t106 = & y
+	t107 = & x
+	t105 = t106 * t107
+	t108 = =i 2
+	t104 = t105 + t108
+	t103 = *= t104
+	param cz 
+	[t110]call putc 1
+	param eq 
+	[t113]call putc 1
+	param z 
+	[t116]call puti 1
+	param nl 
+	[t119]call putc 1
+	t123 = =i 1
+	t122 = return t123
+[arithmetic_Float]:
+	t129 = & nl
+	t130 = =c '
+'
+	t129 = *= t130
+	t133 = & x
+	t134 = =f 4.50000
+	t133 = *= t134
+	t137 = & x
+	t139 = & x
+	t140 = =f 1.00000
+	t138 = t139 + t140
+	t137 = *= t138
+	param nl 
+	[t142]call putc 1
+	param x 
+	[t145]call putf 1
+	param nl 
+	[t148]call putc 1
+	t152 = =i 0
+	t151 = return t152
+[Test_Global]:
+	t158 = & fifty
+	t159 = =f 50.5000
+	t158 = *= t159
+	t162 = & nl
+	t163 = =c '
+'
+	t162 = *= t163
+	t166 = & test
+	t167 = =i 67
+	t166 = *= t167
+	param fifty 
+	[t169]call putf 1
+	param nl 
+	[t172]call putc 1
+	param test 
+	[t175]call puti 1
+	param nl 
+	[t178]call putc 1
+	t182 = =i 0
+	t181 = return t182
+[ModifyTestArr]:
+	[t187]call Test_Global 0
+	t191 = & testArr
+	t192 = =i 5
+	t193 = t192 *_ 4
+	t190 = t191 +_ t193
+	t194 = =i 69
+	t190 = *= t194
+	t197 = =i 1
+	t196 = return t197
+[RecursiveFunction]:
+	t203 = & nl
+	t204 = =c '
+'
+	t203 = *= t204
+	t208 = & i
+	t209 = =i 0
+	if t208 <= t209 goto Label_t206
+	param i 
+	[t212]call puti 1
+	t215 = & i
+	t219 = & i
+	t221 = & i
+	t222 = =i 1
+	t220 = t221 - t222
+	t219 = *= t220
+	param i 
+	[t224]call RecursiveFunction 1
+[Label_t206]:
+	param nl 
+	[t227]call putc 1
+	t231 = =i 1
+	t230 = return t231
+[MutualRecursion_One]:
+	t237 = & m
+	t238 = =c 'm'
+	t237 = *= t238
+	t241 = & r
+	t242 = =c 'r'
+	t241 = *= t242
+	t245 = & v
+	t246 = =c '1'
+	t245 = *= t246
+	t249 = & nl
+	t250 = =c '
+'
+	t249 = *= t250
+	t253 = & space
+	t254 = =c ' '
+	t253 = *= t254
+	t258 = & i
+	t259 = =i 0
+	if t258 <= t259 goto Label_t256
+	param m 
+	[t262]call putc 1
+	param r 
+	[t265]call putc 1
+	param v 
+	[t268]call putc 1
+	param space 
+	[t271]call putc 1
+	param i 
+	[t274]call puti 1
+	param nl 
+	[t277]call putc 1
+	t280 = & i
+	t284 = & i
+	t286 = & i
+	t287 = =i 1
+	t285 = t286 - t287
+	t284 = *= t285
+	param i 
+	[t289]call MutualRecursion_Two 1
+[Label_t256]:
+	t293 = =i 1
+	t292 = return t293
+[MutualRecursion_Two]:
+	t299 = & m
+	t300 = =c 'm'
+	t299 = *= t300
+	t303 = & r
+	t304 = =c 'r'
+	t303 = *= t304
+	t307 = & v
+	t308 = =c '2'
+	t307 = *= t308
+	t311 = & nl
+	t312 = =c '
+'
+	t311 = *= t312
+	t315 = & space
+	t316 = =c ' '
+	t315 = *= t316
+	t320 = & i
+	t321 = =i 0
+	if t320 <= t321 goto Label_t318
+	param m 
+	[t324]call putc 1
+	param r 
+	[t327]call putc 1
+	param v 
+	[t330]call putc 1
+	param space 
+	[t333]call putc 1
+	param i 
+	[t336]call puti 1
+	param nl 
+	[t339]call putc 1
+	t342 = & i
+	t346 = & i
+	t348 = & i
+	t349 = =i 1
+	t347 = t348 - t349
+	t346 = *= t347
+	param i 
+	[t351]call MutualRecursion_One 1
+[Label_t318]:
+	t355 = =i 1
+	t354 = return t355
+[Loops]:
+	t361 = & eq
+	t362 = =c '='
+	t361 = *= t362
+	t365 = & f
+	t366 = =c 'F'
+	t365 = *= t366
+	t369 = & w
+	t370 = =c 'W'
+	t369 = *= t370
+	t373 = & nl
+	t374 = =c '
+'
+	t373 = *= t374
+	t377 = & ascii_1
+	t378 = =c '('
+	t377 = *= t378
+	t381 = & ascii_2
+	t382 = =c '^'
+	t381 = *= t382
+	t385 = & ascii_3
+	t386 = =c '_'
+	t385 = *= t386
+	t389 = & ascii_4
+	t390 = =c ')'
+	t389 = *= t390
+	t393 = & space
+	t394 = =c ' '
+	t393 = *= t394
+	param f 
+	[t396]call putc 1
+	param eq 
+	[t399]call putc 1
+	t403 = & i
+	t404 = =i 0
+	t403 = *= t404
+	t408 = & i
+	t409 = =i 3
+	if t408 >= t409 goto SkipLabel_t409
+[Label_t406]:
+	param ascii_1 
+	[t412]call putc 1
+	param ascii_2 
+	[t415]call putc 1
+	param ascii_3 
+	[t418]call putc 1
+	param ascii_2 
+	[t421]call putc 1
+	param ascii_4 
+	[t424]call putc 1
+	param space 
+	[t427]call putc 1
+	t429 = & i
+	t433 = & i
+	t435 = & i
+	t436 = =i 1
+	t434 = t435 + t436
+	t433 = *= t434
+	t438 = & i
+	t439 = =i 3
+	if t438 < t439 goto Label_t406
+[SkipLabel_t409]:
+	param nl 
+	[t441]call putc 1
+	param w 
+	[t444]call putc 1
+	param eq 
+	[t447]call putc 1
+	t451 = & i
+	t452 = =i 0
+	t451 = *= t452
+	t456 = & i
+	t457 = =i 5
+	if t456 >= t457 goto SkipLabel_t457
+[Label_t454]:
+	param ascii_1 
+	[t460]call putc 1
+	param ascii_2 
+	[t463]call putc 1
+	param ascii_3 
+	[t466]call putc 1
+	param ascii_2 
+	[t469]call putc 1
+	param ascii_4 
+	[t472]call putc 1
+	param space 
+	[t475]call putc 1
+	t478 = & i
+	t482 = & i
+	t484 = & i
+	t485 = =i 1
+	t483 = t484 + t485
+	t482 = *= t483
+	t487 = & i
+	t488 = =i 5
+	if t487 < t488 goto Label_t454
+[SkipLabel_t457]:
+	param nl 
+	[t490]call putc 1
+	t494 = =i 1
+	t493 = return t494
+[Return5]:
+	t500 = =i 5
+	t499 = return t500
+[Return6]:
+	t506 = & x
+	t507 = =i 6
+	t506 = *= t507
+	t510 = & x
+	t509 = return t510
+[main]:
+	t515 = & nl
+	t516 = =c '
+'
+	t515 = *= t516
+	t519 = & retX
+	[t520]call Return5 0
+	t519 = *= t520
+	param retX 
+	[t522]call puti 1
+	param nl 
+	[t525]call putc 1
+	t529 = & retX
+	[t530]call Return6 0
+	t529 = *= t530
+	param retX 
+	[t532]call puti 1
+	param nl 
+	[t535]call putc 1
+	[t538]call Loops 0
+	t541 = & q
+	t542 = =c 'q'
+	t541 = *= t542
+	t546 = & db
+	t547 = =i 212
+	t545 = t547 +_ t546
+	t548 = =i 1337
+	t545 = *= t548
+	t552 = & db
+	t553 = =i 212
+	t551 = t553 +_ t552
+	t551 = = t551
+	param t551 
+	[t550]call puti 0
+	param nl 
+	[t555]call putc 1
+	param q 
+	param db 
+	[t558]call Pass_StructRef 2
+	t565 = & db
+	t567 = =i 0
+	t569 = =i 8
+	t570 = =i 35
+	t571 = t570 *_ 4
+	t568 = t569 +_ t571
+	t566 = t568 +_ t567
+	t564 = t566 +_ t565
+	t572 = =i 2014
+	t564 = *= t572
+	t576 = & db
+	t578 = =i 0
+	t580 = =i 8
+	t581 = =i 35
+	t582 = t581 *_ 4
+	t579 = t580 +_ t582
+	t577 = t579 +_ t578
+	t575 = t577 +_ t576
+	t585 = & db
+	t587 = =i 0
+	t589 = =i 8
+	t590 = =i 35
+	t591 = t590 *_ 4
+	t588 = t589 +_ t591
+	t586 = t588 +_ t587
+	t584 = t586 +_ t585
+	t592 = =i 2
+	t583 = t584 * t592
+	t575 = *= t583
+	t596 = & db
+	t598 = =i 0
+	t600 = =i 8
+	t601 = =i 35
+	t602 = t601 *_ 4
+	t599 = t600 +_ t602
+	t597 = t599 +_ t598
+	t595 = t597 +_ t596
+	t595 = = t595
+	param t595 
+	[t594]call puti 0
+	param nl 
+	[t604]call putc 1
+	t608 = & floatTest
+	t610 = =f 7.90000
+	t611 = =f 5.40000
+	t609 = t610 + t611
+	t608 = *= t609
+	t615 = & cyberSix
+	t616 = =i 4
+	t614 = t616 +_ t615
+	t617 = =i 2224
+	t614 = *= t617
+	t620 = & nl
+	t621 = =c '
+'
+	t620 = *= t621
+	t624 = & test
+	t625 = =i 54
+	t624 = *= t625
+	t629 = & array
+	t630 = =i 5
+	t631 = t630 *_ 4
+	t628 = t629 +_ t631
+	t632 = =i 65
+	t628 = *= t632
+	[t634]call test_CharPrint 0
+	t637 = & x
+	t639 = & array
+	t640 = =i 5
+	t641 = t640 *_ 4
+	t638 = t639 +_ t641
+	t637 = *= t638
+	param x 
+	[t643]call puti 1
+	param nl 
+	[t646]call putc 1
+	param y 
+	[t649]call puti 1
+	param nl 
+	[t652]call putc 1
+	t657 = & array
+	t658 = =i 5
+	t659 = t658 *_ 4
+	t656 = t657 +_ t659
+	t656 = = t656
+	param t656 
+	[t655]call puti 0
+	param nl 
+	[t661]call putc 1
+	t666 = & myTestStruct
+	t667 = =i 8
+	t665 = t667 +_ t666
+	t668 = =f 4.56700
+	t665 = *= t668
+	param nl 
+	[t670]call putc 1
+	param nl 
+	[t673]call putc 1
+	[t676]call ModifyTestArr 0
+	t680 = & testArr
+	t681 = =i 5
+	t682 = t681 *_ 4
+	t679 = t680 +_ t682
+	t679 = = t679
+	param t679 
+	[t678]call puti 0
+	param nl 
+	[t684]call putc 1
+	param nl 
+	[t687]call putc 1
+	param nl 
+	[t690]call putc 1
+	param nl 
+	[t693]call putc 1
+	[t696]call arithmetic_Int 0
+	t700 = & cyberSix
+	t701 = =i 4
+	t699 = t701 +_ t700
+	t702 = =i 2224
+	t699 = *= t702
+	t706 = & myTestStruct
+	t707 = =i 8
+	t705 = t707 +_ t706
+	t705 = = t705
+	param t705 
+	[t704]call putf 0
+	param nl 
+	[t709]call putc 1
+	t713 = & y
+	t714 = =i 6
+	t713 = *= t714
+	t717 = & y
+	t719 = & y
+	t720 = =i 1
+	t718 = t719 + t720
+	t717 = *= t718
+	t722 = & y
+	t726 = & y
+	t728 = & y
+	t729 = =i 1
+	t727 = t728 + t729
+	t726 = *= t727
+	param y 
+	[t731]call RecursiveFunction 1
+	param y 
+	[t734]call MutualRecursion_One 1
+	t739 = & myTestStruct
+	t740 = =i 4
+	t738 = t740 +_ t739
+	t741 = =i 21
+	t738 = *= t741
+	t744 = & y
+	t745 = =i 1
+	t744 = *= t745
+	t748 = & y
+	t754 = & y
+	t755 = & y
+	t753 = t754 + t755
+	t756 = & y
+	t752 = t753 + t756
+	t757 = & y
+	t751 = t752 + t757
+	t758 = & y
+	t750 = t751 + t758
+	t759 = =i 1
+	t749 = t750 + t759
+	t748 = *= t749
+	param y 
+	[t761]call puti 1
+	t766 = & cyberSix
+	t768 = =i 8
+	t769 = =i 34
+	t770 = t769 *_ 4
+	t767 = t768 +_ t770
+	t765 = t767 +_ t766
+	t771 = =i 77
+	t765 = *= t771
+	t774 = & floatTest
+	t775 = =f 999.900
+	t774 = *= t775
+	t779 = & cyberSix
+	t781 = =i 8
+	t782 = =i 35
+	t783 = t782 *_ 4
+	t780 = t781 +_ t783
+	t778 = t780 +_ t779
+	t785 = =i 2014
+	t786 = =i 1
+	t784 = t785 + t786
+	t778 = *= t784
+	t790 = & db
+	t792 = =i 0
+	t794 = =i 8
+	t795 = =i 21
+	t796 = t795 *_ 4
+	t793 = t794 +_ t796
+	t791 = t793 +_ t792
+	t789 = t791 +_ t790
+	t798 = & cyberSix
+	t800 = =i 8
+	t801 = =i 35
+	t802 = t801 *_ 4
+	t799 = t800 +_ t802
+	t797 = t799 +_ t798
+	t789 = *= t797
+	t806 = & cyberSix
+	t808 = =i 8
+	t809 = =i 35
+	t810 = t809 *_ 4
+	t807 = t808 +_ t810
+	t805 = t807 +_ t806
+	t805 = = t805
+	param t805 
+	[t804]call puti 0
+	param nl 
+	[t812]call putc 1
+	param floatTest 
+	[t815]call putf 1
+	param nl 
+	[t818]call putc 1
+	t823 = & db
+	t825 = =i 0
+	t827 = =i 8
+	t828 = =i 21
+	t829 = t828 *_ 4
+	t826 = t827 +_ t829
+	t824 = t826 +_ t825
+	t822 = t824 +_ t823
+	t822 = = t822
+	param t822 
+	[t821]call puti 0
+	param nl 
+	[t831]call putc 1
+	t836 = & cyberSix
+	t837 = =i 4
+	t835 = t837 +_ t836
+	t835 = = t835
+	param t835 
+	[t834]call puti 0
+	param nl 
+	[t839]call putc 1
+	t844 = & myTestStruct
+	t845 = =i 8
+	t843 = t845 +_ t844
+	t843 = = t843
+	param t843 
+	[t842]call putf 0
+	param nl 
+	[t847]call putc 1
+	t851 = =i 0
+	t850 = return t851

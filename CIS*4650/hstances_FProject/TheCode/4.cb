@@ -1,0 +1,93 @@
+/* 
+This program tests the following Features:
+
+	Returning mismatched type from function.
+	Post-Inc/Dec non-int
+
+*/
+
+
+/* Type Defines */
+typedef int  i_A;
+typedef char c_A, c_B, c_C;
+typedef float f_A, f_B, f_C;
+
+typedef int  _A, _0123456789A;
+
+typedef _A somenewInt;
+typedef int simpleArray[10];
+
+struct charStruct
+{
+	char q;
+	char w;
+	char e;
+	char r;
+	char t;
+	char y;
+};
+
+struct intStruct{
+	int a;
+	int b;
+	int c;
+	struct charStruct qwerty;
+};
+
+char ArrayAccess(int fire)
+{
+	int hey[10];
+	int x;
+
+	return 'c';
+}
+
+char StructAccess()
+{
+	int hey[10];
+	int x;
+	_A x2;
+	struct intStruct s_Int;
+
+	s_Int.a=1; 
+	s_Int.qwerty.q='e';
+	return 'c';
+}
+
+
+int WhileLoop()
+{
+	int x;
+
+	x=0;
+	while(x<10)
+	{
+		x++;
+	}
+	return 1;
+}
+
+int ForLoop()
+{
+	int x;
+
+	for(x=0;x<10;x++)
+	{
+
+	}
+	return 'c'; /*Returning char from int function*/
+ }
+
+
+int main ()
+{
+	int qwep;
+	float y;
+	char v;
+	int z;
+	int x;
+
+	y++; /*Error Post Inc on non-int*/
+	return 1;
+}
+
